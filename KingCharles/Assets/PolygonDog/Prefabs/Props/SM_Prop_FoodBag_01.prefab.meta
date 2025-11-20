@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: af9ae208b7fb69643918d2453b46fb8e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/Props/SM_Prop_FoodBag_01.prefab
+  uploadId: 735269

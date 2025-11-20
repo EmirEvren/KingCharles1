@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6e9c9061f40ea10418f651209cd4b949
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/Props/SM_Prop_Obstacle_Pole_Single_01.prefab
+  uploadId: 735269

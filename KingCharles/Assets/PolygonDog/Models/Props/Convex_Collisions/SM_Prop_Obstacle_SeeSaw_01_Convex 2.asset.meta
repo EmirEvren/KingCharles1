@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dbbfb3581212e7b43bf23101d0926348
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Models/Props/Convex_Collisions/SM_Prop_Obstacle_SeeSaw_01_Convex
+    2.asset
+  uploadId: 735269

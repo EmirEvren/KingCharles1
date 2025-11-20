@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1f26a51acd4bf1540954165508ee571b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Materials/Alt/Ground_MAT.mat
+  uploadId: 735269

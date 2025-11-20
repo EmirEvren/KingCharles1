@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ac701ddfd7d9958419a5b6c0acf7d5ea
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/FX/FX_Particle_Water_01.prefab
+  uploadId: 735269

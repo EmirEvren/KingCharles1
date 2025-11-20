@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6087b6aa775ded44a930ca90c9e5d7b6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 31900000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Animations/Dog_Tongue.mask
+  uploadId: 735269

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ca5a0d9918a19e641a28378a8bf3189c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/Props/SM_Prop_Ball_Thrower_01.prefab
+  uploadId: 735269

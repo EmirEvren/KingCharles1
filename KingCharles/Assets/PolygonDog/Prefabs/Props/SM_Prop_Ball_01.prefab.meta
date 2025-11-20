@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f172e3bf7c8bcb6488c49d0411eb2ba5
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/Props/SM_Prop_Ball_01.prefab
+  uploadId: 735269

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2e0c1df66eda9254f9f565ea493202ce
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Materials/Alt/PolygonDog_Shiba_03.mat
+  uploadId: 735269

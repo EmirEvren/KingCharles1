@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0742b09432951444b8c7eee28b71d955
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Models/Props/Convex_Collisions/SM_Prop_Brush_Square_01_Convex.asset
+  uploadId: 735269

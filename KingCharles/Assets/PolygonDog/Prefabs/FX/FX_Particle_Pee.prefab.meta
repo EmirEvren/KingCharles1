@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b1dd732591566a2428dfa2d08860aa37
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/FX/FX_Particle_Pee.prefab
+  uploadId: 735269

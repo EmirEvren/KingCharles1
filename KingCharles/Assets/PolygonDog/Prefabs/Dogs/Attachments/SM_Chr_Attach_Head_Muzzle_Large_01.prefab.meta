@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 952bc8dd56c866c4ca9b02e85fd8b9e1
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 192790
+  packageName: Dog Pack - Synty POLYGON - Dog animations and controller
+  packageVersion: 1.0.3
+  assetPath: Assets/PolygonDog/Prefabs/Dogs/Attachments/SM_Chr_Attach_Head_Muzzle_Large_01.prefab
+  uploadId: 735269
