@@ -23,8 +23,8 @@ public class MainMenuManager : MonoBehaviour
     public bool generateMapOnPlay = true;
 
     [Header("--- SOSYAL MEDYA ---")]
-    public string discordLink = "https://discord.gg/seninlinkin";
-    public string youtubeLink = "https://youtube.com/@seninkanalin";
+    public string discordLink = "https://discord.gg/qhjW8etr";
+    public string youtubeLink = "https://www.youtube.com/watch?v=DjaeJy_2lLk";
 
     [Header("--- DİL SİSTEMİ ---")]
     public Image languageFlagImage;      // Bayrağın olduğu Image
