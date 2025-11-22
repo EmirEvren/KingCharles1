@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using static Unity.Collections.AllocatorManager;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -13,7 +12,7 @@ public class MapGenerator : MonoBehaviour
     public GameObject bushPrefab;
 
     [Header("Vegetation Settings")]
-    public float vegetationSpawnChance = 1.0f; // %100 test için
+    public float vegetationSpawnChance = 1.0f;
     public float minVegetationDistance = 0.5f;
     public float treeMinScale = 0.8f;
     public float treeMaxScale = 1.4f;
@@ -30,15 +29,16 @@ public class MapGenerator : MonoBehaviour
     [Range(0f, 1f)]
     public float hilliness = 0.15f;
 
-    private int[,] elevationGrid;
-    private List<Vector2Int> spawnedBlocks;
+    private int[,] elevationGrid;                 // top height per (x,z)
+    private bool[,] topIsSlope;                   // top block type
+    private Quaternion[,] topRotation;            // top block rotation
+
+    private List<Vector2Int> spawnedBlocks;       // surface cells (same as before)
     private Dictionary<Vector3Int, GameObject> allSpawnedBlocks;
 
     private struct MapPoint
     {
-        public int x;
-        public int z;
-        public int elevation;
+        public int x, z, elevation;
         public MapPoint(int x, int z, int e) { this.x = x; this.z = z; this.elevation = e; }
     }
 
@@ -50,33 +50,37 @@ public class MapGenerator : MonoBehaviour
             return;
         }
 
-        GenerateMap();
-        SpawnVegetation();
+        GenerateMapDataOnly();   // 1) sadece veri üret
+        BuildMapFromData();      // 2) tek passta instantiate
+        SpawnVegetation();       // ayný
     }
 
-    void GenerateMap()
+    // -------------------- 1) DATA ONLY GENERATION --------------------
+
+    void GenerateMapDataOnly()
     {
         Transform old = transform.Find("GeneratedMap");
-        if (old != null)
-            DestroyImmediate(old.gameObject);
+        if (old != null) Destroy(old.gameObject);
 
         elevationGrid = new int[mapWidth, mapDepth];
-        spawnedBlocks = new List<Vector2Int>();
-        allSpawnedBlocks = new Dictionary<Vector3Int, GameObject>();
+        topIsSlope = new bool[mapWidth, mapDepth];
+        topRotation = new Quaternion[mapWidth, mapDepth];
 
-        Transform mapParent = new GameObject("GeneratedMap").transform;
-        mapParent.SetParent(transform);
+        for (int x = 0; x < mapWidth; x++)
+            for (int z = 0; z < mapDepth; z++)
+                elevationGrid[x, z] = -1; // boþ
+
+        int maxBlocks = mapWidth * mapDepth;
+        spawnedBlocks = new List<Vector2Int>(maxBlocks);
 
         int startX = Random.Range(0, mapWidth);
         int startZ = Random.Range(0, mapDepth);
 
-        MapPoint start = new MapPoint(startX, startZ, 0);
-        SpawnBlock(start, normalBlockPrefab, mapParent, Quaternion.identity);
-
         elevationGrid[startX, startZ] = 0;
+        topIsSlope[startX, startZ] = false;
+        topRotation[startX, startZ] = Quaternion.identity;
         spawnedBlocks.Add(new Vector2Int(startX, startZ));
 
-        int maxBlocks = mapWidth * mapDepth;
         int attemptLimit = maxBlocks * 5;
         int spawnedCount = 1;
 
@@ -88,74 +92,57 @@ public class MapGenerator : MonoBehaviour
             if (!src.HasValue)
                 break;
 
-            if (TryExpand(src.Value, mapParent))
+            if (TryExpandDataOnly(src.Value))
                 spawnedCount++;
         }
-
-        OptimizeMeshRenderers();
     }
 
     private MapPoint? FindExpansionSource()
     {
-        foreach (var p in spawnedBlocks)
+        for (int i = 0; i < spawnedBlocks.Count; i++)
         {
+            var p = spawnedBlocks[i];
             int h = elevationGrid[p.x, p.y];
-            List<Vector2Int> nb = GetAvailableNeighbors(p.x, p.y);
+            if (h < 0) continue;
+
+            var nb = GetAvailableNeighbors(p.x, p.y);
             if (nb.Count > 0)
                 return new MapPoint(p.x, p.y, h);
         }
         return null;
     }
 
-    private bool TryExpand(MapPoint src, Transform parent)
+    private bool TryExpandDataOnly(MapPoint src)
     {
-        List<Vector2Int> nb = GetAvailableNeighbors(src.x, src.z);
+        var nb = GetAvailableNeighbors(src.x, src.z);
         if (nb.Count == 0) return false;
 
         Vector2Int target = nb[Random.Range(0, nb.Count)];
 
         int newElev = src.elevation;
-        GameObject prefab = normalBlockPrefab;
+        bool makeSlope = false;
         Quaternion rot = Quaternion.identity;
 
         if (Random.value < hilliness / 2f)
         {
             newElev++;
-            prefab = slopeBlockPrefab;
+            makeSlope = true;
 
             Vector3 dir = new Vector3(target.x - src.x, 0, target.y - src.z);
             rot = Quaternion.LookRotation(dir) * Quaternion.Euler(0, 180f, 0);
         }
 
-        MapPoint np = new MapPoint(target.x, target.y, newElev);
-        SpawnBlock(np, prefab, parent, rot);
-
         elevationGrid[target.x, target.y] = newElev;
+        topIsSlope[target.x, target.y] = makeSlope;
+        topRotation[target.x, target.y] = rot;
+
         spawnedBlocks.Add(target);
-
         return true;
-    }
-
-    private void SpawnBlock(MapPoint p, GameObject prefab, Transform parent, Quaternion rot)
-    {
-        Vector3 worldPos = new Vector3(p.x * blockScale.x, 0, p.z * blockScale.z);
-
-        GameObject obj = Instantiate(prefab, worldPos, rot, parent);
-        obj.transform.localScale = blockScale;
-
-        obj.name = $"{prefab.name} ({p.x},{p.z}) Elev {p.elevation}";
-
-        Vector3Int key = new Vector3Int(p.x, p.elevation, p.z);
-        allSpawnedBlocks[key] = obj;
-
-        Block b = obj.GetComponent<Block>();
-        if (b != null)
-            b.Elevate(p.elevation, normalBlockPrefab, parent, allSpawnedBlocks, blockScale);
     }
 
     private List<Vector2Int> GetAvailableNeighbors(int x, int z)
     {
-        List<Vector2Int> list = new List<Vector2Int>();
+        List<Vector2Int> list = new List<Vector2Int>(4);
         int[] dx = { 1, -1, 0, 0 };
         int[] dz = { 0, 0, 1, -1 };
 
@@ -166,28 +153,81 @@ public class MapGenerator : MonoBehaviour
 
             if (nx >= 0 && nx < mapWidth && nz >= 0 && nz < mapDepth)
             {
-                if (elevationGrid[nx, nz] == 0)
+                if (elevationGrid[nx, nz] == -1)
                     list.Add(new Vector2Int(nx, nz));
             }
         }
         return list;
     }
 
+    // -------------------- 2) BUILD MAP FROM DATA (FAST) --------------------
+
+    void BuildMapFromData()
+    {
+        int maxCells = mapWidth * mapDepth;
+
+        // yaklaþýk toplam blok sayýsý için kapasite büyük tut
+        allSpawnedBlocks = new Dictionary<Vector3Int, GameObject>(maxCells * 4);
+
+        Transform mapParent = new GameObject("GeneratedMap").transform;
+        mapParent.SetParent(transform);
+
+        float unitH = blockScale.y;
+
+        for (int x = 0; x < mapWidth; x++)
+        {
+            for (int z = 0; z < mapDepth; z++)
+            {
+                int topElev = elevationGrid[x, z];
+                if (topElev < 0) continue;
+
+                // 1) Fill bloklar (0 .. topElev-1)
+                for (int y = 0; y < topElev; y++)
+                {
+                    Vector3 pos = new Vector3(x * blockScale.x, y * unitH, z * blockScale.z);
+                    var fill = Instantiate(normalBlockPrefab, pos, Quaternion.identity, mapParent);
+                    fill.transform.localScale = blockScale;
+                    fill.name = $"{normalBlockPrefab.name} (Fill) ({x},{y},{z})";
+
+                    if (fill.TryGetComponent(out Block fb))
+                        fb.Init(false);
+
+                    allSpawnedBlocks[new Vector3Int(x, y, z)] = fill;
+                }
+
+                // 2) Top blok
+                GameObject topPrefab = topIsSlope[x, z] ? slopeBlockPrefab : normalBlockPrefab;
+                Quaternion topRot = topRotation[x, z];
+
+                Vector3 topPos = new Vector3(x * blockScale.x, topElev * unitH, z * blockScale.z);
+                var topObj = Instantiate(topPrefab, topPos, topRot, mapParent);
+                topObj.transform.localScale = blockScale;
+                topObj.name = $"{topPrefab.name} ({x},{z}) Elev {topElev}";
+
+                if (topObj.TryGetComponent(out Block tb))
+                    tb.Init(topIsSlope[x, z]);
+
+                allSpawnedBlocks[new Vector3Int(x, topElev, z)] = topObj;
+            }
+        }
+
+        OptimizeMeshRenderers();
+    }
+
     private void OptimizeMeshRenderers()
     {
         foreach (var entry in allSpawnedBlocks)
         {
-            GameObject obj = entry.Value;
-            MeshRenderer r = obj.GetComponent<MeshRenderer>();
-            if (r == null) continue;
+            var obj = entry.Value;
+            if (!obj.TryGetComponent(out MeshRenderer r)) continue;
 
             r.enabled = ShouldBeVisible(obj, entry.Key);
         }
     }
 
-    private bool ShouldBeVisible(GameObject block, Vector3Int pos)
+    private bool ShouldBeVisible(GameObject blockObj, Vector3Int pos)
     {
-        if (block.name.Contains(slopeBlockPrefab.name))
+        if (blockObj.TryGetComponent(out Block b) && b.IsSlope)
             return true;
 
         Vector3Int[] dirs = {
@@ -200,75 +240,76 @@ public class MapGenerator : MonoBehaviour
         {
             Vector3Int np = pos + d;
 
-            if (!allSpawnedBlocks.ContainsKey(np))
+            if (!allSpawnedBlocks.TryGetValue(np, out GameObject nbObj))
                 return true;
 
-            GameObject nb = allSpawnedBlocks[np];
-            if (nb.name.Contains(slopeBlockPrefab.name))
+            if (nbObj.TryGetComponent(out Block nb) && nb.IsSlope)
                 return true;
         }
-
         return false;
     }
 
-    // ---------------- VEGETATION (Sadece en üst bloklar) ----------------------
+    // ---------------- VEGETATION ----------------------
 
     private void SpawnVegetation()
     {
         if (treePrefab == null && bushPrefab == null)
             return;
 
-        List<Vector3> used = new List<Vector3>();
+        List<Vector3> used = new List<Vector3>(mapWidth * mapDepth);
+        float minDistSqr = minVegetationDistance * minVegetationDistance;
 
-        foreach (var entry in allSpawnedBlocks)
+        Transform mapParent = transform.Find("GeneratedMap");
+        float unitH = blockScale.y;
+
+        for (int x = 0; x < mapWidth; x++)
         {
-            GameObject block = entry.Value;
-            Vector3Int pos = entry.Key;
-
-            // Rampa bloklarýna bitki gelmez
-            if (block.name.Contains(slopeBlockPrefab.name))
-                continue;
-
-            // Üstünde blok varsa bitki gelmez
-            Vector3Int abovePos = new Vector3Int(pos.x, pos.y + 1, pos.z);
-            if (allSpawnedBlocks.ContainsKey(abovePos))
-                continue;
-
-            if (Random.value > vegetationSpawnChance)
-                continue;
-
-            // Bloðun tepe noktasý
-            Vector3 top = block.transform.position + new Vector3(0, blockScale.y, 0);
-
-            // Minimum mesafe kontrolü
-            bool tooClose = false;
-            foreach (var u in used)
+            for (int z = 0; z < mapDepth; z++)
             {
-                if (Vector2.Distance(new Vector2(u.x, u.z), new Vector2(top.x, top.z)) < minVegetationDistance)
+                int topElev = elevationGrid[x, z];
+                if (topElev < 0) continue;
+
+                Vector3Int topKey = new Vector3Int(x, topElev, z);
+                if (!allSpawnedBlocks.TryGetValue(topKey, out GameObject block))
+                    continue;
+
+                if (block.TryGetComponent(out Block b) && b.IsSlope)
+                    continue;
+
+                if (Random.value > vegetationSpawnChance)
+                    continue;
+
+                Vector3 top = new Vector3(x * blockScale.x, (topElev + 1) * unitH, z * blockScale.z);
+
+                bool tooClose = false;
+                for (int i = 0; i < used.Count; i++)
                 {
-                    tooClose = true;
-                    break;
+                    Vector3 u = used[i];
+                    float dx = u.x - top.x;
+                    float dz = u.z - top.z;
+                    if ((dx * dx + dz * dz) < minDistSqr)
+                    {
+                        tooClose = true;
+                        break;
+                    }
                 }
+                if (tooClose) continue;
+
+                GameObject chosen = (treePrefab != null && Random.value < 0.5f)
+                    ? treePrefab
+                    : bushPrefab;
+
+                float randomYRotation = Random.Range(0f, 360f);
+                GameObject veg = Instantiate(chosen, top, Quaternion.Euler(0, randomYRotation, 0), mapParent);
+
+                float s = (chosen == treePrefab)
+                    ? Random.Range(treeMinScale, treeMaxScale)
+                    : Random.Range(bushMinScale, bushMaxScale);
+
+                veg.transform.localScale = Vector3.one * s;
+
+                used.Add(top);
             }
-            if (tooClose) continue;
-
-            // Prefab seç
-            GameObject chosen = (treePrefab != null && Random.value < 0.5f) ? treePrefab : bushPrefab;
-
-            // Rastgele Y rotasyonu ile spawn
-            float randomYRotation = Random.Range(0f, 360f);
-            GameObject veg = Instantiate(chosen, top, Quaternion.Euler(0, randomYRotation, 0), transform.Find("GeneratedMap"));
-
-            // Random scale
-            float s = 1f;
-            if (chosen == treePrefab)
-                s = Random.Range(treeMinScale, treeMaxScale);
-            else
-                s = Random.Range(bushMinScale, bushMaxScale);
-
-            veg.transform.localScale = Vector3.one * s;
-
-            used.Add(top);
         }
     }
 }
