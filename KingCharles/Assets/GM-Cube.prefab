@@ -200,31 +200,41 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 636421031241078662}
+      insertIndex: -1
+      addedObject: {fileID: 2086848160991890133}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
 --- !u!1 &1143140874466532578 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 2580994625498475321}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &636421031241078662
-MonoBehaviour:
+--- !u!205 &2086848160991890133
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1143140874466532578}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.07115833
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 8321636667495883864}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
 --- !u!4 &2089948959582896774 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4526528218385459647, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 2580994625498475321}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8321636667495883864 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 2580994625498475321}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4135822991205004171
@@ -312,8 +322,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 5562521127544769990}
+      insertIndex: -1
+      addedObject: {fileID: 8659168381047254265}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
 --- !u!4 &555086759743937076 stripped
 Transform:
@@ -325,20 +335,30 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 4135822991205004171}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5562521127544769990
-MonoBehaviour:
+--- !u!205 &8659168381047254265
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1542955007096325200}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.065221995
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7622493566993480938}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
+--- !u!23 &7622493566993480938 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 4135822991205004171}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4521804433065386364
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -408,8 +428,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 2167867084990777794}
+      insertIndex: -1
+      addedObject: {fileID: 6510251587600835539}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
 --- !u!4 &5022853556832451 stripped
 Transform:
@@ -421,20 +441,30 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 4521804433065386364}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2167867084990777794
-MonoBehaviour:
+--- !u!205 &6510251587600835539
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1354568994458162855}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.07484242
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7957088369917586973}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
+--- !u!23 &7957088369917586973 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 4521804433065386364}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5630509826546318187
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -504,28 +534,38 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 8171554516413271180}
+      insertIndex: -1
+      addedObject: {fileID: 1055316312386022789}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+--- !u!23 &2201831689105306634 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 5630509826546318187}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7074977604421962928 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 5630509826546318187}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8171554516413271180
-MonoBehaviour:
+--- !u!205 &1055316312386022789
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7074977604421962928}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.06638887
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 2201831689105306634}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
 --- !u!4 &8138817845707805396 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4526528218385459647, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
@@ -600,9 +640,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 6454863626779360628}
+      insertIndex: -1
+      addedObject: {fileID: 8951451035123051408}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+--- !u!23 &503405790123740924 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 6219920219889009053}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7530279242276579362 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4526528218385459647, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
@@ -613,20 +658,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 6219920219889009053}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6454863626779360628
-MonoBehaviour:
+--- !u!205 &8951451035123051408
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8817291616039007814}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.06875322
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 503405790123740924}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
 --- !u!1001 &6277711742070648402
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -696,9 +746,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 3959071482491608812}
+      insertIndex: -1
+      addedObject: {fileID: 6071497177867825388}
   m_SourcePrefab: {fileID: 100100000, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+--- !u!23 &554792727986381107 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5813562841918230369, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
+  m_PrefabInstance: {fileID: 6277711742070648402}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7624485313440565229 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4526528218385459647, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
@@ -709,17 +764,22 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3174132282940848091, guid: a260f8e864547c24c9732e81afb6bd89, type: 3}
   m_PrefabInstance: {fileID: 6277711742070648402}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3959071482491608812
-MonoBehaviour:
+--- !u!205 &6071497177867825388
+LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8868187930630461833}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.01565057, y: 0.122167066, z: -0.003590703}
+  m_Size: 0.36822426
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.06995067
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 554792727986381107}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5f764c929dd98640b1a8591d90815c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlantVisibilityUnit
-  visibleDistance: 10
-  startHidden: 1
