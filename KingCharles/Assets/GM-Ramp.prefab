@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 490512678867990338}
   m_Layer: 0
   m_Name: GM-Ramp
-  m_TagString: Untagged
+  m_TagString: Stair
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
