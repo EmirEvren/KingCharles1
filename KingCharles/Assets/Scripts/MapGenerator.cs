@@ -29,11 +29,14 @@ public class MapGenerator : MonoBehaviour
     [Range(0f, 1f)]
     public float hilliness = 0.15f;
 
-    private int[,] elevationGrid;                 // top height per (x,z)
-    private bool[,] topIsSlope;                   // top block type
-    private Quaternion[,] topRotation;            // top block rotation
+    private int[,] elevationGrid;
+    private bool[,] topIsSlope;
+    private Quaternion[,] topRotation;
 
-    private List<Vector2Int> spawnedBlocks;       // surface cells (same as before)
+    // --- YENÝ: slope'un "yukarý baktýðý yönü" tutuyoruz ---
+    private Vector2Int[,] slopeDir;
+
+    private List<Vector2Int> spawnedBlocks;
     private Dictionary<Vector3Int, GameObject> allSpawnedBlocks;
 
     private struct MapPoint
@@ -50,9 +53,9 @@ public class MapGenerator : MonoBehaviour
             return;
         }
 
-        GenerateMapDataOnly();   // 1) sadece veri üret
-        BuildMapFromData();      // 2) tek passta instantiate
-        SpawnVegetation();       // ayný
+        GenerateMapDataOnly();
+        BuildMapFromData();
+        SpawnVegetation();
     }
 
     // -------------------- 1) DATA ONLY GENERATION --------------------
@@ -65,10 +68,11 @@ public class MapGenerator : MonoBehaviour
         elevationGrid = new int[mapWidth, mapDepth];
         topIsSlope = new bool[mapWidth, mapDepth];
         topRotation = new Quaternion[mapWidth, mapDepth];
+        slopeDir = new Vector2Int[mapWidth, mapDepth]; // default (0,0)
 
         for (int x = 0; x < mapWidth; x++)
             for (int z = 0; z < mapDepth; z++)
-                elevationGrid[x, z] = -1; // boþ
+                elevationGrid[x, z] = -1;
 
         int maxBlocks = mapWidth * mapDepth;
         spawnedBlocks = new List<Vector2Int>(maxBlocks);
@@ -79,6 +83,8 @@ public class MapGenerator : MonoBehaviour
         elevationGrid[startX, startZ] = 0;
         topIsSlope[startX, startZ] = false;
         topRotation[startX, startZ] = Quaternion.identity;
+        slopeDir[startX, startZ] = Vector2Int.zero;
+
         spawnedBlocks.Add(new Vector2Int(startX, startZ));
 
         int attemptLimit = maxBlocks * 5;
@@ -95,6 +101,9 @@ public class MapGenerator : MonoBehaviour
             if (TryExpandDataOnly(src.Value))
                 spawnedCount++;
         }
+
+        // --- YENÝ: Map bitti, iþe yaramayan rampalarý temizle ---
+        ValidateSlopes();
     }
 
     private MapPoint? FindExpansionSource()
@@ -112,6 +121,7 @@ public class MapGenerator : MonoBehaviour
         return null;
     }
 
+    // slope target'ýn tepesinde oluþuyor (eski mantýk)
     private bool TryExpandDataOnly(MapPoint src)
     {
         var nb = GetAvailableNeighbors(src.x, src.z);
@@ -128,8 +138,15 @@ public class MapGenerator : MonoBehaviour
             newElev++;
             makeSlope = true;
 
-            Vector3 dir = new Vector3(target.x - src.x, 0, target.y - src.z);
-            rot = Quaternion.LookRotation(dir) * Quaternion.Euler(0, 180f, 0);
+            Vector3 dir3 = new Vector3(target.x - src.x, 0, target.y - src.z);
+            rot = Quaternion.LookRotation(dir3) * Quaternion.Euler(0, 180f, 0);
+
+            // --- YENÝ: slope’un yukarý yönünü kaydet ---
+            slopeDir[target.x, target.y] = new Vector2Int(target.x - src.x, target.y - src.z);
+        }
+        else
+        {
+            slopeDir[target.x, target.y] = Vector2Int.zero;
         }
 
         elevationGrid[target.x, target.y] = newElev;
@@ -160,13 +177,56 @@ public class MapGenerator : MonoBehaviour
         return list;
     }
 
+    // --- YENÝ: iþe yaramayan rampalarý normal bloða çevir ---
+    private void ValidateSlopes()
+    {
+        for (int x = 0; x < mapWidth; x++)
+        {
+            for (int z = 0; z < mapDepth; z++)
+            {
+                if (!topIsSlope[x, z]) continue;
+
+                int h = elevationGrid[x, z];
+                Vector2Int dir = slopeDir[x, z];
+
+                // yön yoksa direkt iptal
+                if (dir == Vector2Int.zero)
+                {
+                    topIsSlope[x, z] = false;
+                    topRotation[x, z] = Quaternion.identity;
+                    continue;
+                }
+
+                int upX = x + dir.x;
+                int upZ = z + dir.y;
+
+                int downX = x - dir.x;
+                int downZ = z - dir.y;
+
+                bool hasDown = InBounds(downX, downZ) && elevationGrid[downX, downZ] == h - 1;
+                bool hasUp = InBounds(upX, upZ) && elevationGrid[upX, upZ] >= h;
+
+                if (!(hasDown && hasUp))
+                {
+                    // rampa boþa gidiyor -> normal bloða çevir
+                    topIsSlope[x, z] = false;
+                    topRotation[x, z] = Quaternion.identity;
+                    slopeDir[x, z] = Vector2Int.zero;
+                }
+            }
+        }
+    }
+
+    private bool InBounds(int x, int z)
+    {
+        return x >= 0 && x < mapWidth && z >= 0 && z < mapDepth;
+    }
+
     // -------------------- 2) BUILD MAP FROM DATA (FAST) --------------------
 
     void BuildMapFromData()
     {
         int maxCells = mapWidth * mapDepth;
-
-        // yaklaþýk toplam blok sayýsý için kapasite büyük tut
         allSpawnedBlocks = new Dictionary<Vector3Int, GameObject>(maxCells * 4);
 
         Transform mapParent = new GameObject("GeneratedMap").transform;
@@ -181,7 +241,7 @@ public class MapGenerator : MonoBehaviour
                 int topElev = elevationGrid[x, z];
                 if (topElev < 0) continue;
 
-                // 1) Fill bloklar (0 .. topElev-1)
+                // 1) Fill bloklar
                 for (int y = 0; y < topElev; y++)
                 {
                     Vector3 pos = new Vector3(x * blockScale.x, y * unitH, z * blockScale.z);
@@ -208,6 +268,32 @@ public class MapGenerator : MonoBehaviour
                     tb.Init(topIsSlope[x, z]);
 
                 allSpawnedBlocks[new Vector3Int(x, topElev, z)] = topObj;
+
+                // slope altýnda blok yoksa ekle (önceki fix)
+                if (topIsSlope[x, z])
+                {
+                    int supportY = topElev - 1;
+                    if (supportY >= 0)
+                    {
+                        Vector3Int supportKey = new Vector3Int(x, supportY, z);
+
+                        if (!allSpawnedBlocks.TryGetValue(supportKey, out GameObject supportObj))
+                        {
+                            Vector3 supportPos = new Vector3(x * blockScale.x, supportY * unitH, z * blockScale.z);
+                            supportObj = Instantiate(normalBlockPrefab, supportPos, Quaternion.identity, mapParent);
+                            supportObj.transform.localScale = blockScale;
+                            supportObj.name = $"{normalBlockPrefab.name} (Support) ({x},{supportY},{z})";
+
+                            if (supportObj.TryGetComponent(out Block sb))
+                                sb.Init(false);
+
+                            allSpawnedBlocks[supportKey] = supportObj;
+                        }
+
+                        if (supportObj.TryGetComponent(out MeshRenderer sr))
+                            sr.enabled = true;
+                    }
+                }
             }
         }
 
@@ -218,10 +304,21 @@ public class MapGenerator : MonoBehaviour
     {
         foreach (var entry in allSpawnedBlocks)
         {
-            var obj = entry.Value;
-            if (!obj.TryGetComponent(out MeshRenderer r)) continue;
+            Vector3Int pos = entry.Key;
+            GameObject obj = entry.Value;
 
-            r.enabled = ShouldBeVisible(obj, entry.Key);
+            if (!obj.TryGetComponent(out MeshRenderer r))
+                continue;
+
+            // üstünde slope varsa gizleme (önceki fix)
+            if (allSpawnedBlocks.TryGetValue(pos + Vector3Int.up, out GameObject upObj) &&
+                upObj.TryGetComponent(out Block upBlock) && upBlock.IsSlope)
+            {
+                r.enabled = true;
+                continue;
+            }
+
+            r.enabled = ShouldBeVisible(obj, pos);
         }
     }
 
