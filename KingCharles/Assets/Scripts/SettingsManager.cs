@@ -33,16 +33,20 @@ public class SettingsManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. TÜM DROPDOWN'LARI DOLDUR (YENİ EKLENENLER)
-        SetupResolutions();  // Çözünürlükleri doldur
-        SetupScreenModes();  // Ekran Modlarını doldur (Yeni)
-        SetupQuality();      // Kalite seviyelerini doldur (Yeni)
-        SetupAA();           // Anti-Aliasing seçeneklerini doldur (Yeni)
+        // ÖNEMLİ: VSync'in kontrolü ele alabilmesi için Unity'nin kendi FPS limitini kaldırıyoruz.
+        Application.targetFrameRate = -1;
+
+        // 1. TÜM DROPDOWN'LARI DOLDUR
+        SetupResolutions();  
+        SetupScreenModes();  
+        SetupQuality();      
+        SetupAA();           
 
         // 2. KAYITLI AYARLARI YÜKLE
         LoadSettings();
         
         // 3. LISTENER'LARI EKLE
+        // Listener'ları en son ekliyoruz ki LoadSettings sırasında gereksiz tetiklenmesinler.
         AddListeners();
     }
 
@@ -62,7 +66,7 @@ public class SettingsManager : MonoBehaviour
     }
 
     // =============================================================================
-    //                           SETUP FUNCTIONS (OTOMATİK DOLDURMA)
+    //                               SETUP FUNCTIONS
     // =============================================================================
 
     private void SetupResolutions()
@@ -86,7 +90,6 @@ public class SettingsManager : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
     }
 
-    // YENİ: Ekran Modlarını Kodla Doldur
     private void SetupScreenModes()
     {
         screenModeDropdown.ClearOptions();
@@ -94,16 +97,13 @@ public class SettingsManager : MonoBehaviour
         screenModeDropdown.AddOptions(options);
     }
 
-    // YENİ: Kalite Ayarlarını Unity'den Çekip Doldur
     private void SetupQuality()
     {
         qualityDropdown.ClearOptions();
-        // Project Settings > Quality içindeki isimleri (Low, Medium, High vs.) otomatik alır
         List<string> options = new List<string>(QualitySettings.names);
         qualityDropdown.AddOptions(options);
     }
 
-    // YENİ: AA Seçeneklerini Kodla Doldur
     private void SetupAA()
     {
         aaDropdown.ClearOptions();
@@ -112,7 +112,7 @@ public class SettingsManager : MonoBehaviour
     }
 
     // =============================================================================
-    //                           GRAPHICS LOGIC
+    //                               GRAPHICS LOGIC
     // =============================================================================
 
     public void SetResolution(int resolutionIndex)
@@ -134,14 +134,25 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetInt("ScreenMode", modeIndex);
     }
 
+    // --- KRİTİK DÜZELTME BURADA ---
     public void SetQuality(int qualityIndex)
     {
+        // 1. Kalite seviyesini değiştir
         QualitySettings.SetQualityLevel(qualityIndex);
         PlayerPrefs.SetInt("QualityLevel", qualityIndex);
+
+        // 2. DÜZELTME: Unity, kalite seviyesi değişince VSync ve AA ayarlarını 
+        // o kalitenin varsayılanına sıfırlar. Biz bunu engellemek için
+        // UI'daki seçili ayarları ZORLA tekrar uyguluyoruz.
+        
+        if (vsyncToggle != null) SetVSync(vsyncToggle.isOn);
+        if (aaDropdown != null) SetAntiAliasing(aaDropdown.value);
     }
 
     public void SetAntiAliasing(int aaIndex)
     {
+        // Not: Eğer URP kullanıyorsan bu kod çalışmaz, URP Asset üzerinden ayar gerekir.
+        // Built-in Render Pipeline için bu kod doğrudur.
         switch (aaIndex)
         {
             case 0: QualitySettings.antiAliasing = 0; break;
@@ -154,14 +165,16 @@ public class SettingsManager : MonoBehaviour
 
     public void SetVSync(bool isEnabled)
     {
+        // vSyncCount: 0 = Kapalı, 1 = Açık (Monitör Hz'ine kilitler)
         QualitySettings.vSyncCount = isEnabled ? 1 : 0;
         PlayerPrefs.SetInt("VSync", isEnabled ? 1 : 0);
     }
 
     public void SetHDR(bool isEnabled)
     {
+        // HDR genellikle RenderPipelineAsset üzerinden yönetilir ama 
+        // Built-in'de bazı durumlarda bu yeterlidir.
         PlayerPrefs.SetInt("HDR", isEnabled ? 1 : 0);
-        // Debug.Log("HDR Ayarı: " + isEnabled);
     }
 
     public void SetBrightness(float value)
@@ -171,7 +184,7 @@ public class SettingsManager : MonoBehaviour
     }
 
     // =============================================================================
-    //                           AUDIO LOGIC
+    //                               AUDIO LOGIC
     // =============================================================================
 
     public void SetMusicVolume(float volume)
@@ -189,7 +202,7 @@ public class SettingsManager : MonoBehaviour
     }
 
     // =============================================================================
-    //                           CONTROLS LOGIC
+    //                               CONTROLS LOGIC
     // =============================================================================
 
     public void SetSensitivity(float value)
@@ -200,7 +213,7 @@ public class SettingsManager : MonoBehaviour
     }
 
     // =============================================================================
-    //                           LOAD SETTINGS
+    //                               LOAD SETTINGS
     // =============================================================================
 
     private void LoadSettings()
@@ -213,8 +226,11 @@ public class SettingsManager : MonoBehaviour
         // Quality
         int quality = PlayerPrefs.GetInt("QualityLevel", 2);
         if (qualityDropdown != null) qualityDropdown.value = quality;
+        // Burada SetQuality çağırmıyoruz çünkü SetQuality içinde VSync/AA tekrar tetikleniyor.
+        // Sadece Unity ayarını yapıyoruz:
+        QualitySettings.SetQualityLevel(quality);
 
-        // AA (Özel Kayıt - Unity kendi içinde kaydetmez, biz tutuyoruz)
+        // AA 
         int aa = PlayerPrefs.GetInt("AA_Level", 2);
         if (aaDropdown != null) aaDropdown.value = aa;
         SetAntiAliasing(aa);
