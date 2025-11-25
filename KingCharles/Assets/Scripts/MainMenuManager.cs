@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using TMPro; // TextMeshPro için gerekli (Dil ismi yazısı için)
+using TMPro; 
 using System.Collections.Generic;
 
 public class MainMenuManager : MonoBehaviour
@@ -27,92 +27,113 @@ public class MainMenuManager : MonoBehaviour
     public string youtubeLink = "https://www.youtube.com/watch?v=DjaeJy_2lLk";
 
     [Header("--- DİL SİSTEMİ ---")]
-    public Image languageFlagImage;      // Bayrağın olduğu Image
-    public TextMeshProUGUI languageNameText; // Bayrağın altındaki yazı (TMP)
-    public List<LanguageData> languages; // Editörden dolduracağın dil listesi
+    public Image languageFlagImage;      // Bayrağın değişeceği Image (UI)
+    public TextMeshProUGUI languageNameText; // Dil isminin yazacağı Text (Varsa)
+    
+    // Dil listesi (Editörden doldurulacak)
+    public List<LanguageData> languages; 
+    
+    // Hangi dilde olduğumuzu tutan sayı
     private int currentLanguageIndex = 0;
+    
+    // Kayıt anahtarı (Hata yapmamak için sabit değişken)
+    private const string PREF_LANGUAGE_INDEX = "SelectedLanguageIndex";
 
-    // Dil verisi tutacak yapı
     [System.Serializable]
     public struct LanguageData
     {
-        public string languageName; // Örn: "Türkçe", "English"
-        public Sprite flagSprite;   // O ülkenin bayrağı
-        public string languageCode; // Örn: "tr", "en" (İlerde Localization sistemi için lazım olur)
+        public string languageName; // Örn: "English", "Türkçe"
+        public Sprite flagSprite;   // Bayrak resmi
+        public string languageCode; // "en", "tr"
     }
 
     private void Start()
     {
+        // 1. ÖNCE DİL AYARLARINI YÜKLE (En kritik kısım burası)
+        // Oyun açılır açılmaz hafızayı kontrol edip UI'ı günceller.
+        LoadLanguageSettings();
+
+        // 2. DİĞER BAŞLANGIÇ AYARLARI
         gameWorldContainer.SetActive(false);
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
         if(menuCameraObj != null) menuCameraObj.SetActive(true);
         
-        // Başlangıç dilini ayarla (Kaydedilmiş bir dil varsa onu çekebilirsin, şimdilik 0)
-        UpdateLanguageUI();
-
         ShowMainMenu();
     }
 
     // =================================================
-    //              SOSYAL MEDYA BUTONLARI
+    //              DİL SİSTEMİ (KAYITLI & OTO YÜKLEME)
     // =================================================
 
-    public void OnDiscordClicked()
+    // Oyun başlarken 1 kez çalışır
+    private void LoadLanguageSettings()
     {
-        Debug.Log("💬 Discord açılıyor...");
-        Application.OpenURL(discordLink);
+        // PlayerPrefs.GetInt("Key", 0) -> Eğer kayıt yoksa 0 (Varsayılan) döner.
+        // Yani oyun ilk defa açılıyorsa otomatik olarak Element 0 (İngilizce) seçilir.
+        // Eğer kayıt varsa (mesela 2 - Korece), o sayı gelir.
+        currentLanguageIndex = PlayerPrefs.GetInt(PREF_LANGUAGE_INDEX, 0);
+
+        // Güvenlik: Eğer kayıtlı sayı, listeden büyükse (listeyi değiştirirsen hata olmasın diye)
+        if (languages.Count > 0 && currentLanguageIndex >= languages.Count) 
+        {
+            currentLanguageIndex = 0;
+        }
+
+        // UI'ı hemen güncelle ki oyuncu eski bayrağı görmesin
+        UpdateLanguageUI();
     }
 
-    public void OnYoutubeClicked()
-    {
-        Debug.Log("📺 YouTube açılıyor...");
-        Application.OpenURL(youtubeLink);
-    }
-
-    // =================================================
-    //              DİL DEĞİŞTİRME BUTONU
-    // =================================================
-
+    // Dil butonuna tıklandığında çalışır
     public void OnLanguageToggleClicked()
     {
+        if (languages.Count == 0) return;
+
         // Bir sonraki dile geç
         currentLanguageIndex++;
 
-        // Eğer listenin sonuna geldiysek başa dön (Döngü)
+        // Listenin sonuna geldiysek başa dön (Döngü)
         if (currentLanguageIndex >= languages.Count)
         {
             currentLanguageIndex = 0;
         }
 
+        // --- KAYIT İŞLEMİ ---
+        // Yeni seçilen dili hafızaya atıyoruz.
+        PlayerPrefs.SetInt(PREF_LANGUAGE_INDEX, currentLanguageIndex);
+        PlayerPrefs.Save(); // Garanti olsun diye diske hemen yaz
+
+        // Görünümü güncelle
         UpdateLanguageUI();
     }
 
     private void UpdateLanguageUI()
     {
+        // Liste boşsa hata vermesin diye çık
         if (languages.Count == 0) return;
 
+        // Mevcut dildeki verileri al
         LanguageData currentLang = languages[currentLanguageIndex];
 
         // 1. Bayrağı değiştir
         if (languageFlagImage != null)
             languageFlagImage.sprite = currentLang.flagSprite;
 
-        // 2. Yazıyı değiştir (O dildeki ismi)
+        // 2. Yazıyı değiştir (Varsa)
         if (languageNameText != null)
             languageNameText.text = currentLang.languageName;
 
-        // 3. (Opsiyonel) Gerçek Oyun Dilini Değiştirme Kodu
-        // Örnek: LocalizationSettings.SelectedLocale = ...
-        Debug.Log($"Dil Değişti: {currentLang.languageName} ({currentLang.languageCode})");
+        // Konsol kontrolü
+        Debug.Log($"Dil Ayarlandı: {currentLang.languageName} (Kayıtlı Index: {currentLanguageIndex})");
     }
 
     // =================================================
-    //              MEVCUT BUTONLAR
+    //              DİĞER FONKSİYONLAR
     // =================================================
+    public void OnDiscordClicked() { Application.OpenURL(discordLink); }
+    public void OnYoutubeClicked() { Application.OpenURL(youtubeLink); }
 
     public void OnPlayClicked()
     {
-        Debug.Log("🐶 Alpha Mode: OYUN BAŞLIYOR!");
         mainMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
         multiplayerPanel.SetActive(false);
@@ -120,9 +141,7 @@ public class MainMenuManager : MonoBehaviour
         if(menuCameraObj != null) menuCameraObj.SetActive(false);
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(true);
         if (generateMapOnPlay && mapGeneratorScript != null)
-        {
             mapGeneratorScript.SendMessage("GenerateMap", SendMessageOptions.DontRequireReceiver);
-        }
     }
 
     public void OnMultiplayerClicked()
@@ -137,10 +156,7 @@ public class MainMenuManager : MonoBehaviour
         settingsPanel.SetActive(true);
     }
 
-    public void OnExitClicked()
-    {
-        Application.Quit();
-    }
+    public void OnExitClicked() => Application.Quit();
 
     public void OnBackToMenuClicked()
     {
@@ -164,9 +180,7 @@ public class MainMenuManager : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if (gameWorldContainer.activeSelf || settingsPanel.activeSelf || multiplayerPanel.activeSelf)
-            {
                 OnBackToMenuClicked();
-            }
         }
     }
 }
