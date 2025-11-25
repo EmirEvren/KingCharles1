@@ -13,7 +13,7 @@ public class MainMenuManager : MonoBehaviour
     
     [Header("--- OYUN DÜNYASI ---")]
     public GameObject gameWorldContainer;
-    public MapGenerator mapGeneratorScript;
+    public MeabunkMapGenerator mapGeneratorScript;
 
     [Header("--- KAMERALAR ---")]
     public GameObject menuCameraObj;
