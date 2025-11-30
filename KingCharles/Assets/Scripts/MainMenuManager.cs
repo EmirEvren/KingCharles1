@@ -179,8 +179,15 @@ public class MainMenuManager : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (gameWorldContainer.activeSelf || settingsPanel.activeSelf || multiplayerPanel.activeSelf)
+            // DÜZELTME: Buradan 'gameWorldContainer.activeSelf' kontrolünü SİLDİK.
+            // Artık oyun açıkken ESC'ye basarsan MainMenuManager karışmayacak.
+            // İşi PauseManager halledecek.
+
+            // Sadece Menüdeyken alt menüler (Ayarlar, Multiplayer) açıksa geri gelmesi için:
+            if (settingsPanel.activeSelf || multiplayerPanel.activeSelf)
+            {
                 OnBackToMenuClicked();
+            }
         }
     }
 }
