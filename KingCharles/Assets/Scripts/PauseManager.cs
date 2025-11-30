@@ -1,21 +1,27 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Restart için gerekli
-using UnityEngine.InputSystem;     // Yeni Input System kullanıyorsun
+using UnityEngine.SceneManagement; 
+using UnityEngine.InputSystem;     
 
 public class PauseManager : MonoBehaviour
 {
-    [Header("--- UI REFERANSLARI ---")]
-    [Tooltip("DURDURULDU yazan ana panel (Game World içindeki Canvas'ta olmalı)")]
+    [Header("--- UI ANA KAPSIYICILAR ---")]
+    [Tooltip("Tüm her şeyi kapsayan ana panel (PauseMenuPanel)")]
     public GameObject pauseMenuPanel; 
     
-    [Tooltip("Pause menüsü için oluşturduğun ÖZEL Ayarlar Paneli")]
-    public GameObject pauseSettingsPanel; // Kopyaladığın Settings panelini buraya ata
+    [Tooltip("Pause menüsü içine oluşturduğun Settings_Inner_Panel")]
+    public GameObject pauseSettingsPanel; 
 
-    [Tooltip("Harita paneli (Varsa)")]
+    [Tooltip("Harita paneli")]
     public GameObject mapPanel;
 
+    [Header("--- GİZLENECEK NESNELER (RESİMDEKİLER) ---")]
+    // Ayarlar açılınca bunların gizlenmesi lazım, yoksa üst üste binerler.
+    public GameObject leftInventoryPanel; // Resimdeki: Left_InventoryPanel
+    public GameObject rightStatsPanel;    // Resimdeki: Right_StatsPanel
+    public GameObject buttonsGroup;       // Resimdeki: Buttons_Group
+    public GameObject titleText;          // Resimdeki: TitleText (İstersen kalsın, istersen gizle)
+
     [Header("--- MANAGER REFERANSI ---")]
-    [Tooltip("Ana menüye dönüşü yönetmek için Hiyerarşideki MainMenuManager'ı buraya sürükle")]
     public MainMenuManager mainMenuManager; 
 
     // Oyunun durup durmadığını kontrol eden değişken
@@ -23,7 +29,7 @@ public class PauseManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // Game World aktif olduğunda (yani oyuna girdiğinde) her şeyi sıfırla
+        // Oyun başladığında veya obje açıldığında sıfırlama
         IsPaused = false;
         Time.timeScale = 1f;
 
@@ -34,27 +40,27 @@ public class PauseManager : MonoBehaviour
 
     private void Update()
     {
-        // EKSTRA GÜVENLİK: Eğer bu script bir şekilde GameWorld dışındaysa diye kontrol
+        // 1. GÜVENLİK KONTROLÜ
         if (mainMenuManager != null && mainMenuManager.gameWorldContainer != null)
         {
-            // Eğer Oyun Dünyası kapalıysa (Ana menüdeysek) ESC basılınca hiçbir şey yapma
+            // Eğer Ana Menüdeysek (Oyun dünyası kapalıysa) bu script çalışmasın
             if (!mainMenuManager.gameWorldContainer.activeSelf) return;
         }
 
-        // ESC Tuşuna basıldığında
+        // 2. ESC TUŞU KONTROLÜ
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // 1. Durum: Pause Ayarları Açıksa -> Kapat, Pause Menüye dön
+            // A) Ayarlar açıksa -> Ayarları kapat, Menüye dön
             if (pauseSettingsPanel != null && pauseSettingsPanel.activeSelf)
             {
                 CloseSettings();
             }
-            // 2. Durum: Harita Açıksa -> Kapat, Pause Menüye dön
+            // B) Harita açıksa -> Haritayı kapat, Menüye dön
             else if (mapPanel != null && mapPanel.activeSelf)
             {
                 CloseMap();
             }
-            // 3. Durum: Hiçbiri açık değilse -> Oyunu Durdur veya Devam Ettir
+            // C) Hiçbiri açık değilse -> Oyunu Durdur/Başlat
             else
             {
                 if (IsPaused)
@@ -66,63 +72,91 @@ public class PauseManager : MonoBehaviour
     }
 
     // =================================================
-    //              BUTON FONKSİYONLARI
+    //              TEMEL FONKSİYONLAR
     // =================================================
 
-    // 1. YENİDEN DEVAM ET
     public void ResumeGame()
     {
+        // Her şeyi kapat
         pauseMenuPanel.SetActive(false);
+        // Settings zaten pauseMenuPanel içinde olduğu için o da kapanır ama garanti olsun:
         if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
         if(mapPanel != null) mapPanel.SetActive(false);
 
         Time.timeScale = 1f; // Zamanı akıt
         IsPaused = false;
 
-        // Mouse imlecini gizle/kilitle
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    // Oyunu Durduran Fonksiyon
     private void PauseGame()
     {
         pauseMenuPanel.SetActive(true);
+        
+        // Pause ilk açıldığında ana içerikler GÖRÜNÜR, ayarlar GİZLİ olmalı
+        ToggleMainContent(true);
+        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
+
         Time.timeScale = 0f; // Zamanı durdur
         IsPaused = true;
 
-        // Mouse imlecini serbest bırak
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    // 2. HARİTA BUTONU
+    // =================================================
+    //              HARİTA İŞLEMLERİ
+    // =================================================
+
     public void OpenMap()
     {
-        pauseMenuPanel.SetActive(false);
+        pauseMenuPanel.SetActive(false); // Harita tam ekran olacağı için menüyü kapat
         if(mapPanel != null) mapPanel.SetActive(true);
     }
 
     public void CloseMap()
     {
         if(mapPanel != null) mapPanel.SetActive(false);
-        pauseMenuPanel.SetActive(true); 
+        PauseGame(); // Harita kapanınca oyun devam etmez, Pause menüsüne döner
     }
 
-    // 3. AYARLAR BUTONU
+    // =================================================
+    //              AYARLAR İŞLEMLERİ (ÖNEMLİ)
+    // =================================================
+
     public void OpenSettings()
     {
-        pauseMenuPanel.SetActive(false); // Pause menüsü gizlensin
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(true); // Özel Pause Ayarları açılsın
+        // DİKKAT: pauseMenuPanel'i kapatmıyoruz! Çünkü Ayarlar onun içinde.
+        // Sadece içindeki diğer kalabalık yapan şeyleri gizliyoruz.
+        ToggleMainContent(false);
+
+        // Ayarlar panelini aç
+        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(true);
     }
 
     public void CloseSettings()
     {
+        // Ayarlar panelini kapat
         if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
-        pauseMenuPanel.SetActive(true); // Ayarlardan çıkınca Pause menüsü geri gelsin
+
+        // Ana içerikleri (Envanter, Butonlar) geri getir
+        ToggleMainContent(true);
     }
 
-    // 4. YENİDEN BAŞLAT BUTONU
+    // Resimdeki objeleri topluca açıp kapatan yardımcı fonksiyon
+    private void ToggleMainContent(bool isActive)
+    {
+        if(leftInventoryPanel) leftInventoryPanel.SetActive(isActive);
+        if(rightStatsPanel) rightStatsPanel.SetActive(isActive);
+        if(buttonsGroup) buttonsGroup.SetActive(isActive);
+        if(titleText) titleText.SetActive(isActive);
+    }
+
+    // =================================================
+    //              DİĞER BUTONLAR
+    // =================================================
+
     public void RestartGame()
     {
         Time.timeScale = 1f;
@@ -130,25 +164,21 @@ public class PauseManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    // 5. MENÜYE DÖN BUTONU
     public void QuitToMainMenu()
     {
-        // Zamanı normale döndür
         Time.timeScale = 1f;
         IsPaused = false;
 
         if (mainMenuManager != null)
         {
-            // Panelleri kapat
             pauseMenuPanel.SetActive(false);
-            if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
-            
-            // Ana Menü yöneticisine işi devret
             mainMenuManager.OnBackToMenuClicked();
         }
         else
         {
-            Debug.LogWarning("MainMenuManager atanmamış! Scriptin Inspector kısmından MainMenuManager'ı sürükle.");
+            // Fallback: Eğer manager yoksa direkt sahneyi yeniden yükle veya çık
+            Debug.LogWarning("MainMenuManager atanmamış!");
+            SceneManager.LoadScene(0); // Genelde 0. sahne menüdür
         }
     }
 }
