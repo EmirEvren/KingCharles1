@@ -2,58 +2,99 @@ using UnityEngine;
 
 public class SimpleEnemyFollow : MonoBehaviour
 {
-    public Transform target;
+    [Header("Ayarlar")]
+    public static Transform Player; // GLOBAL player referansÄ±, tÃ¼m dÃ¼ÅŸmanlar bunu kullanacak
     public float moveSpeed = 3.5f;
+    public float aiInterval = 0.06f;   // AI tick rate (Saniyede ~16 kez Ã§alÄ±ÅŸÄ±r)
+    private float aiTimer;
 
     [Header("Animasyon")]
-    public Animator animator;          // Düþmanýn Animator'u
+    public Animator animator;
     private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
 
-    private void Awake()
+    private Vector3 moveDir;
+    private bool isWalking = false; // Animasyon kontrolÃ¼ iÃ§in
+
+    private void Start()
     {
-        // Inspector'dan atamazsan otomatik bulsun
         if (animator == null)
             animator = GetComponent<Animator>();
+
+        // GLOBAL Player referansÄ±nÄ± tek seferde al
+        if (Player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Animal");
+            if (playerObj != null)
+                Player = playerObj.transform;
+        }
+
+        aiTimer = Random.Range(0f, aiInterval); // Ä°ÅŸlemciyi yormamak iÃ§in rastgele baÅŸlat
     }
 
     private void Update()
     {
-        // Hedef yoksa her frame yeniden dene
-        if (target == null)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Animal"); // Oyuncu tag'in "Animal" OLMALI
-            if (playerObj != null)
-                target = playerObj.transform;
+        aiTimer -= Time.deltaTime;
 
-            if (target == null)
-                return; // Hala bulamadýysa aþaðýya hiç girme
+        // AI MantÄ±ÄŸÄ± (Belirli aralÄ±klarla Ã§alÄ±ÅŸÄ±r - Performans dostu)
+        if (aiTimer <= 0f)
+        {
+            aiTimer = aiInterval;
+            DoAI();
         }
 
-        Vector3 dir = target.position - transform.position;
-        dir.y = 0f; // Yukarý-aþaðý dönmesin
-
-        float distance = dir.magnitude;
-
-        if (distance > 0.1f) // Çok yakýnda deðilse yürüsün
+        // Fiziksel hareket her karede (frame) olmalÄ± ki akÄ±cÄ± gÃ¶rÃ¼nsÃ¼n
+        if (moveDir.sqrMagnitude > 0.001f)
         {
-            Vector3 moveDir = dir.normalized;
-
-            // Yürüt
             transform.position += moveDir * moveSpeed * Time.deltaTime;
+        }
+    }
 
-            // Yönünü hedefe çevir
-            if (moveDir.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(moveDir);
+    private void DoAI()
+    {
+        // EÄŸer GLOBAL Player yoksa bu turu pas geÃ§
+        if (Player == null)
+        {
+            moveDir = Vector3.zero;
+            if (animator != null && isWalking)
+            {
+                animator.SetBool(IsWalkingHash, false);
+                isWalking = false;
+            }
+            return;
+        }
 
-            // Animasyon: Yürüyüþ açýk
-            if (animator != null)
+        Vector3 dir = Player.position - transform.position;
+        dir.y = 0f; // Havaya bakmasÄ±nÄ± engelle
+
+        float dist = dir.magnitude;
+
+        if (dist > 0.5f) // Ã‡ok yaklaÅŸÄ±nca dur
+        {
+            moveDir = dir.normalized;
+
+            // YumuÅŸak dÃ¶nme
+            if (moveDir != Vector3.zero)
+            {
+                Quaternion lookRot = Quaternion.LookRotation(moveDir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10f);
+            }
+
+            // Animasyon sadece deÄŸiÅŸirse Ã§alÄ±ÅŸsÄ±n
+            if (!isWalking && animator != null)
+            {
                 animator.SetBool(IsWalkingHash, true);
+                isWalking = true;
+            }
         }
         else
         {
-            // Durunca idle
-            if (animator != null)
+            moveDir = Vector3.zero;
+
+            if (isWalking && animator != null)
+            {
                 animator.SetBool(IsWalkingHash, false);
+                isWalking = false;
+            }
         }
     }
 }
