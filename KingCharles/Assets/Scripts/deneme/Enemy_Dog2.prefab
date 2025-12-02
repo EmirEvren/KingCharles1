@@ -1701,8 +1701,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f932ccec4bf9949956b06e97c8f9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleEnemyFollow
-  target: {fileID: 0}
-  moveSpeed: 3.5
+  moveSpeed: 2
+  aiInterval: 0.06
   animator: {fileID: 0}
 --- !u!1 &4121464363106922599
 GameObject:

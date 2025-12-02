@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7196281401392176086}
   - component: {fileID: 6437406222043332468}
   - component: {fileID: 3610014299490975966}
+  - component: {fileID: 4429773588811314988}
   m_Layer: 0
   m_Name: Pine1
   m_TagString: Untagged
@@ -61,6 +62,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,7 +85,27 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!205 &4429773588811314988
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8941764418064359958}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.10755336, y: 3.4453242, z: 0.027884722}
+  m_Size: 7.445906
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.20078956
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 3610014299490975966}
+  m_Enabled: 1
