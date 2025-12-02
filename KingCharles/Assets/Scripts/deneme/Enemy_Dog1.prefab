@@ -3137,10 +3137,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4336209653027660153}
   - component: {fileID: 9021103492186469165}
+  - component: {fileID: -6540782347260324899}
   - component: {fileID: 6578032613895971190}
   m_Layer: 0
   m_Name: Enemy_Dog1
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3184,6 +3185,25 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-6540782347260324899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6193606878018160600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c2734b4860c8c043824e691fbf89fb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  maxHealth: 50
+  currentHealth: 50
+  animator: {fileID: 0}
+  deathTriggerName: Death
+  renderersToFlash: []
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.2
 --- !u!114 &6578032613895971190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3196,13 +3216,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f932ccec4bf9949956b06e97c8f9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleEnemyFollow
-  moveSpeed: 1.5
+  moveSpeed: 1.2
   aiInterval: 0.06
   stopDistance: 1.5
   attackDistance: 2
   attackCooldown: 1.5
   damage: 2
-  healthStatID: {fileID: 0}
+  healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
 --- !u!1 &6239818662408825118
 GameObject:
