@@ -1,19 +1,36 @@
 using UnityEngine;
+using MalbersAnimations;   // Malbers Stats için
 
 public class SimpleEnemyFollow : MonoBehaviour
 {
-    [Header("Ayarlar")]
-    public static Transform Player; // GLOBAL player referansı, tüm düşmanlar bunu kullanacak
+    [Header("Hedef")]
+    public static Transform Player; // GLOBAL player referansı, tüm düşmanlar kullanacak
+
+    [Header("Hareket")]
     public float moveSpeed = 3.5f;
-    public float aiInterval = 0.06f;   // AI tick rate (Saniyede ~16 kez çalışır)
+    public float aiInterval = 0.06f;    // AI tick rate
+    public float stopDistance = 1.5f;   // Bu mesafeye kadar gelir, sonra DURUR
+    public float attackDistance = 2.0f; // Bu mesafedeyken saldırı animasyonu oynatılır
+
     private float aiTimer;
+    private Vector3 moveDir;
+
+    [Header("Saldırı")]
+    public float attackCooldown = 1.5f; // Saldırılar arasındaki süre
+    private float nextAttackTime = 0f;
+
+    [Header("Hasar")]
+    public float damage = 10f;      // Enemy'nin vereceği hasar (Inspector'dan ayarlayacaksın)
+    public StatID healthStatID;     // Health StatID asset'ini buraya sürükle (Malbers "Health")
+
+    private Stats playerStats;      // Oyuncunun Stats component'i
 
     [Header("Animasyon")]
     public Animator animator;
     private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
+    private static readonly int AttackHash = Animator.StringToHash("Attack");
 
-    private Vector3 moveDir;
-    private bool isWalking = false; // Animasyon kontrolü için
+    private bool isWalking = false;
 
     private void Start()
     {
@@ -23,26 +40,34 @@ public class SimpleEnemyFollow : MonoBehaviour
         // GLOBAL Player referansını tek seferde al
         if (Player == null)
         {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Animal");
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Animal"); // Oyuncu tag'in "Animal"
             if (playerObj != null)
                 Player = playerObj.transform;
         }
 
-        aiTimer = Random.Range(0f, aiInterval); // İşlemciyi yormamak için rastgele başlat
+        // Player'ın Stats component'ini bul
+        if (Player != null)
+        {
+            playerStats = Player.GetComponent<Stats>();
+            if (playerStats == null)
+                playerStats = Player.GetComponentInParent<Stats>();
+        }
+
+        aiTimer = Random.Range(0f, aiInterval); // İşlemciyi yormamak için rastgele offset
     }
 
     private void Update()
     {
         aiTimer -= Time.deltaTime;
 
-        // AI Mantığı (Belirli aralıklarla çalışır - Performans dostu)
+        // AI mantığı belirli aralıklarla çalışır
         if (aiTimer <= 0f)
         {
             aiTimer = aiInterval;
             DoAI();
         }
 
-        // Fiziksel hareket her karede (frame) olmalı ki akıcı görünsün
+        // Hareket her frame çizgisel olarak uygula (smooth olsun diye)
         if (moveDir.sqrMagnitude > 0.001f)
         {
             transform.position += moveDir * moveSpeed * Time.deltaTime;
@@ -51,50 +76,70 @@ public class SimpleEnemyFollow : MonoBehaviour
 
     private void DoAI()
     {
-        // Eğer GLOBAL Player yoksa bu turu pas geç
         if (Player == null)
         {
             moveDir = Vector3.zero;
-            if (animator != null && isWalking)
-            {
-                animator.SetBool(IsWalkingHash, false);
-                isWalking = false;
-            }
+            SetWalking(false);
             return;
         }
 
         Vector3 dir = Player.position - transform.position;
-        dir.y = 0f; // Havaya bakmasını engelle
+        dir.y = 0f;
 
         float dist = dir.magnitude;
 
-        if (dist > 0.5f) // Çok yaklaşınca dur
+        // Her durumda oyuncuya doğru bak
+        if (dir.sqrMagnitude > 0.001f)
+        {
+            Quaternion lookRot = Quaternion.LookRotation(dir.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10f);
+        }
+
+        // Uzaksa → YÜRÜ
+        if (dist > stopDistance)
         {
             moveDir = dir.normalized;
-
-            // Yumuşak dönme
-            if (moveDir != Vector3.zero)
-            {
-                Quaternion lookRot = Quaternion.LookRotation(moveDir);
-                transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10f);
-            }
-
-            // Animasyon sadece değişirse çalışsın
-            if (!isWalking && animator != null)
-            {
-                animator.SetBool(IsWalkingHash, true);
-                isWalking = true;
-            }
+            SetWalking(true);
         }
         else
         {
+            // Stop mesafesine geldiyse → DUR
             moveDir = Vector3.zero;
+            SetWalking(false);
 
-            if (isWalking && animator != null)
+            // Saldırı mesafesi içindeyse ve cooldown bittiyse → SALDIR
+            if (dist <= attackDistance && Time.time >= nextAttackTime)
             {
-                animator.SetBool(IsWalkingHash, false);
-                isWalking = false;
+                if (animator != null)
+                {
+                    animator.SetTrigger(AttackHash); // "Attack" trigger'ını tetikle
+                }
+
+                ApplyDamage(); // CAN AZALT
+
+                nextAttackTime = Time.time + attackCooldown;
             }
         }
+    }
+
+    private void SetWalking(bool walking)
+    {
+        if (animator == null) return;
+        if (isWalking == walking) return; // Gereksiz set etmeyelim
+
+        isWalking = walking;
+        animator.SetBool(IsWalkingHash, isWalking);
+    }
+
+    /// <summary>
+    /// Oyuncunun Health stat'ini düşür.
+    /// </summary>
+    private void ApplyDamage()
+    {
+        if (playerStats == null) return;
+        if (healthStatID == null) return;
+
+        // Malbers Stats sistemiyle Health düşürme
+        playerStats.Stat_ModifyValue(healthStatID, -damage);
     }
 }

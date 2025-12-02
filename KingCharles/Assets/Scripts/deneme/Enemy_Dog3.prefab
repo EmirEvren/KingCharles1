@@ -4264,8 +4264,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f932ccec4bf9949956b06e97c8f9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleEnemyFollow
-  moveSpeed: 2
+  moveSpeed: 1.5
   aiInterval: 0.06
+  stopDistance: 1.5
+  attackDistance: 2
+  attackCooldown: 1.5
+  damage: 2
+  healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
 --- !u!1 &8698389840804534342
 GameObject:
