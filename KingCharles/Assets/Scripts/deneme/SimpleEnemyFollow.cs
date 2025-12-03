@@ -1,6 +1,7 @@
 using UnityEngine;
 using MalbersAnimations;   // Malbers Stats için
 
+[RequireComponent(typeof(Rigidbody))]
 public class SimpleEnemyFollow : MonoBehaviour
 {
     [Header("Hedef")]
@@ -13,7 +14,7 @@ public class SimpleEnemyFollow : MonoBehaviour
     public float attackDistance = 2.0f; // Bu mesafedeyken saldırı animasyonu oynatılır
 
     private float aiTimer;
-    private Vector3 moveDir;
+    private Vector3 moveDir;    // SADECE XZ yönü (y = 0 tutuluyor)
 
     [Header("Saldırı")]
     public float attackCooldown = 1.5f; // Saldırılar arasındaki süre
@@ -31,6 +32,25 @@ public class SimpleEnemyFollow : MonoBehaviour
     private static readonly int AttackHash = Animator.StringToHash("Attack");
 
     private bool isWalking = false;
+
+    // FİZİK
+    private Rigidbody rb;
+
+    [Header("Zemin Algılama")]
+    public float groundRayDistance = 2f; // Alttaki zemini ararken kullanılacak mesafe
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+
+        // Devrilmesin diye rotasyonu kilitle
+        rb.constraints = RigidbodyConstraints.FreezeRotationX |
+                         RigidbodyConstraints.FreezeRotationZ;
+
+        // Gravity kullansın
+        rb.useGravity = true;
+        rb.isKinematic = false;   // KESİNLİKLE kinematic olmasın
+    }
 
     private void Start()
     {
@@ -66,11 +86,52 @@ public class SimpleEnemyFollow : MonoBehaviour
             aiTimer = aiInterval;
             DoAI();
         }
+    }
 
-        // Hareket her frame çizgisel olarak uygula (smooth olsun diye)
-        if (moveDir.sqrMagnitude > 0.001f)
+    // FİZİKSEL HAREKET → FixedUpdate
+    private void FixedUpdate()
+    {
+        // Y eksenine direkt dokunmuyoruz; sadece XZ hızını ayarlıyoruz
+        Vector3 currentVel = rb.linearVelocity;
+        Vector3 horizontalVel = moveDir * moveSpeed; // XZ hareket
+
+        rb.linearVelocity = new Vector3(
+            horizontalVel.x,
+            currentVel.y,   // düşme/çıkma gravity’den gelsin
+            horizontalVel.z
+        );
+
+        // Altındaki collidere göre Y'yi düzelt
+        GroundStick();
+    }
+
+    /// <summary>
+    /// Eğer düşmanın altında Ground varsa Y'sini zemine yapıştır.
+    /// Altındaki collider Climb (rampa) ise Y'ye dokunma.
+    /// </summary>
+    private void GroundStick()
+    {
+        // Ray'i biraz yukarıdan başlat (tam ayak tabanından başlatma ki zeminin içine girmesin)
+        Vector3 origin = rb.position + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, groundRayDistance))
         {
-            transform.position += moveDir * moveSpeed * Time.deltaTime;
+            // Rampa ise (tag: Climb) → ELLEME
+            if (hit.collider.CompareTag("Climb"))
+            {
+                return;
+            }
+
+            // Düz zemin ise (tag: Ground) → Y'yi zemine sabitle
+            if (hit.collider.CompareTag("Ground"))
+            {
+                Vector3 pos = rb.position;
+                pos.y = hit.point.y;
+
+                // Y eksenindeki hızı sıfırlayıp pozisyonu zemine çekiyoruz
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+                rb.MovePosition(pos);
+            }
         }
     }
 
@@ -84,7 +145,7 @@ public class SimpleEnemyFollow : MonoBehaviour
         }
 
         Vector3 dir = Player.position - transform.position;
-        dir.y = 0f;
+        dir.y = 0f; // Y yönünü yok say, sadece XZ'de takip et
 
         float dist = dir.magnitude;
 
@@ -98,7 +159,7 @@ public class SimpleEnemyFollow : MonoBehaviour
         // Uzaksa → YÜRÜ
         if (dist > stopDistance)
         {
-            moveDir = dir.normalized;
+            moveDir = dir.normalized;   // XZ yönü
             SetWalking(true);
         }
         else

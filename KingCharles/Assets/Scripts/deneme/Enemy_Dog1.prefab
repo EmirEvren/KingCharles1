@@ -3139,6 +3139,9 @@ GameObject:
   - component: {fileID: 9021103492186469165}
   - component: {fileID: -6540782347260324899}
   - component: {fileID: 6578032613895971190}
+  - component: {fileID: 6483905739120355910}
+  - component: {fileID: 5559378455359690652}
+  - component: {fileID: 8984067533799634924}
   m_Layer: 0
   m_Name: Enemy_Dog1
   m_TagString: Enemy
@@ -3199,11 +3202,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 50
   currentHealth: 50
+  destroyDelay: 2
   animator: {fileID: 0}
   deathTriggerName: Death
   renderersToFlash: []
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.2
+  xpPrefab: {fileID: 6872700425443754515, guid: af0de3f40847ce447b413765b951c040, type: 3}
+  xpBoxMin: 1
+  xpBoxMax: 3
+  xpSpawnRadius: 0.5
 --- !u!114 &6578032613895971190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3216,7 +3224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f932ccec4bf9949956b06e97c8f9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleEnemyFollow
-  moveSpeed: 1.2
+  moveSpeed: 5
   aiInterval: 0.06
   stopDistance: 1.5
   attackDistance: 2
@@ -3224,6 +3232,74 @@ MonoBehaviour:
   damage: 2
   healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
+  groundRayDistance: 2
+--- !u!54 &6483905739120355910
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6193606878018160600}
+  serializedVersion: 5
+  m_Mass: 1000
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &5559378455359690652
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6193606878018160600}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.34225464, y: 0.7703552, z: 1}
+  m_Center: {x: -0.01701355, y: 0.4171524, z: 0}
+--- !u!205 &8984067533799634924
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6193606878018160600}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: -0.000000029802322, y: 0.4859059, z: 0.10626447}
+  m_Size: 1.4026742
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.0736042
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7110874012277564763}
+  m_Enabled: 1
 --- !u!1 &6239818662408825118
 GameObject:
   m_ObjectHideFlags: 0

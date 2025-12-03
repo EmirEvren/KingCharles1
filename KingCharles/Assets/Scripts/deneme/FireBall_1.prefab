@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3101419865225067344}
   - component: {fileID: 4262916289878555005}
   - component: {fileID: 7330254026730201647}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FireBall_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4869,8 +4869,8 @@ MonoBehaviour:
   spinSpeed: 0
   damage: 25
   hitRadius: 1.5
-  flightSfx: {fileID: 0}
-  hitSfx: {fileID: 0}
+  flightSfx: {fileID: 8300000, guid: 0f25f1a76f0ff0c448b2d566dab71c45, type: 3}
+  hitSfx: {fileID: 8300000, guid: 07dabe84320b73a43b79ff4d81f9741d, type: 3}
   hitSfxVolume: 1
 --- !u!1 &2880787240494123103
 GameObject:
@@ -4883,7 +4883,7 @@ GameObject:
   - component: {fileID: 7217562322589221394}
   - component: {fileID: 6755641508512535679}
   - component: {fileID: 1382949990154311126}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: fire1 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9719,7 +9719,7 @@ GameObject:
   - component: {fileID: 587241051797694846}
   - component: {fileID: 2983898317814940221}
   - component: {fileID: 6181137944625882537}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: fire1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14555,7 +14555,7 @@ GameObject:
   - component: {fileID: 3890355948179233124}
   - component: {fileID: 111692857319725914}
   - component: {fileID: 238487785576900692}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: fire2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19391,7 +19391,7 @@ GameObject:
   - component: {fileID: 1853610488553992681}
   - component: {fileID: 3495477456008390322}
   - component: {fileID: 2767821380650092156}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: pati1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24236,7 +24236,7 @@ GameObject:
   - component: {fileID: 3487411213586402901}
   - component: {fileID: 760983070085579608}
   - component: {fileID: 1892136513495594905}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FX_Smoke_14
   m_TagString: Untagged
   m_Icon: {fileID: 0}

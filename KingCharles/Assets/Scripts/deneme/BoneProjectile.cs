@@ -36,6 +36,8 @@ public class BoneProjectile : MonoBehaviour
             audioSource.playOnAwake = false;
             audioSource.spatialBlend = 1f; // 3D ses istiyorsan 1, 2D istiyorsan 0 yapabilirsin
         }
+
+        IgnoreCameraCollision();
     }
 
     private void Start()
@@ -113,13 +115,35 @@ public class BoneProjectile : MonoBehaviour
             AudioSource.PlayClipAtPoint(hitSfx, transform.position, hitSfxVolume);
         }
 
-        // Hasar ver
+        // Hasar ver (senin mevcut kodunu aynen bıraktım)
         if (target != null)
         {
             EnemyHealth enemyHealth = target.GetCurrentComponentInParents<EnemyHealth>();
         }
 
         Destroy(gameObject);
+    }
+
+    private void IgnoreCameraCollision()
+    {
+        Collider[] myColliders = GetComponentsInChildren<Collider>();
+        if (myColliders == null || myColliders.Length == 0) return;
+
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        Collider camCol = cam.GetComponent<Collider>();
+        if (camCol == null)
+            camCol = cam.GetComponentInParent<Collider>();
+        if (camCol == null) return;
+
+        foreach (var col in myColliders)
+        {
+            if (col != null)
+            {
+                Physics.IgnoreCollision(col, camCol, true);
+            }
+        }
     }
 }
 

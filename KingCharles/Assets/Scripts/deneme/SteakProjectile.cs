@@ -1,25 +1,25 @@
 ﻿using UnityEngine;
 
-public class FireballProjectile : MonoBehaviour
+public class SteakProjectile : MonoBehaviour
 {
     [Header("Hareket")]
-    public float speed = 20f;        // Fireball biraz daha yavaş olabilir, istersen arttır
-    public float turnSpeed = 10f;    // Hedefe dönerken dönüş hızı
-    public float lifeTime = 4f;      // Havada maksimum kalma süresi
+    public float speed = 25f;
+    public float turnSpeed = 15f;
+    public float lifeTime = 3f;
 
     [Header("Spin")]
-    public float spinSpeed = 0f;     // İstersen burada da spin verebilirsin (örn: 360)
+    public float spinSpeed = 360f;   // İstersen 0 yaparsın, dönmez
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base damage (kemikle aynı, istersen artır)
+    public float damage = 25f;       // Kemik gibi 25, istersen arttır
 
     [Header("Vuruş Alanı (Circle)")]
-    public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
+    public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire
 
     [Header("Sesler")]
-    public AudioClip flightSfx;      // Havada giderken çalan ses (loop)
-    public AudioClip hitSfx;         // Düşmana çarpınca çalan ses
-    public float hitSfxVolume = 1f;  // Çarpma sesi volume
+    public AudioClip flightSfx;      // Havada giderken
+    public AudioClip hitSfx;         // Düşmana çarpınca
+    public float hitSfxVolume = 1f;
 
     private AudioSource audioSource;
     private Vector3 moveDir;
@@ -27,7 +27,7 @@ public class FireballProjectile : MonoBehaviour
 
     private void Awake()
     {
-        // AudioSource hazırla (yoksa ekle)
+        // AudioSource hazırla (yoksa ekler)
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -46,7 +46,7 @@ public class FireballProjectile : MonoBehaviour
         if (moveDir.sqrMagnitude < 0.001f)
             moveDir = transform.forward;
 
-        // Uçuş sesini başlat
+        // Uçuş sesi
         if (flightSfx != null)
         {
             audioSource.clip = flightSfx;
@@ -70,12 +70,12 @@ public class FireballProjectile : MonoBehaviour
             }
 
             // Circle içine girdi mi?
-            Vector3 firePos = transform.position;
+            Vector3 steakPos = transform.position;
             Vector3 enemyPos = target.position;
-            firePos.y = 0f;
+            steakPos.y = 0f;
             enemyPos.y = 0f;
 
-            float sqrDist = (enemyPos - firePos).sqrMagnitude;
+            float sqrDist = (enemyPos - steakPos).sqrMagnitude;
             float sqrHitRadius = hitRadius * hitRadius;
 
             if (sqrDist <= sqrHitRadius)
@@ -85,23 +85,21 @@ public class FireballProjectile : MonoBehaviour
             }
         }
 
-        // İstersen spin ver
+        // Spin
         if (spinSpeed != 0f)
-        {
             transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.Self);
-        }
 
         // İleri hareket
         transform.position += moveDir * speed * Time.deltaTime;
     }
 
-    // Otomatik shooter buradan hedef veriyor
+    // Shooter buradan hedef veriyor
     public void SetTarget(Transform t)
     {
         target = t;
     }
 
-    // Otomatik shooter ilk yönü buradan veriyor
+    // Shooter ilk yönü buradan veriyor
     public void SetDirection(Vector3 dir)
     {
         if (dir.sqrMagnitude > 0.001f)
@@ -114,9 +112,7 @@ public class FireballProjectile : MonoBehaviour
     {
         // Çarpma sesi
         if (hitSfx != null)
-        {
             AudioSource.PlayClipAtPoint(hitSfx, transform.position, hitSfxVolume);
-        }
 
         // Hasar ver
         if (target != null)
@@ -126,9 +122,7 @@ public class FireballProjectile : MonoBehaviour
                 enemyHealth = target.GetComponentInParent<EnemyHealth>();
 
             if (enemyHealth != null)
-            {
                 enemyHealth.TakeDamage(damage);
-            }
         }
 
         Destroy(gameObject);

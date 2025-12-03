@@ -1,38 +1,47 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    [Header("Health Ayarları")]
-    public float maxHealth = 50f;      // Inspector'dan değiştirebilirsin, default 50
+    [Header("Health AyarlarÄ±")]
+    public float maxHealth = 50f;      // Inspector'dan deÄŸiÅŸtirebilirsin, default 50
     [SerializeField] private float currentHealth;
 
+    [Header("Ã–lÃ¼m AyarlarÄ±")]
+    public float destroyDelay = 2f;    // Ã–lÃ¼m animasyonu sÃ¼resi / dÃ¼ÅŸmanÄ±n sahnede kalma sÃ¼resi
+
     [Header("Opsiyonel Animasyon")]
-    public Animator animator;          // Ölüm animasyonu için istersen bağla
+    public Animator animator;          // Ã–lÃ¼m animasyonu iÃ§in istersen baÄŸla
     public string deathTriggerName = "Death"; // Animator'daki Death trigger ismi
 
     private bool isDead = false;
 
     [Header("Vurulma Efekti (Hit Flash)")]
-    public Renderer[] renderersToFlash;    // Boş bırakırsan otomatik bulur
-    public Color hitColor = Color.red;     // Vurulduğunda olacak renk
-    public float flashDuration = 0.1f;     // Ne kadar süre kırmızı kalsın
+    public Renderer[] renderersToFlash;    // BoÅŸ bÄ±rakÄ±rsan otomatik bulur
+    public Color hitColor = Color.red;     // VurulduÄŸunda olacak renk
+    public float flashDuration = 0.1f;     // Ne kadar sÃ¼re kÄ±rmÄ±zÄ± kalsÄ±n
 
     private Material[] _materials;
     private Color[] _originalColors;
     private bool _isFlashing = false;
 
+    [Header("XP Drop")]
+    public GameObject xpPrefab;       // Inspectorâ€™dan atacaÄŸÄ±n XP kutusu prefabÄ±
+    public int xpBoxMin = 1;          // Min kutu sayÄ±sÄ±
+    public int xpBoxMax = 3;          // Max kutu sayÄ±sÄ±
+    public float xpSpawnRadius = 0.5f; // EtrafÄ±na ne kadar saÃ§Ä±lacak
+
     private void Awake()
     {
-        // Başlangıçta canı maksimuma eşitle
+        // BaÅŸlangÄ±Ã§ta canÄ± maksimuma eÅŸitle
         currentHealth = maxHealth;
 
         if (animator == null)
             animator = GetComponent<Animator>();
 
-        // Renderer'ları ayarla
+        // Renderer'larÄ± ayarla
         if (renderersToFlash == null || renderersToFlash.Length == 0)
         {
-            // Düşmanın çocuklarındaki tüm Renderer'ları otomatik bul
+            // DÃ¼ÅŸmanÄ±n Ã§ocuklarÄ±ndaki tÃ¼m Renderer'larÄ± otomatik bul
             renderersToFlash = GetComponentsInChildren<Renderer>();
         }
 
@@ -42,10 +51,10 @@ public class EnemyHealth : MonoBehaviour
 
         for (int i = 0; i < renderersToFlash.Length; i++)
         {
-            // Her enemy için ayrı material instance alıyoruz
+            // Her enemy iÃ§in ayrÄ± material instance alÄ±yoruz
             _materials[i] = renderersToFlash[i].material;
 
-            // Hem Built-in hem URP için dene
+            // Hem Built-in hem URP iÃ§in dene
             if (_materials[i].HasProperty("_BaseColor"))
                 _originalColors[i] = _materials[i].GetColor("_BaseColor");
             else if (_materials[i].HasProperty("_Color"))
@@ -56,7 +65,7 @@ public class EnemyHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// Bu fonksiyon dışardan çağrılacak. (Oyuncu vurduğunda vs.)
+    /// Bu fonksiyon dÄ±ÅŸardan Ã§aÄŸrÄ±lacak. (Oyuncu vurduÄŸunda vs.)
     /// </summary>
     public void TakeDamage(float amount)
     {
@@ -64,7 +73,7 @@ public class EnemyHealth : MonoBehaviour
 
         currentHealth -= amount;
 
-        // Her damage aldığında kırmızı flash yapsın
+        // Her damage aldÄ±ÄŸÄ±nda kÄ±rmÄ±zÄ± flash yapsÄ±n
         StartHitFlash();
 
         if (currentHealth <= 0f)
@@ -79,17 +88,30 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // Ölüm animasyonu tetikle
+        // Ã–lÃ¼m animasyonu tetikle
         if (animator != null && !string.IsNullOrEmpty(deathTriggerName))
         {
             animator.SetTrigger(deathTriggerName);
         }
 
-        // Animasyon süresine göre yok et (2 saniye sonra)
-        Destroy(gameObject, 2f);
+        // XP ve Destroy'u geciktir â†’ Ã¶lÃ¼m animasyonu bittikten sonra olsun
+        StartCoroutine(DeathRoutine());
     }
 
-    // İstersen başka scriptlerden okunabilsin
+    private System.Collections.IEnumerator DeathRoutine()
+    {
+        // Ã–lÃ¼m animasyonu sÃ¼resi kadar bekle
+        if (destroyDelay > 0f)
+            yield return new WaitForSeconds(destroyDelay);
+
+        // Tam yok olurken XP kutularÄ±nÄ± spawn et
+        SpawnXPBoxes();
+
+        // ArtÄ±k dÃ¼ÅŸmanÄ± yok et
+        Destroy(gameObject);
+    }
+
+    // Ä°stersen baÅŸka scriptlerden okunabilsin
     public float GetCurrentHealth() => currentHealth;
     public float GetMaxHealth() => maxHealth;
 
@@ -107,7 +129,7 @@ public class EnemyHealth : MonoBehaviour
     {
         _isFlashing = true;
 
-        // Kırmızı yap
+        // KÄ±rmÄ±zÄ± yap
         for (int i = 0; i < _materials.Length; i++)
         {
             if (_materials[i] == null) continue;
@@ -120,7 +142,7 @@ public class EnemyHealth : MonoBehaviour
 
         yield return new WaitForSeconds(flashDuration);
 
-        // Eski renge dön
+        // Eski renge dÃ¶n
         for (int i = 0; i < _materials.Length; i++)
         {
             if (_materials[i] == null) continue;
@@ -132,6 +154,30 @@ public class EnemyHealth : MonoBehaviour
         }
 
         _isFlashing = false;
+    }
+
+    #endregion
+
+    #region XP Drop
+
+    private void SpawnXPBoxes()
+    {
+        if (xpPrefab == null) return;
+
+        int count = Random.Range(xpBoxMin, xpBoxMax + 1);
+
+        for (int i = 0; i < count; i++)
+        {
+            // EtrafÄ±na hafif random offset ile saÃ§
+            Vector3 offset = new Vector3(
+                Random.Range(-xpSpawnRadius, xpSpawnRadius),
+                0.1f,
+                Random.Range(-xpSpawnRadius, xpSpawnRadius)
+            );
+
+            Vector3 spawnPos = transform.position + offset;
+            Instantiate(xpPrefab, spawnPos, Quaternion.identity);
+        }
     }
 
     #endregion

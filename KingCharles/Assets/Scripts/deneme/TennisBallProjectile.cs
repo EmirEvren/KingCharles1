@@ -1,17 +1,17 @@
 ﻿using UnityEngine;
 
-public class FireballProjectile : MonoBehaviour
+public class TennisBallProjectile : MonoBehaviour
 {
     [Header("Hareket")]
-    public float speed = 20f;        // Fireball biraz daha yavaş olabilir, istersen arttır
-    public float turnSpeed = 10f;    // Hedefe dönerken dönüş hızı
-    public float lifeTime = 4f;      // Havada maksimum kalma süresi
+    public float speed = 22f;        // İstersen değiştir
+    public float turnSpeed = 14f;    // Hedefe dönerken dönüş hızı
+    public float lifeTime = 3.5f;    // Havada maksimum kalma süresi
 
     [Header("Spin")]
-    public float spinSpeed = 0f;     // İstersen burada da spin verebilirsin (örn: 360)
+    public float spinSpeed = 540f;   // Tenis topu daha hızlı dönebilir :)
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base damage (kemikle aynı, istersen artır)
+    public float damage = 25f;       // Base damage (kemik gibi)
 
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
@@ -70,12 +70,12 @@ public class FireballProjectile : MonoBehaviour
             }
 
             // Circle içine girdi mi?
-            Vector3 firePos = transform.position;
+            Vector3 ballPos = transform.position;
             Vector3 enemyPos = target.position;
-            firePos.y = 0f;
+            ballPos.y = 0f;
             enemyPos.y = 0f;
 
-            float sqrDist = (enemyPos - firePos).sqrMagnitude;
+            float sqrDist = (enemyPos - ballPos).sqrMagnitude;
             float sqrHitRadius = hitRadius * hitRadius;
 
             if (sqrDist <= sqrHitRadius)
@@ -85,7 +85,7 @@ public class FireballProjectile : MonoBehaviour
             }
         }
 
-        // İstersen spin ver
+        // Spin
         if (spinSpeed != 0f)
         {
             transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.Self);
@@ -95,13 +95,13 @@ public class FireballProjectile : MonoBehaviour
         transform.position += moveDir * speed * Time.deltaTime;
     }
 
-    // Otomatik shooter buradan hedef veriyor
+    // Shooter buradan hedef veriyor
     public void SetTarget(Transform t)
     {
         target = t;
     }
 
-    // Otomatik shooter ilk yönü buradan veriyor
+    // Shooter ilk yönü buradan veriyor
     public void SetDirection(Vector3 dir)
     {
         if (dir.sqrMagnitude > 0.001f)
