@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
+    [Header("Aktiflik")]
+    [Tooltip("Kart seçilene kadar FALSE kalacak. WeaponChoiceManager açacak.")]
+    public bool canSpawn = false;
+
     [Header("Referanslar")]
     public Transform player;          // Oyuncu transform'u
     public GameObject[] enemyPrefabs; // Inspector'dan atacaðýn düþman prefablarý
@@ -18,11 +22,13 @@ public class EnemySpawner : MonoBehaviour
 
     private void Update()
     {
+        // Kart seçilmeden çalýþmasýn
+        if (!canSpawn) return;
+
         if (player == null || enemyPrefabs == null || enemyPrefabs.Length == 0)
             return;
 
         // Spawner'ý sürekli oyuncunun pozisyonuna taþýyoruz
-        // (istersen bunu kaldýrýp spawner'ý sabit bir yere de koyabilirsin)
         transform.position = player.position;
 
         // Ölü düþmanlarý listeden temizle
