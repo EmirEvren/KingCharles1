@@ -19,9 +19,10 @@ public class BoneProjectile : MonoBehaviour
     [Header("Sesler")]
     public AudioClip flightSfx;      // Havada giderken çalan ses
     public AudioClip hitSfx;         // Düşmana çarpınca çalan ses
-    public float hitSfxVolume = 1f;  // Çarpma sesi sesi seviyesi
+    [Range(0f, 1f)]
+    public float hitSfxVolume = 1f;  // Çarpma sesi seviyesi
 
-    private AudioSource audioSource; // Uçuş sesi için
+    private AudioSource audioSource; // Uçuş sesi için (Main AudioSource)
 
     private Vector3 moveDir;
     private Transform target;
@@ -34,7 +35,7 @@ public class BoneProjectile : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
-            audioSource.spatialBlend = 1f; // 3D ses istiyorsan 1, 2D istiyorsan 0 yapabilirsin
+            audioSource.spatialBlend = 1f; // 3D ses
         }
 
         IgnoreCameraCollision();
@@ -108,17 +109,38 @@ public class BoneProjectile : MonoBehaviour
 
     private void DoHit()
     {
-        // Çarpma sesi çal
+        // --- DÜZELTİLEN KISIM BAŞLANGIÇ ---
+        // Vuruş sesini çal (Mixer Grubunu destekleyecek şekilde)
         if (hitSfx != null)
         {
-            // Objeyi hemen sileceğimiz için sesi dışarıda çaldırıyoruz
-            AudioSource.PlayClipAtPoint(hitSfx, transform.position, hitSfxVolume);
-        }
+            // 1. Geçici bir obje oluştur
+            GameObject tempAudioObj = new GameObject("TempHitSFX");
+            tempAudioObj.transform.position = transform.position;
 
-        // Hasar ver (senin mevcut kodunu aynen bıraktım)
+            // 2. AudioSource ekle ve ayarla
+            AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
+            tempSource.clip = hitSfx;
+            tempSource.volume = hitSfxVolume;
+            tempSource.spatialBlend = 1f; // 3D ses
+
+            // 3. EN ÖNEMLİ KISIM: Ana objenin Mixer Grubunu kopyala
+            // (BoneProjectile üzerindeki AudioSource'un output'u neyse bu da o olur)
+            if (audioSource != null && audioSource.outputAudioMixerGroup != null)
+            {
+                tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
+            }
+
+            // 4. Çal ve ses bitince objeyi yok et
+            tempSource.Play();
+            Destroy(tempAudioObj, hitSfx.length);
+        }
+        // --- DÜZELTİLEN KISIM BİTİŞ ---
+
+        // Hasar işlemleri (Mevcut mantığın)
         if (target != null)
         {
             EnemyHealth enemyHealth = target.GetCurrentComponentInParents<EnemyHealth>();
+            // Not: Burada enemyHealth.TakeDamage(damage) gibi bir kod çağırmayı unutma
         }
 
         Destroy(gameObject);
@@ -147,7 +169,7 @@ public class BoneProjectile : MonoBehaviour
     }
 }
 
-// Küçük yardımcı extension (aynı script dosyasında kalabilir)
+// Yardımcı Extension
 public static class ComponentExtensions
 {
     public static T GetCurrentComponentInParents<T>(this Component comp) where T : Component

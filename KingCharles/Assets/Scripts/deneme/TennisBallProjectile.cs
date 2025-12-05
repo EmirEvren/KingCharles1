@@ -19,9 +19,10 @@ public class TennisBallProjectile : MonoBehaviour
     [Header("Sesler")]
     public AudioClip flightSfx;      // Havada giderken çalan ses (loop)
     public AudioClip hitSfx;         // Düşmana çarpınca çalan ses
+    [Range(0f, 1f)]
     public float hitSfxVolume = 1f;  // Çarpma sesi volume
 
-    private AudioSource audioSource;
+    private AudioSource audioSource; // Uçuş sesi için (Ana AudioSource)
     private Vector3 moveDir;
     private Transform target;
 
@@ -112,11 +113,32 @@ public class TennisBallProjectile : MonoBehaviour
 
     private void DoHit()
     {
-        // Çarpma sesi
+        // --- SES DÜZELTMESİ BAŞLANGIÇ ---
+        // Çarpma sesi (Mixer Uyumlu)
         if (hitSfx != null)
         {
-            AudioSource.PlayClipAtPoint(hitSfx, transform.position, hitSfxVolume);
+            // 1. Geçici ses objesi oluştur
+            GameObject tempAudioObj = new GameObject("TempTennisHitSFX");
+            tempAudioObj.transform.position = transform.position;
+
+            // 2. AudioSource ekle ve ayarla
+            AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
+            tempSource.clip = hitSfx;
+            tempSource.volume = hitSfxVolume;
+            tempSource.spatialBlend = 1f; // 3D ses
+
+            // 3. KRİTİK: Ana objenin Mixer Grubunu kopyala
+            // (Unity Editörde bu objenin AudioSource Output'una SFX atamayı unutma)
+            if (audioSource != null && audioSource.outputAudioMixerGroup != null)
+            {
+                tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
+            }
+
+            // 4. Çal ve yok et
+            tempSource.Play();
+            Destroy(tempAudioObj, hitSfx.length);
         }
+        // --- SES DÜZELTMESİ BİTİŞ ---
 
         // Hasar ver
         if (target != null)

@@ -12,21 +12,32 @@ public class XPPickup : MonoBehaviour
     public float collectDistance = 1.2f; // Bu kadar yakına gelince toplanmış sayılır
 
     [Header("Player Tag")]
-    public string playerTag = "Animal";   // Senin character tag'in neyse (Animal demiştin)
+    public string playerTag = "Animal";   // Senin character tag'in
 
     [Header("Sesler")]
     public AudioClip magnetSfx;       // Mıknatıs alanına girince bir kere çalsın
     public AudioClip pickupSfx;       // XP toplandığında çalsın
+    [Range(0f, 1f)]
     public float sfxVolume = 1f;      // Ses şiddeti
 
     private static Transform player;
     private static PlayerXP playerXP;
 
+    private AudioSource audioSource;  // Mixer grubunu almak için referans
     private bool magnetSoundPlayed = false;
 
     private void Awake()
     {
-        // Player & PlayerXP referansını tek seferde al
+        // 1. AudioSource referansını ayarla (Mixer için gerekli)
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 1f; // 3D ses
+        }
+
+        // 2. Player & PlayerXP referansını tek seferde al
         if (player == null)
         {
             GameObject pObj = GameObject.FindGameObjectWithTag(playerTag);
@@ -61,9 +72,9 @@ public class XPPickup : MonoBehaviour
         if (sqrDist <= sqrMagnet)
         {
             // Mıknatıs sesini sadece ilk kez girdiğinde çal
-            if (!magnetSoundPlayed && magnetSfx != null)
+            if (!magnetSoundPlayed)
             {
-                AudioSource.PlayClipAtPoint(magnetSfx, transform.position, sfxVolume);
+                PlayMixerSound(magnetSfx, "TempMagnetSFX");
                 magnetSoundPlayed = true;
             }
 
@@ -79,13 +90,36 @@ public class XPPickup : MonoBehaviour
                 }
 
                 // Pickup sesi
-                if (pickupSfx != null)
-                {
-                    AudioSource.PlayClipAtPoint(pickupSfx, transform.position, sfxVolume);
-                }
+                PlayMixerSound(pickupSfx, "TempPickupSFX");
 
                 Destroy(gameObject);
             }
         }
+    }
+
+    // --- SES DÜZELTMESİ İÇİN YARDIMCI FONKSİYON ---
+    private void PlayMixerSound(AudioClip clip, string tempObjName)
+    {
+        if (clip == null) return;
+
+        // 1. Geçici obje oluştur
+        GameObject tempObj = new GameObject(tempObjName);
+        tempObj.transform.position = transform.position;
+
+        // 2. AudioSource ekle
+        AudioSource tempSource = tempObj.AddComponent<AudioSource>();
+        tempSource.clip = clip;
+        tempSource.volume = sfxVolume;
+        tempSource.spatialBlend = 1f; // 3D ses
+
+        // 3. KRİTİK: Ana objenin Mixer Grubunu kopyala
+        if (audioSource != null && audioSource.outputAudioMixerGroup != null)
+        {
+            tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
+        }
+
+        // 4. Çal ve yok et
+        tempSource.Play();
+        Destroy(tempObj, clip.length);
     }
 }
