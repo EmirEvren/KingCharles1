@@ -109,38 +109,41 @@ public class BoneProjectile : MonoBehaviour
 
     private void DoHit()
     {
-        // --- DÜZELTİLEN KISIM BAŞLANGIÇ ---
-        // Vuruş sesini çal (Mixer Grubunu destekleyecek şekilde)
+        // --- ÇARPMA SESİ ---
         if (hitSfx != null)
         {
-            // 1. Geçici bir obje oluştur
-            GameObject tempAudioObj = new GameObject("TempHitSFX");
+            GameObject tempAudioObj = new GameObject("TempBoneHitSFX");
             tempAudioObj.transform.position = transform.position;
 
-            // 2. AudioSource ekle ve ayarla
             AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
             tempSource.clip = hitSfx;
             tempSource.volume = hitSfxVolume;
             tempSource.spatialBlend = 1f; // 3D ses
 
-            // 3. EN ÖNEMLİ KISIM: Ana objenin Mixer Grubunu kopyala
-            // (BoneProjectile üzerindeki AudioSource'un output'u neyse bu da o olur)
             if (audioSource != null && audioSource.outputAudioMixerGroup != null)
             {
                 tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
             }
 
-            // 4. Çal ve ses bitince objeyi yok et
             tempSource.Play();
             Destroy(tempAudioObj, hitSfx.length);
         }
-        // --- DÜZELTİLEN KISIM BİTİŞ ---
 
-        // Hasar işlemleri (Mevcut mantığın)
+        // --- HASAR (upgrade'li) ---
         if (target != null)
         {
             EnemyHealth enemyHealth = target.GetCurrentComponentInParents<EnemyHealth>();
-            // Not: Burada enemyHealth.TakeDamage(damage) gibi bir kod çağırmayı unutma
+            if (enemyHealth != null)
+            {
+                float finalDamage = damage;
+
+                if (WeaponChoiceManager.Instance != null)
+                {
+                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Bone, damage);
+                }
+
+                enemyHealth.TakeDamage(finalDamage);
+            }
         }
 
         Destroy(gameObject);

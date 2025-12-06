@@ -1,38 +1,50 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerXP : MonoBehaviour
 {
-    [Header("Seviye Ayarlarý")]
+    [Header("Seviye AyarlarÄ±")]
     public int level = 1;
     public int currentXP = 0;
-    public int xpToNextLevel = 10;      // Ýlk seviye için gereken XP
-    public float xpGrowthMultiplier = 1.5f; // Her level sonrasý XP ihtiyacý ne kadar artsýn?
+    public int xpToNextLevel = 10;          // Ä°lk seviye iÃ§in gereken XP
+    public float xpGrowthMultiplier = 1.5f; // Her level sonrasÄ± XP ihtiyacÄ± ne kadar artsÄ±n?
 
     [Header("Debug")]
     public bool logLevelUps = true;
 
+    /// <summary>
+    /// XP ekler ve gerekirse level up yapar.
+    /// Level up olduÄŸunda WeaponChoiceManager'a haber verir.
+    /// </summary>
     public void AddXP(int amount)
     {
         if (amount <= 0) return;
 
         currentXP += amount;
 
-        // Level up kontrolü (birden fazla seviye atlayabilsin diye while)
+        // Birden fazla seviye atlayabilsin diye while
         while (currentXP >= xpToNextLevel)
         {
             currentXP -= xpToNextLevel;
             level++;
 
-            // Yeni level için XP sýnýrýný arttýr
+            // Yeni level iÃ§in XP sÄ±nÄ±rÄ±nÄ± arttÄ±r
             xpToNextLevel = Mathf.RoundToInt(xpToNextLevel * xpGrowthMultiplier);
 
             if (logLevelUps)
-                Debug.Log($"[PlayerXP] Level UP! Yeni Level: {level}, Sonraki level için XP: {xpToNextLevel}");
+                Debug.Log($"[PlayerXP] Level UP! Yeni Level: {level}, Sonraki level iÃ§in XP: {xpToNextLevel}");
 
-            // Buraya level up olduðunda güç artýþý vs. ekleyebilirsin
-            // Örn: movementSpeed++, damage++, maxHealth++ vs.
+            // --- Ã–NEMLÄ° KISIM: WeaponChoiceManager'a haber ver ---
+            if (WeaponChoiceManager.Instance != null)
+            {
+                WeaponChoiceManager.Instance.OnPlayerLevelUp(level);
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerXP] WeaponChoiceManager.Instance bulunamadÄ±, level up kartÄ± aÃ§Ä±lamadÄ±!");
+            }
+            // ------------------------------------------------------
         }
 
-        // Burada istersen UI güncelleyebilirsin (XP bar, level text vs.)
+        // Burada istersen XP bar / level text UI gÃ¼ncellemesi yapabilirsin
     }
 }

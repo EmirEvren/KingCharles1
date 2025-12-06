@@ -111,34 +111,27 @@ public class SteakProjectile : MonoBehaviour
 
     private void DoHit()
     {
-        // --- SES DÜZELTMESİ BAŞLANGIÇ ---
-        // Çarpma sesi (Mixer Uyumlu)
+        // --- SES ---
         if (hitSfx != null)
         {
-            // 1. Geçici ses objesi oluştur
             GameObject tempAudioObj = new GameObject("TempSteakHitSFX");
             tempAudioObj.transform.position = transform.position;
 
-            // 2. AudioSource ekle ve ayarla
             AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
             tempSource.clip = hitSfx;
             tempSource.volume = hitSfxVolume;
             tempSource.spatialBlend = 1f; // 3D ses
 
-            // 3. KRİTİK: Ana objenin Mixer Grubunu kopyala
-            // (Unity Editörde bu objenin AudioSource Output'una SFX atamayı unutma)
             if (audioSource != null && audioSource.outputAudioMixerGroup != null)
             {
                 tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
             }
 
-            // 4. Çal ve yok et
             tempSource.Play();
             Destroy(tempAudioObj, hitSfx.length);
         }
-        // --- SES DÜZELTMESİ BİTİŞ ---
 
-        // Hasar ver
+        // --- HASAR ---
         if (target != null)
         {
             EnemyHealth enemyHealth = target.GetComponent<EnemyHealth>();
@@ -146,7 +139,16 @@ public class SteakProjectile : MonoBehaviour
                 enemyHealth = target.GetComponentInParent<EnemyHealth>();
 
             if (enemyHealth != null)
-                enemyHealth.TakeDamage(damage);
+            {
+                float finalDamage = damage;
+
+                if (WeaponChoiceManager.Instance != null)
+                {
+                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Steak, damage);
+                }
+
+                enemyHealth.TakeDamage(finalDamage);
+            }
         }
 
         Destroy(gameObject);
