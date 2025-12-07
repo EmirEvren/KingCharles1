@@ -25,7 +25,7 @@ public class WeaponOption
     public string weaponName;             // Kartta görünen isim
     public WeaponType type;              // Hangi silah
     public MonoBehaviour shooterScript;  // Player üzerindeki AutoShooter
-    public Sprite icon;                  // Kart görseli
+    public Sprite icon;                  // BUTON görseli için kullanılacak icon
 }
 
 [Serializable]
@@ -52,10 +52,7 @@ public class WeaponChoiceManager : MonoBehaviour
     public static WeaponChoiceManager Instance;   // Singleton
 
     [Header("Silah Opsiyonları (4 tane doldur)")]
-    public WeaponOption[] weapons;
-
-    [Header("Runtime Statlar")]
-    public WeaponRuntimeStats[] runtimeStats;
+    public WeaponOption[] weapons;   // BUNUN icon alanını kullanıyoruz
 
     [Header("UI Referansları")]
     public GameObject choicePanel;   // Kartların olduğu ana panel
@@ -63,7 +60,6 @@ public class WeaponChoiceManager : MonoBehaviour
     public Button cardButton2;
     public TMP_Text card1Title;
     public TMP_Text card2Title;
-    // ICON alanı yok; butonun kendi Image’ını kullanıyoruz.
 
     [Header("Seçim sırasında durdurulacak scriptler")]
     public MonoBehaviour[] scriptsToDisableWhileChoosing; // EnemySpawner, CMBrain, vs
@@ -84,9 +80,21 @@ public class WeaponChoiceManager : MonoBehaviour
     private UpgradeData currentUpgrade1;
     private UpgradeData currentUpgrade2;
 
+    // Runtime statlar artık Inspector’dan değil, DICTIONARY’den gelir
+    private Dictionary<WeaponType, WeaponRuntimeStats> statsDict
+        = new Dictionary<WeaponType, WeaponRuntimeStats>();
+
     private void Awake()
     {
+        // Singleton
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
+
+        BuildStatsDictionary();
 
         // Başta bütün silahları kapat
         DisableAllWeapons();
@@ -99,6 +107,53 @@ public class WeaponChoiceManager : MonoBehaviour
     {
         OpenInitialChoice();
     }
+
+    #region STATS DICTIONARY
+
+    private void BuildStatsDictionary()
+    {
+        statsDict.Clear();
+
+        // Tüm WeaponType enum değerleri için default stat oluştur
+        foreach (WeaponType t in Enum.GetValues(typeof(WeaponType)))
+        {
+            if (!statsDict.ContainsKey(t))
+            {
+                statsDict.Add(t, new WeaponRuntimeStats
+                {
+                    type = t,
+                    extraCount = 0,
+                    damageBonus = 0f,
+                    attackSpeedMultiplier = 1f
+                });
+            }
+        }
+
+        Debug.Log("[WeaponChoiceManager] Stats dictionary oluşturuldu.");
+    }
+
+    private WeaponRuntimeStats GetRuntimeStats(WeaponType t)
+    {
+        WeaponRuntimeStats s;
+        if (statsDict.TryGetValue(t, out s))
+            return s;
+        return null;
+    }
+
+    private WeaponOption GetWeaponOption(WeaponType t)
+    {
+        if (weapons == null) return null;
+
+        foreach (var w in weapons)
+        {
+            if (w != null && w.type == t)
+                return w;
+        }
+
+        return null;
+    }
+
+    #endregion
 
     #region INITIAL CHOICE (Oyun başı ilk silah seçimi)
 
@@ -148,23 +203,25 @@ public class WeaponChoiceManager : MonoBehaviour
             cardButton2.onClick.AddListener(() => OnWeaponSelected(idx2));
         }
 
-        SetupWeaponCardUI(idx1, card1Title, cardButton1);
-        SetupWeaponCardUI(idx2, card2Title, cardButton2);
+        SetupWeaponCardUI(idx1, cardButton1, card1Title);
+        SetupWeaponCardUI(idx2, cardButton2, card2Title);
     }
 
-    private void SetupWeaponCardUI(int idx, TMP_Text title, Button button)
+    private void SetupWeaponCardUI(int idx, Button button, TMP_Text title)
     {
         if (weapons == null || idx < 0 || idx >= weapons.Length) return;
 
         var w = weapons[idx];
+        if (title != null) title.text = w.weaponName;
 
-        if (title != null)
-            title.text = w.weaponName;
-
-        // Kart görseli: butonun kendi Image'ı
-        if (button != null && button.image != null && w.icon != null)
+        // ICON → Butonun kendi Image'ından, WeaponOption.icon kullan
+        if (button != null)
         {
-            button.image.sprite = w.icon;
+            Image img = button.GetComponent<Image>();
+            if (img != null && w.icon != null)
+            {
+                img.sprite = w.icon;
+            }
         }
     }
 
@@ -254,7 +311,7 @@ public class WeaponChoiceManager : MonoBehaviour
         if (candidates.Count == 1)
         {
             idx1 = candidates[0];
-            idx2 = candidates[0]; // İkisini de aynı göstermek istersen; gerekirse değiştirirsin
+            idx2 = candidates[0];
         }
         else
         {
@@ -270,7 +327,6 @@ public class WeaponChoiceManager : MonoBehaviour
         currentWeaponIndex1 = idx1;
         currentWeaponIndex2 = idx2;
 
-        // Butonlar yine OnWeaponSelected kullanacak
         if (cardButton1 != null)
         {
             cardButton1.onClick.RemoveAllListeners();
@@ -283,8 +339,8 @@ public class WeaponChoiceManager : MonoBehaviour
             cardButton2.onClick.AddListener(() => OnWeaponSelected(idx2));
         }
 
-        SetupWeaponCardUI(idx1, card1Title, cardButton1);
-        SetupWeaponCardUI(idx2, card2Title, cardButton2);
+        SetupWeaponCardUI(idx1, cardButton1, card1Title);
+        SetupWeaponCardUI(idx2, cardButton2, card2Title);
     }
 
     private void SetupUpgradeChoices()
@@ -310,15 +366,24 @@ public class WeaponChoiceManager : MonoBehaviour
         if (card1Title != null) card1Title.text = currentUpgrade1.description;
         if (card2Title != null) card2Title.text = currentUpgrade2.description;
 
-        // Kart görselleri: ilgili silahın icon'u → buton sprite
-        var w1 = GetWeaponOption(currentUpgrade1.weaponType);
-        var w2 = GetWeaponOption(currentUpgrade2.weaponType);
+        // ICON: upgrade hangi silaha aitse, o silahın icon'u butona basılır
+        SetupUpgradeCardIcon(currentUpgrade1, cardButton1);
+        SetupUpgradeCardIcon(currentUpgrade2, cardButton2);
+    }
 
-        if (cardButton1 != null && cardButton1.image != null && w1 != null && w1.icon != null)
-            cardButton1.image.sprite = w1.icon;
+    private void SetupUpgradeCardIcon(UpgradeData data, Button button)
+    {
+        if (button == null || data == null) return;
 
-        if (cardButton2 != null && cardButton2.image != null && w2 != null && w2.icon != null)
-            cardButton2.image.sprite = w2.icon;
+        var opt = GetWeaponOption(data.weaponType);
+        if (opt != null && opt.icon != null)
+        {
+            Image img = button.GetComponent<Image>();
+            if (img != null)
+            {
+                img.sprite = opt.icon;
+            }
+        }
     }
 
     private void OnUpgradeSelected(int cardIndex)
@@ -386,31 +451,6 @@ public class WeaponChoiceManager : MonoBehaviour
 
     #region UPGRADE UYGULAMA + RUNTIME STATS
 
-    private WeaponRuntimeStats GetRuntimeStats(WeaponType t)
-    {
-        if (runtimeStats == null) return null;
-
-        foreach (var s in runtimeStats)
-        {
-            if (s != null && s.type == t)
-                return s;
-        }
-        return null;
-    }
-
-    private WeaponOption GetWeaponOption(WeaponType t)
-    {
-        if (weapons == null) return null;
-
-        foreach (var w in weapons)
-        {
-            if (w != null && w.type == t)
-                return w;
-        }
-
-        return null;
-    }
-
     private void ApplyUpgrade(UpgradeData data)
     {
         Debug.Log($"[WeaponChoiceManager] Upgrade seçildi: {data.description}");
@@ -441,22 +481,20 @@ public class WeaponChoiceManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Verilen silah türü için, base damage üzerine upgrade bonuslarını uygular.
-    /// Projectile'lar bunu kullanıyor.
-    /// </summary>
     public float GetModifiedDamage(WeaponType type, float baseDamage)
     {
         var stats = GetRuntimeStats(type);
-        if (stats == null) return baseDamage;
+        if (stats == null)
+        {
+            Debug.LogWarning($"[WeaponChoiceManager] GetModifiedDamage: {type} için stats bulunamadı, baseDamage dönüyorum.");
+            return baseDamage;
+        }
 
         float result = baseDamage + stats.damageBonus;
+        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, result={result}");
         return result;
     }
 
-    /// <summary>
-    /// AutoShooter scriptleri için: atış hızı çarpanı
-    /// </summary>
     public float GetAttackSpeedMultiplier(WeaponType type)
     {
         var stats = GetRuntimeStats(type);
@@ -464,9 +502,6 @@ public class WeaponChoiceManager : MonoBehaviour
         return stats.attackSpeedMultiplier <= 0f ? 1f : stats.attackSpeedMultiplier;
     }
 
-    /// <summary>
-    /// Fazladan mermi sayısı (multi-shot için)
-    /// </summary>
     public int GetExtraCount(WeaponType type)
     {
         var stats = GetRuntimeStats(type);

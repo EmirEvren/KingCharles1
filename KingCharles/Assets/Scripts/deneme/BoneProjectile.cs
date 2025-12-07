@@ -8,34 +8,32 @@ public class BoneProjectile : MonoBehaviour
     public float lifeTime = 3f;
 
     [Header("Spin")]
-    public float spinSpeed = 360f;   // Y ekseninde saniyede 360 derece dönsün
+    public float spinSpeed = 360f;
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base 25 hasar
+    public float damage = 25f;
 
     [Header("Vuruş Alanı (Circle)")]
-    public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
+    public float hitRadius = 1.5f;
 
     [Header("Sesler")]
-    public AudioClip flightSfx;      // Havada giderken çalan ses
-    public AudioClip hitSfx;         // Düşmana çarpınca çalan ses
+    public AudioClip flightSfx;
+    public AudioClip hitSfx;
     [Range(0f, 1f)]
-    public float hitSfxVolume = 1f;  // Çarpma sesi seviyesi
+    public float hitSfxVolume = 1f;
 
-    private AudioSource audioSource; // Uçuş sesi için (Main AudioSource)
-
+    private AudioSource audioSource;
     private Vector3 moveDir;
     private Transform target;
 
     private void Awake()
     {
-        // Aynı objede AudioSource varsa kullan, yoksa ekle
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
-            audioSource.spatialBlend = 1f; // 3D ses
+            audioSource.spatialBlend = 1f;
         }
 
         IgnoreCameraCollision();
@@ -48,18 +46,16 @@ public class BoneProjectile : MonoBehaviour
         if (moveDir.sqrMagnitude < 0.001f)
             moveDir = transform.forward;
 
-        // Uçuş sesi ayarla ve çal
         if (flightSfx != null)
         {
             audioSource.clip = flightSfx;
-            audioSource.loop = true;     // Havada giderken sürekli çalsın
+            audioSource.loop = true;
             audioSource.Play();
         }
     }
 
     private void Update()
     {
-        // Hedef varsa → ona doğru döndür
         if (target != null)
         {
             Vector3 dir = target.position - transform.position;
@@ -71,7 +67,6 @@ public class BoneProjectile : MonoBehaviour
                 moveDir = Vector3.Slerp(moveDir, dir, Time.deltaTime * turnSpeed);
             }
 
-            // Circle içine girdi mi kontrol et
             Vector3 bonePos = transform.position;
             Vector3 enemyPos = target.position;
             bonePos.y = 0f;
@@ -87,7 +82,7 @@ public class BoneProjectile : MonoBehaviour
             }
         }
 
-        // Kemik çıktığı andan itibaren sürekli spin
+        // Spin
         transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.Self);
 
         // İleri hareket
@@ -109,16 +104,16 @@ public class BoneProjectile : MonoBehaviour
 
     private void DoHit()
     {
-        // --- ÇARPMA SESİ ---
+        // --- SES ---
         if (hitSfx != null)
         {
-            GameObject tempAudioObj = new GameObject("TempBoneHitSFX");
+            GameObject tempAudioObj = new GameObject("TempHitSFX");
             tempAudioObj.transform.position = transform.position;
 
             AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
             tempSource.clip = hitSfx;
             tempSource.volume = hitSfxVolume;
-            tempSource.spatialBlend = 1f; // 3D ses
+            tempSource.spatialBlend = 1f;
 
             if (audioSource != null && audioSource.outputAudioMixerGroup != null)
             {
@@ -129,20 +124,17 @@ public class BoneProjectile : MonoBehaviour
             Destroy(tempAudioObj, hitSfx.length);
         }
 
-        // --- HASAR (upgrade'li) ---
+        // --- HASAR ---
         if (target != null)
         {
-            EnemyHealth enemyHealth = target.GetCurrentComponentInParents<EnemyHealth>();
+            EnemyHealth enemyHealth = target.GetComponent<EnemyHealth>();
+            if (enemyHealth == null)
+                enemyHealth = target.GetComponentInParent<EnemyHealth>();
+
             if (enemyHealth != null)
             {
-                float finalDamage = damage;
-
-                if (WeaponChoiceManager.Instance != null)
-                {
-                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Bone, damage);
-                }
-
-                enemyHealth.TakeDamage(finalDamage);
+                Debug.Log($"[BoneProjectile] Damage field used: {damage}");
+                enemyHealth.TakeDamage(damage);
             }
         }
 
@@ -169,16 +161,5 @@ public class BoneProjectile : MonoBehaviour
                 Physics.IgnoreCollision(col, camCol, true);
             }
         }
-    }
-}
-
-// Yardımcı Extension
-public static class ComponentExtensions
-{
-    public static T GetCurrentComponentInParents<T>(this Component comp) where T : Component
-    {
-        T c = comp.GetComponent<T>();
-        if (c != null) return c;
-        return comp.GetComponentInParent<T>();
     }
 }

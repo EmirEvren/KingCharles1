@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-public class FireballAutoShooter : MonoBehaviour
+public class TennisBallAutoShooter : MonoBehaviour
 {
-    [Header("Fireball Ayarlarý")]
-    public GameObject fireballPrefab;  // Fireball prefabýný buraya sürükle
-    public Transform firePoint;        // Çýkýþ noktasý
-    public float attackRange = 15f;    // En yakýndaki düþmaný bu mesafe içinde arar
-    public float fireRate = 1.5f;      // Saniyede kaç atýþ (1.5 -> ~0.66 sn’de bir, upgrade öncesi)
+    [Header("Tenis Topu AyarlarÄ±")]
+    public GameObject tennisBallPrefab;   // Tenis topu prefab
+    public Transform firePoint;           // Ã‡Ä±kÄ±ÅŸ noktasÄ±
+    public float attackRange = 15f;       // En yakÄ±ndaki dÃ¼ÅŸmanÄ± bu mesafede arar
+    public float fireRate = 2f;           // Saniyede kaÃ§ atÄ±ÅŸ (upgrade Ã¶ncesi)
 
     private float fireCooldown;
 
@@ -19,19 +19,18 @@ public class FireballAutoShooter : MonoBehaviour
 
         if (nearestEnemy != null)
         {
-            // Fire rate'i upgrade'den gelen çarpanla buff'la
+            // Fire rate'i upgrade'den gelen Ã§arpanla buff'la
             float finalFireRate = fireRate;
 
             if (WeaponChoiceManager.Instance != null)
             {
-                float mul = WeaponChoiceManager.Instance.GetAttackSpeedMultiplier(WeaponType.Fireball);
+                float mul = WeaponChoiceManager.Instance.GetAttackSpeedMultiplier(WeaponType.TennisBall);
                 finalFireRate *= mul;
             }
 
             if (finalFireRate <= 0f) finalFireRate = 0.01f;
 
             fireCooldown = 1f / finalFireRate;
-
             ShootAt(nearestEnemy);
         }
     }
@@ -62,9 +61,9 @@ public class FireballAutoShooter : MonoBehaviour
 
     private void ShootAt(Transform target)
     {
-        if (fireballPrefab == null || firePoint == null) return;
+        if (tennisBallPrefab == null || firePoint == null) return;
 
-        // Hedef yönü
+        // Hedef yÃ¶nÃ¼
         Vector3 dir = target.position - firePoint.position;
         dir.y = 0f;
         if (dir.sqrMagnitude < 0.001f)
@@ -73,29 +72,28 @@ public class FireballAutoShooter : MonoBehaviour
         dir.Normalize();
         Quaternion rot = Quaternion.LookRotation(dir);
 
-        // Fazladan mermi sayýsýný upgrade sisteminden çek
+        // Fazladan mermi sayÄ±sÄ±nÄ± upgrade sisteminden Ã§ek
         int extraCount = 0;
         if (WeaponChoiceManager.Instance != null)
         {
-            extraCount = WeaponChoiceManager.Instance.GetExtraCount(WeaponType.Fireball);
+            extraCount = WeaponChoiceManager.Instance.GetExtraCount(WeaponType.TennisBall);
         }
 
         int totalProjectiles = 1 + extraCount;
 
         for (int i = 0; i < totalProjectiles; i++)
         {
-            GameObject go = Instantiate(fireballPrefab, firePoint.position, rot);
+            GameObject go = Instantiate(tennisBallPrefab, firePoint.position, rot);
 
-            FireballProjectile proj = go.GetComponent<FireballProjectile>();
+            TennisBallProjectile proj = go.GetComponent<TennisBallProjectile>();
             if (proj != null)
             {
-                // ---- HASARI BURADA UYGULA ----
+                // DAMAGE UPGRADE â†’ proj.damageâ€™a yaz
                 float baseDamage = proj.damage;
                 if (WeaponChoiceManager.Instance != null)
                 {
-                    float modified = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Fireball, baseDamage);
-                    proj.damage = modified; // Artýk component'in damage field'i buff’lý
-                    Debug.Log($"[FireballAutoShooter] Fireball projectile damage set to {proj.damage}");
+                    float modified = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.TennisBall, baseDamage);
+                    proj.damage = modified;
                 }
 
                 proj.SetTarget(target);
@@ -103,6 +101,6 @@ public class FireballAutoShooter : MonoBehaviour
             }
         }
 
-        Debug.Log($"[FireballAutoShooter] Fired {totalProjectiles} fireballs.");
+        Debug.Log($"[TennisBallAutoShooter] Fired {totalProjectiles} tennis balls.");
     }
 }

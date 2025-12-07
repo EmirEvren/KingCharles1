@@ -11,7 +11,7 @@ public class TennisBallProjectile : MonoBehaviour
     public float spinSpeed = 540f;   // Tenis topu daha hızlı dönebilir :)
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base damage (kemik gibi)
+    public float damage = 25f;       // Base damage (upgrade öncesi)
 
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
@@ -142,14 +142,8 @@ public class TennisBallProjectile : MonoBehaviour
 
             if (enemyHealth != null)
             {
-                float finalDamage = damage;
-
-                if (WeaponChoiceManager.Instance != null)
-                {
-                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.TennisBall, damage);
-                }
-
-                enemyHealth.TakeDamage(finalDamage);
+                Debug.Log($"[TennisBallProjectile] Damage field used: {damage}");
+                enemyHealth.TakeDamage(damage);
             }
         }
 

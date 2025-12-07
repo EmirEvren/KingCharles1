@@ -11,7 +11,7 @@ public class SteakProjectile : MonoBehaviour
     public float spinSpeed = 360f;   // İstersen 0 yaparsın, dönmez
 
     [Header("Hasar")]
-    public float damage = 25f;       // Kemik gibi 25, istersen arttır
+    public float damage = 25f;       // Base damage (upgrade öncesi)
 
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire
@@ -140,14 +140,8 @@ public class SteakProjectile : MonoBehaviour
 
             if (enemyHealth != null)
             {
-                float finalDamage = damage;
-
-                if (WeaponChoiceManager.Instance != null)
-                {
-                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Steak, damage);
-                }
-
-                enemyHealth.TakeDamage(finalDamage);
+                Debug.Log($"[SteakProjectile] Damage field used: {damage}");
+                enemyHealth.TakeDamage(damage);
             }
         }
 

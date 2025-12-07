@@ -11,7 +11,7 @@ public class FireballProjectile : MonoBehaviour
     public float spinSpeed = 0f;     // İstersen burada da spin verebilirsin
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base damage
+    public float damage = 25f;       // Base damage (upgrade öncesi)
 
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
@@ -142,14 +142,8 @@ public class FireballProjectile : MonoBehaviour
 
             if (enemyHealth != null)
             {
-                float finalDamage = damage;
-
-                if (WeaponChoiceManager.Instance != null)
-                {
-                    finalDamage = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Fireball, damage);
-                }
-
-                enemyHealth.TakeDamage(finalDamage);
+                Debug.Log($"[FireballProjectile] Damage field used: {damage}");
+                enemyHealth.TakeDamage(damage);
             }
         }
 

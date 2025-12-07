@@ -73,6 +73,15 @@ public class EnemyHealth : MonoBehaviour
 
         currentHealth -= amount;
 
+        // --- DAMAGE POPUP ---
+        // Burada upgrade'li FINAL damage geliyor (Projectile'dan),
+        // o yüzden amount neyse onu gösteriyoruz.
+        DamagePopupManager.Show(
+            amount,
+            transform.position,   // düşmanın pozisyonu
+            Color.red             // istersen crit vs. için renk değiştiririz
+        );
+
         // Her damage aldığında kırmızı flash yapsın
         StartHitFlash();
 
