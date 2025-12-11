@@ -140,7 +140,8 @@ public class WeaponChoiceManager : MonoBehaviour
         return null;
     }
 
-    private WeaponOption GetWeaponOption(WeaponType t)
+    // PUBLIC yapıldı ki HUD erişebilsin
+    public WeaponOption GetWeaponOption(WeaponType t)
     {
         if (weapons == null) return null;
 
@@ -466,17 +467,17 @@ public class WeaponChoiceManager : MonoBehaviour
         {
             case UpgradeKind.Count:
                 stats.extraCount += data.intAmount;
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} extraCount +{data.intAmount} → {stats.extraCount}");
+                Debug.Log($"[WeaponChoiceManager] {data.weaponType} extraCount +{data.intAmount} => {stats.extraCount}");
                 break;
 
             case UpgradeKind.AttackSpeed:
                 stats.attackSpeedMultiplier *= (1f + data.floatAmount);
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} attackSpeedMultiplier x{1f + data.floatAmount} → {stats.attackSpeedMultiplier}");
+                Debug.Log($"[WeaponChoiceManager] {data.weaponType} attackSpeedMultiplier x{1f + data.floatAmount} => {stats.attackSpeedMultiplier}");
                 break;
 
             case UpgradeKind.Damage:
                 stats.damageBonus += data.intAmount;
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} damageBonus +{data.intAmount} → {stats.damageBonus}");
+                Debug.Log($"[WeaponChoiceManager] {data.weaponType} damageBonus +{data.intAmount} => {stats.damageBonus}");
                 break;
         }
     }
@@ -540,7 +541,15 @@ public class WeaponChoiceManager : MonoBehaviour
     private void AddOwnedWeapon(WeaponType type)
     {
         if (!ownedWeapons.Contains(type))
+        {
             ownedWeapons.Add(type);
+
+            // HUD iconlarını güncelle
+            if (WeaponHUDIcons.Instance != null)
+            {
+                WeaponHUDIcons.Instance.OnWeaponAcquired(type);
+            }
+        }
     }
 
     private void SetExtraScriptsEnabled(bool enabled)

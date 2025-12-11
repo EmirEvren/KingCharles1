@@ -66,6 +66,7 @@ public class EnemyHealth : MonoBehaviour
 
     /// <summary>
     /// Bu fonksiyon dışardan çağrılacak. (Oyuncu vurduğunda vs.)
+    /// amount → projectile’dan gelen FİNAL damage (upgrade’li).
     /// </summary>
     public void TakeDamage(float amount)
     {
@@ -74,12 +75,11 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= amount;
 
         // --- DAMAGE POPUP ---
-        // Burada upgrade'li FINAL damage geliyor (Projectile'dan),
-        // o yüzden amount neyse onu gösteriyoruz.
+        // Upgrade, crit vs. sonrası gerçek vurulan değeri gösteriyoruz.
         DamagePopupManager.Show(
             amount,
-            transform.position,   // düşmanın pozisyonu
-            Color.red             // istersen crit vs. için renk değiştiririz
+            transform.position,
+            Color.red
         );
 
         // Her damage aldığında kırmızı flash yapsın
@@ -96,6 +96,9 @@ public class EnemyHealth : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        // KILL COUNT ARTTIR
+        KillCounterUI.RegisterKill();
 
         // Ölüm animasyonu tetikle
         if (animator != null && !string.IsNullOrEmpty(deathTriggerName))
