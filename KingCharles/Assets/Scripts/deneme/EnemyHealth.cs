@@ -30,6 +30,12 @@ public class EnemyHealth : MonoBehaviour
     public int xpBoxMax = 3;          // Max kutu sayısı
     public float xpSpawnRadius = 0.5f; // Etrafına ne kadar saçılacak
 
+    [Header("Gold Drop (Sadece Elite)")]
+    public GameObject goldPrefab;         // Altın parçası prefabı
+    public int goldMinPieces = 1;         // Elite başına minimum altın parçası
+    public int goldMaxPieces = 5;         // Elite başına maksimum altın parçası (istenen: 5)
+    public float goldSpawnRadius = 0.5f;  // Altınların etrafa saçılma yarıçapı
+
     private void Awake()
     {
         // Başlangıçta canı maksimuma eşitle
@@ -66,7 +72,6 @@ public class EnemyHealth : MonoBehaviour
 
     /// <summary>
     /// Bu fonksiyon dışardan çağrılacak. (Oyuncu vurduğunda vs.)
-    /// amount → projectile’dan gelen FİNAL damage (upgrade’li).
     /// </summary>
     public void TakeDamage(float amount)
     {
@@ -75,11 +80,10 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= amount;
 
         // --- DAMAGE POPUP ---
-        // Upgrade, crit vs. sonrası gerçek vurulan değeri gösteriyoruz.
         DamagePopupManager.Show(
             amount,
-            transform.position,
-            Color.red
+            transform.position,   // düşmanın pozisyonu
+            Color.red             // istersen crit vs. için renk değiştiririz
         );
 
         // Her damage aldığında kırmızı flash yapsın
@@ -96,9 +100,6 @@ public class EnemyHealth : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-
-        // KILL COUNT ARTTIR
-        KillCounterUI.RegisterKill();
 
         // Ölüm animasyonu tetikle
         if (animator != null && !string.IsNullOrEmpty(deathTriggerName))
@@ -118,6 +119,23 @@ public class EnemyHealth : MonoBehaviour
 
         // Tam yok olurken XP kutularını spawn et
         SpawnXPBoxes();
+
+        // Elite mi? maxHealth >= 150 ise ELITE kabul ediyoruz
+        bool isEliteKill = maxHealth >= 150f;
+
+        // Elite ise altın parçalarını spawn et
+        if (isEliteKill)
+        {
+            SpawnGoldPieces();
+        }
+
+        // --- KILL COUNTER ---
+        // Elite: +5, normal: +1
+        int addKills = isEliteKill ? 5 : 1;
+        for (int i = 0; i < addKills; i++)
+        {
+            KillCounterUI.RegisterKill();
+        }
 
         // Artık düşmanı yok et
         Destroy(gameObject);
@@ -189,6 +207,47 @@ public class EnemyHealth : MonoBehaviour
 
             Vector3 spawnPos = transform.position + offset;
             Instantiate(xpPrefab, spawnPos, Quaternion.identity);
+        }
+    }
+
+    #endregion
+
+    #region GOLD Drop (Elite)
+
+    private void SpawnGoldPieces()
+    {
+        if (goldPrefab == null) return;
+
+        // 1 ile goldMaxPieces dahil arasında
+        int count = Random.Range(goldMinPieces, goldMaxPieces + 1);
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 offset = new Vector3(
+                Random.Range(-goldSpawnRadius, goldSpawnRadius),
+                0.1f,
+                Random.Range(-goldSpawnRadius, goldSpawnRadius)
+            );
+
+            Vector3 spawnPos = transform.position + offset;
+            Instantiate(goldPrefab, spawnPos, Quaternion.identity);
+        }
+    }
+
+    #endregion
+
+    #region ELITE / HEALTH HELPER
+
+    /// <summary>
+    /// Dışarıdan maksimum canı ayarlamak için.
+    /// Örneğin spawner içinde: health.SetMaxHealth(150f);
+    /// </summary>
+    public void SetMaxHealth(float newMaxHealth, bool fullHeal = true)
+    {
+        maxHealth = newMaxHealth;
+        if (fullHeal)
+        {
+            currentHealth = maxHealth;
         }
     }
 

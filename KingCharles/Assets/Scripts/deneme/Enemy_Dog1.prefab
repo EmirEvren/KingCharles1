@@ -3212,6 +3212,10 @@ MonoBehaviour:
   xpBoxMin: 1
   xpBoxMax: 3
   xpSpawnRadius: 0.5
+  goldPrefab: {fileID: 2347275509247521232, guid: f0c47ab2567b0914da6fd4f359449aae, type: 3}
+  goldMinPieces: 1
+  goldMaxPieces: 5
+  goldSpawnRadius: 0.5
 --- !u!114 &6578032613895971190
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -106,8 +106,8 @@ public class SimpleEnemyFollow : MonoBehaviour
     }
 
     /// <summary>
-    /// Eğer düşmanın altında Ground varsa Y'sini zemine yapıştır.
-    /// Altındaki collider Climb (rampa) ise Y'ye dokunma.
+    /// Altındaki zemine karakteri yapıştır.
+    /// Climb ise (rampa) dokunma, diğer her şeyi zemin kabul et (Terrain dahil).
     /// </summary>
     private void GroundStick()
     {
@@ -122,16 +122,13 @@ public class SimpleEnemyFollow : MonoBehaviour
                 return;
             }
 
-            // Düz zemin ise (tag: Ground) → Y'yi zemine sabitle
-            if (hit.collider.CompareTag("Ground"))
-            {
-                Vector3 pos = rb.position;
-                pos.y = hit.point.y;
+            // Diğer her collider (TerrainCollider, MeshCollider, vb.) zemin say:
+            Vector3 pos = rb.position;
+            pos.y = hit.point.y;
 
-                // Y eksenindeki hızı sıfırlayıp pozisyonu zemine çekiyoruz
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-                rb.MovePosition(pos);
-            }
+            // Y eksenindeki hızı sıfırlayıp pozisyonu zemine çekiyoruz
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            rb.MovePosition(pos);
         }
     }
 
