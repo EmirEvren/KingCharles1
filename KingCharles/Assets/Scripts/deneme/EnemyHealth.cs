@@ -36,6 +36,11 @@ public class EnemyHealth : MonoBehaviour
     public float heartSpawnRadius = 0.5f;  // Kalbin etrafa saçılma yarıçapı
     public float heartSpawnY = 0.1f;       // Yerden biraz yukarı
 
+    [Header("MiniBoss Override Drop")]
+    public bool isMiniBoss = false;      // Spawner true yapacak
+    public int miniBossTotalXP = 100;    // Toplam XP
+    public int miniBossTotalGold = 100;  // Toplam Gold
+
     [Header("Hit Flash")]
     public float flashDuration = 0.05f;    // Her blink süresi
     public int flashCount = 2;             // Kaç kere blink (2 => beyaz->normal->beyaz->normal)
@@ -121,17 +126,29 @@ public class EnemyHealth : MonoBehaviour
         if (destroyDelay > 0f)
             yield return new WaitForSeconds(destroyDelay);
 
-        // Tam yok olurken XP kutularını spawn et
-        SpawnXPBoxes();
-        TrySpawnHeart();
-
         // Elite mi? maxHealth >= 150 ise ELITE kabul ediyoruz
         bool isEliteKill = maxHealth >= 150f;
 
-        // Elite ise altın parçalarını spawn et
-        if (isEliteKill)
+        if (isMiniBoss)
         {
-            SpawnGoldPieces();
+            // Miniboss: toplam 100 XP + toplam 100 Gold
+            SpawnTotalXP(miniBossTotalXP);
+            SpawnTotalGold(miniBossTotalGold);
+
+            // İstersen miniboss da kalp düşürebilir (mevcut sistem)
+            TrySpawnHeart();
+        }
+        else
+        {
+            // Normal enemy: random XP kutuları
+            SpawnXPBoxes();
+            TrySpawnHeart();
+
+            // Elite ise altın parçalarını spawn et
+            if (isEliteKill)
+            {
+                SpawnGoldPieces();
+            }
         }
 
         // --- KILL COUNTER ---
@@ -222,6 +239,40 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    private void SpawnTotalXP(int totalXP)
+    {
+        if (xpPrefab == null) return;
+        if (totalXP <= 0) return;
+
+        int per = 1;
+        XPPickup sample = xpPrefab.GetComponent<XPPickup>();
+        if (sample != null) per = Mathf.Max(1, sample.xpAmount);
+
+        int fullCount = totalXP / per;
+        int remainder = totalXP % per;
+
+        for (int i = 0; i < fullCount; i++)
+            SpawnXPAmount(per);
+
+        if (remainder > 0)
+            SpawnXPAmount(remainder);
+    }
+
+    private void SpawnXPAmount(int amount)
+    {
+        Vector3 offset = new Vector3(
+            Random.Range(-xpSpawnRadius, xpSpawnRadius),
+            0.1f,
+            Random.Range(-xpSpawnRadius, xpSpawnRadius)
+        );
+
+        Vector3 spawnPos = transform.position + offset;
+        GameObject go = Instantiate(xpPrefab, spawnPos, Quaternion.identity);
+
+        XPPickup xp = go.GetComponent<XPPickup>();
+        if (xp != null) xp.xpAmount = amount;
+    }
+
     #endregion
 
     private void TrySpawnHeart()
@@ -260,6 +311,40 @@ public class EnemyHealth : MonoBehaviour
             Vector3 spawnPos = transform.position + offset;
             Instantiate(goldPrefab, spawnPos, Quaternion.identity);
         }
+    }
+
+    private void SpawnTotalGold(int totalGold)
+    {
+        if (goldPrefab == null) return;
+        if (totalGold <= 0) return;
+
+        int per = 1;
+        GoldPickup sample = goldPrefab.GetComponent<GoldPickup>();
+        if (sample != null) per = Mathf.Max(1, sample.goldValue);
+
+        int fullCount = totalGold / per;
+        int remainder = totalGold % per;
+
+        for (int i = 0; i < fullCount; i++)
+            SpawnGoldAmount(per);
+
+        if (remainder > 0)
+            SpawnGoldAmount(remainder);
+    }
+
+    private void SpawnGoldAmount(int amount)
+    {
+        Vector3 offset = new Vector3(
+            Random.Range(-goldSpawnRadius, goldSpawnRadius),
+            0.1f,
+            Random.Range(-goldSpawnRadius, goldSpawnRadius)
+        );
+
+        Vector3 spawnPos = transform.position + offset;
+        GameObject go = Instantiate(goldPrefab, spawnPos, Quaternion.identity);
+
+        GoldPickup g = go.GetComponent<GoldPickup>();
+        if (g != null) g.goldValue = amount;
     }
 
     #endregion

@@ -16,6 +16,9 @@ public class SimpleEnemyFollow : MonoBehaviour
     private float aiTimer;
     private Vector3 moveDir;    // SADECE XZ yönü (y = 0 tutuluyor)
 
+    [Header("Rotation")]
+    public float turnSpeed = 720f; // Derece/sn - her zaman oyuncuya bakma hızı
+
     [Header("Saldırı")]
     public float attackCooldown = 1.5f; // Saldırılar arasındaki süre
     private float nextAttackTime = 0f;
@@ -103,6 +106,26 @@ public class SimpleEnemyFollow : MonoBehaviour
 
         // Altındaki collidere göre Y'yi düzelt
         GroundStick();
+
+        // Her zaman oyuncuya bak (physics uyumlu)
+        FacePlayerPhysics();
+    }
+
+    private void FacePlayerPhysics()
+    {
+        if (Player == null) return;
+
+        Vector3 dir = Player.position - rb.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.001f) return;
+
+        Quaternion targetRot = Quaternion.LookRotation(dir.normalized);
+
+        // Çarpışmadan gelen "spin"i kes
+        rb.angularVelocity = Vector3.zero;
+
+        // Physics uyumlu rotasyon
+        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRot, turnSpeed * Time.fixedDeltaTime));
     }
 
     /// <summary>
@@ -145,13 +168,6 @@ public class SimpleEnemyFollow : MonoBehaviour
         dir.y = 0f; // Y yönünü yok say, sadece XZ'de takip et
 
         float dist = dir.magnitude;
-
-        // Her durumda oyuncuya doğru bak
-        if (dir.sqrMagnitude > 0.001f)
-        {
-            Quaternion lookRot = Quaternion.LookRotation(dir.normalized);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 10f);
-        }
 
         // Uzaksa → YÜRÜ
         if (dist > stopDistance)

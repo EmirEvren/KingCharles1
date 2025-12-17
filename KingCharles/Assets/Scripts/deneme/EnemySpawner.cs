@@ -1,47 +1,97 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Aktiflik")]
-    [Tooltip("Kart seçilene kadar FALSE kalacak. WeaponChoiceManager açacak.")]
+    [Tooltip("Kart seÃ§ilene kadar FALSE kalacak. WeaponChoiceManager aÃ§acak.")]
     public bool canSpawn = false;
 
     [Header("Referanslar")]
     public Transform player;          // Oyuncu transform'u
-    public GameObject[] enemyPrefabs; // Inspector'dan atacaðýn düþman prefablarý
+    public GameObject[] enemyPrefabs; // Inspector'dan atacaÄŸÄ±n dÃ¼ÅŸman prefablarÄ±
 
-    [Header("Spawn Ayarlarý")]
-    public float innerRadius = 5f;      // Bu çemberin içinde spawn OLMAYACAK
-    public float outerRadius = 15f;     // Bu çemberin içinde (inner–outer arasý) spawn OLACAK
-    public float spawnInterval = 0.5f;  // Kaç saniyede bir spawn
-    public int maxEnemies = 1000;       // Ayný anda sahnede olabilecek max düþman
+    [Header("Spawn AyarlarÄ±")]
+    public float innerRadius = 5f;      // Bu Ã§emberin iÃ§inde spawn OLMAYACAK
+    public float outerRadius = 15f;     // Bu Ã§emberin iÃ§inde (innerâ€“outer arasÄ±) spawn OLACAK
+    public float spawnInterval = 0.5f;  // KaÃ§ saniyede bir spawn
+    public int maxEnemies = 1000;       // AynÄ± anda sahnede olabilecek max dÃ¼ÅŸman
 
     [Header("Zemin Raycast")]
-    [Tooltip("Spawn noktasýnýn ne kadar üstünden aþaðý ray atýlacak")]
+    [Tooltip("Spawn noktasÄ±nÄ±n ne kadar Ã¼stÃ¼nden aÅŸaÄŸÄ± ray atÄ±lacak")]
     public float groundRayHeight = 50f;
     [Tooltip("Ray'in maksimum mesafesi")]
     public float groundRayDistance = 100f;
 
+    [Header("Ground Mask (Opsiyonel)")]
+    [Tooltip("Sadece zemin layer'larÄ±nÄ± seÃ§mek istersen kullan. Default: Everything")]
+    public LayerMask groundMask = ~0;
+
+    [Header("Ground Snap (Opsiyonel)")]
+    [Tooltip("Spawn sonrasÄ± collider altÄ±nÄ± zemine oturtmak iÃ§in ekstra offset")]
+    public float groundSnapEpsilon = 0.02f;
+
+    [Header("MiniBoss (Her 3 Dakika Dalga)")]
+    public GameObject miniBossPrefab;
+    public float miniBossInterval = 180f;   // 3 dakika
+    public float miniBossMaxHealth = 500f;
+    public float miniBossDamage = 25f;
+    public float miniBossMoveSpeed = 2.5f;  // Ã§ok hÄ±zlÄ± olmasÄ±n
+
+    private float elapsedGameTime = 0f;
+
+    // 0 = hiÃ§ dalga spawn olmadÄ±
+    private int lastMiniBossWave = 0;
+
     private float timer;
     private List<GameObject> spawnedEnemies = new List<GameObject>();
 
-    // ELITE SAYACI: her 5. düþman elite
+    // ELITE SAYACI: her 5. dÃ¼ÅŸman elite
     private int totalSpawnedCount = 0;
 
     private void Update()
     {
-        // Kart seçilmeden çalýþmasýn
+        // Kart seÃ§ilmeden Ã§alÄ±ÅŸmasÄ±n
         if (!canSpawn) return;
 
         if (player == null || enemyPrefabs == null || enemyPrefabs.Length == 0)
             return;
 
-        // Spawner'ý sürekli oyuncunun pozisyonuna taþýyoruz
+        // Spawner'Ä± sÃ¼rekli oyuncunun pozisyonuna taÅŸÄ±yoruz
         transform.position = player.position;
 
-        // Ölü düþmanlarý listeden temizle
+        // Ã–lÃ¼ dÃ¼ÅŸmanlarÄ± listeden temizle
         spawnedEnemies.RemoveAll(e => e == null);
+
+        // Oyun sÃ¼resi (canSpawn baÅŸladÄ±ktan sonra akar)
+        elapsedGameTime += Time.deltaTime;
+
+        // --- MÄ°NÄ°BOSS DALGA SÄ°STEMÄ° ---
+        // 3:00'te wave=1, 6:00'te wave=2, 9:00'te wave=3 ...
+        if (miniBossPrefab != null && miniBossInterval > 0f)
+        {
+            int currentWave = Mathf.FloorToInt(elapsedGameTime / miniBossInterval);
+
+            // currentWave 0 iken spawn yok. 1 olunca 1 miniboss, 2 olunca 2 miniboss...
+            if (currentWave > lastMiniBossWave)
+            {
+                // EÄŸer oyun bir anda zaman atladÄ±ysa (lag vs.), kaÃ§Ä±rÄ±lan dalgalarÄ± da sÄ±rayla bas
+                for (int wave = lastMiniBossWave + 1; wave <= currentWave; wave++)
+                {
+                    int toSpawn = wave; // dalga numarasÄ± kadar miniboss
+
+                    for (int i = 0; i < toSpawn; i++)
+                    {
+                        if (spawnedEnemies.Count >= maxEnemies) break; // max sÄ±nÄ±rÄ±nÄ± aÅŸmasÄ±n
+                        SpawnMiniBoss();
+                    }
+                }
+
+                lastMiniBossWave = currentWave;
+            }
+        }
+        // -----------------------------
 
         timer += Time.deltaTime;
 
@@ -54,68 +104,146 @@ public class EnemySpawner : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        // Yönü rasgele seç (2D circle içinde bir vektör)
+        // YÃ¶nÃ¼ rasgele seÃ§ (2D circle iÃ§inde bir vektÃ¶r)
         Vector2 randomDir = Random.insideUnitCircle.normalized;
 
-        // Yarýçapý innerRadius ile outerRadius arasýnda seç
+        // YarÄ±Ã§apÄ± innerRadius ile outerRadius arasÄ±nda seÃ§
         float radius = Random.Range(innerRadius, outerRadius);
 
-        // 3D dünyada XZ düzlemine projeksiyon (player'ý referans al)
+        // 3D dÃ¼nyada XZ dÃ¼zlemine projeksiyon (player'Ä± referans al)
         Vector3 flatOffset = new Vector3(randomDir.x, 0f, randomDir.y) * radius;
         Vector3 basePos = player.position + flatOffset;
 
-        // --- ZEMÝN RAYCAST ---
+        // --- ZEMÄ°N RAYCAST ---
         Vector3 rayOrigin = basePos + Vector3.up * groundRayHeight;
         Vector3 finalSpawnPos = basePos;
 
-        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRayDistance))
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRayDistance, groundMask, QueryTriggerInteraction.Ignore))
         {
-            // Ne bulduysa (Terrain, MeshCollider, vb.) onun üstüne spawn ol
             finalSpawnPos = hit.point;
         }
         else
         {
-            // Hiçbir þey bulamadýysak, güvenlik için spawn etme
-            // (Ýstersen burayý yorum satýrýna alýp basePos'tan da spawn edebilirsin)
             return;
         }
 
-        // Rastgele bir düþman prefabi seç
+        // Rastgele bir dÃ¼ÅŸman prefabi seÃ§
         GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
 
         GameObject enemy = Instantiate(prefab, finalSpawnPos, Quaternion.identity);
         spawnedEnemies.Add(enemy);
 
-        // ---- ELITE MANTIK: her 5. düþman elite ----
+        // Spawn sonrasÄ± otomatik zemine indir / oturt
+        SnapToGround(enemy);
+
+        // ---- ELITE MANTIK: her 5. dÃ¼ÅŸman elite ----
         totalSpawnedCount++;
         bool isElite = (totalSpawnedCount % 5 == 0);
 
         if (isElite && enemy != null)
         {
-            // 1) Scale x2
             enemy.transform.localScale *= 2f;
 
-            // 2) Can = 150
             EnemyHealth health = enemy.GetComponent<EnemyHealth>();
             if (health != null)
             {
-                // EnemyHealth içine daha önce eklediðimiz fonksiyon:
-                // public void SetMaxHealth(float newMaxHealth, bool fullHeal = true)
                 health.SetMaxHealth(150f, true);
             }
+
+            SnapToGround(enemy);
         }
     }
 
-    // Sahne içinde çemberleri görmek için
+    private void SpawnMiniBoss()
+    {
+        // YÃ¶nÃ¼ rasgele seÃ§
+        Vector2 randomDir = Random.insideUnitCircle.normalized;
+        float radius = Random.Range(innerRadius, outerRadius);
+
+        Vector3 flatOffset = new Vector3(randomDir.x, 0f, randomDir.y) * radius;
+        Vector3 basePos = player.position + flatOffset;
+
+        // Zemin raycast
+        Vector3 rayOrigin = basePos + Vector3.up * groundRayHeight;
+
+        if (!Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, groundRayDistance, groundMask, QueryTriggerInteraction.Ignore))
+            return;
+
+        Vector3 spawnPos = hit.point;
+
+        GameObject boss = Instantiate(miniBossPrefab, spawnPos, Quaternion.identity);
+        spawnedEnemies.Add(boss);
+
+        // Spawn sonrasÄ± zemine oturt
+        SnapToGround(boss);
+
+        // 500 HP + miniboss flag + drop totals
+        EnemyHealth health = boss.GetComponent<EnemyHealth>();
+        if (health != null)
+        {
+            health.SetMaxHealth(miniBossMaxHealth, true);
+            health.isMiniBoss = true;
+            health.miniBossTotalXP = 100;
+            health.miniBossTotalGold = 100;
+        }
+
+        // Takip scriptine gÃ¶re hÄ±z + hasar ayarÄ±
+        SimpleEnemyFollow follow = boss.GetComponent<SimpleEnemyFollow>();
+        if (follow != null)
+        {
+            follow.damage = miniBossDamage;
+            follow.moveSpeed = miniBossMoveSpeed;
+        }
+
+        NavMeshAgent agent = boss.GetComponent<NavMeshAgent>();
+        if (agent != null)
+        {
+            agent.speed = miniBossMoveSpeed;
+        }
+    }
+
+    private void SnapToGround(GameObject enemy)
+    {
+        if (enemy == null) return;
+
+        Vector3 origin = enemy.transform.position + Vector3.up * 10f;
+        if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 200f, groundMask, QueryTriggerInteraction.Ignore))
+            return;
+
+        Collider[] cols = enemy.GetComponentsInChildren<Collider>();
+        float minY = float.PositiveInfinity;
+        bool found = false;
+
+        foreach (var c in cols)
+        {
+            if (c == null) continue;
+            if (c.isTrigger) continue;
+
+            minY = Mathf.Min(minY, c.bounds.min.y);
+            found = true;
+        }
+
+        if (!found)
+        {
+            Vector3 p = enemy.transform.position;
+            p.y = hit.point.y + groundSnapEpsilon;
+            enemy.transform.position = p;
+            return;
+        }
+
+        float delta = (hit.point.y - minY) + groundSnapEpsilon;
+        enemy.transform.position += new Vector3(0f, delta, 0f);
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (player == null)
             return;
 
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(player.position, innerRadius); // Ýç çember (boþ bölge)
+        Gizmos.DrawWireSphere(player.position, innerRadius);
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(player.position, outerRadius); // Dýþ çember (spawn bölgesinin sýnýrý)
+        Gizmos.DrawWireSphere(player.position, outerRadius);
     }
 }
