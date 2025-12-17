@@ -15,19 +15,14 @@ public class EnemyHealth : MonoBehaviour
 
     private bool isDead = false;
 
-    [Header("Vurulma Efekti (Hit Flash)")]
-    public Renderer[] renderersToFlash;    // Boş bırakırsan otomatik bulur
-    public Color hitColor = Color.red;     // Vurulduğunda olacak renk
-    public float flashDuration = 0.1f;     // Ne kadar süre kırmızı kalsın
-
-    private Material[] _materials;
-    private Color[] _originalColors;
-    private bool _isFlashing = false;
+    [Header("Damage Popup")]
+    public bool showDamagePopup = true;
+    public Color popupColor = Color.white;
 
     [Header("XP Drop")]
-    public GameObject xpPrefab;       // Inspector’dan atacağın XP kutusu prefabı
-    public int xpBoxMin = 1;          // Min kutu sayısı
-    public int xpBoxMax = 3;          // Max kutu sayısı
+    public GameObject xpPrefab;        // XP kutusu prefabı
+    public int xpBoxMin = 1;           // Min kutu sayısı
+    public int xpBoxMax = 3;           // Max kutu sayısı
     public float xpSpawnRadius = 0.5f; // Etrafına ne kadar saçılacak
 
     [Header("Gold Drop (Sadece Elite)")]
@@ -36,62 +31,71 @@ public class EnemyHealth : MonoBehaviour
     public int goldMaxPieces = 5;         // Elite başına maksimum altın parçası (istenen: 5)
     public float goldSpawnRadius = 0.5f;  // Altınların etrafa saçılma yarıçapı
 
+    [Header("Heart Drop (1/25)")]
+    public GameObject heartPrefab;         // Kalp pickup prefabı
+    public float heartSpawnRadius = 0.5f;  // Kalbin etrafa saçılma yarıçapı
+    public float heartSpawnY = 0.1f;       // Yerden biraz yukarı
+
+    [Header("Hit Flash")]
+    public float flashDuration = 0.05f;    // Her blink süresi
+    public int flashCount = 2;             // Kaç kere blink (2 => beyaz->normal->beyaz->normal)
+    public Color flashColor = Color.white; // Flash rengi
+
+    private Renderer[] _renderers;
+    private Material[] _materials;
+    private Color[] _originalColors;
+    private bool _isFlashing = false;
+
     private void Awake()
     {
         // Başlangıçta canı maksimuma eşitle
         currentHealth = maxHealth;
 
         if (animator == null)
-            animator = GetComponent<Animator>();
+            animator = GetComponentInChildren<Animator>();
 
-        // Renderer'ları ayarla
-        if (renderersToFlash == null || renderersToFlash.Length == 0)
+        // Hit flash için renderer/material cache
+        _renderers = GetComponentsInChildren<Renderer>(true);
+
+        if (_renderers != null && _renderers.Length > 0)
         {
-            // Düşmanın çocuklarındaki tüm Renderer'ları otomatik bul
-            renderersToFlash = GetComponentsInChildren<Renderer>();
-        }
+            _materials = new Material[_renderers.Length];
+            _originalColors = new Color[_renderers.Length];
 
-        // Materyal ve orijinal renkleri cache'le
-        _materials = new Material[renderersToFlash.Length];
-        _originalColors = new Color[renderersToFlash.Length];
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                // material -> instance oluşturur (flash için güvenli)
+                _materials[i] = _renderers[i].material;
 
-        for (int i = 0; i < renderersToFlash.Length; i++)
-        {
-            // Her enemy için ayrı material instance alıyoruz
-            _materials[i] = renderersToFlash[i].material;
-
-            // Hem Built-in hem URP için dene
-            if (_materials[i].HasProperty("_BaseColor"))
-                _originalColors[i] = _materials[i].GetColor("_BaseColor");
-            else if (_materials[i].HasProperty("_Color"))
-                _originalColors[i] = _materials[i].GetColor("_Color");
-            else
-                _originalColors[i] = Color.white; // fallback
+                if (_materials[i] != null && _materials[i].HasProperty("_Color"))
+                    _originalColors[i] = _materials[i].color;
+                else
+                    _originalColors[i] = Color.white;
+            }
         }
     }
 
     /// <summary>
-    /// Bu fonksiyon dışardan çağrılacak. (Oyuncu vurduğunda vs.)
+    /// Düşman hasar alır.
     /// </summary>
-    public void TakeDamage(float amount)
+    public void TakeDamage(float dmg)
     {
         if (isDead) return;
 
-        currentHealth -= amount;
+        currentHealth -= dmg;
+        if (currentHealth < 0f) currentHealth = 0f;
 
-        // --- DAMAGE POPUP ---
-        DamagePopupManager.Show(
-            amount,
-            transform.position,   // düşmanın pozisyonu
-            Color.red             // istersen crit vs. için renk değiştiririz
-        );
+        // Damage Popup
+        if (showDamagePopup && DamagePopupManager.Instance != null)
+        {
+            DamagePopupManager.Show(dmg, transform.position, popupColor);
+        }
 
-        // Her damage aldığında kırmızı flash yapsın
+        // Hit flash
         StartHitFlash();
 
         if (currentHealth <= 0f)
         {
-            currentHealth = 0f;
             Die();
         }
     }
@@ -101,7 +105,7 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // Ölüm animasyonu tetikle
+        // Ölüm animasyonu varsa tetikle
         if (animator != null && !string.IsNullOrEmpty(deathTriggerName))
         {
             animator.SetTrigger(deathTriggerName);
@@ -119,6 +123,7 @@ public class EnemyHealth : MonoBehaviour
 
         // Tam yok olurken XP kutularını spawn et
         SpawnXPBoxes();
+        TrySpawnHeart();
 
         // Elite mi? maxHealth >= 150 ise ELITE kabul ediyoruz
         bool isEliteKill = maxHealth >= 150f;
@@ -157,30 +162,37 @@ public class EnemyHealth : MonoBehaviour
 
     private System.Collections.IEnumerator HitFlashRoutine()
     {
+        if (_materials == null || _materials.Length == 0)
+            yield break;
+
         _isFlashing = true;
 
-        // Kırmızı yap
-        for (int i = 0; i < _materials.Length; i++)
+        for (int c = 0; c < flashCount; c++)
         {
-            if (_materials[i] == null) continue;
+            // Flash rengi
+            for (int i = 0; i < _materials.Length; i++)
+            {
+                if (_materials[i] != null && _materials[i].HasProperty("_Color"))
+                    _materials[i].color = flashColor;
+            }
 
-            if (_materials[i].HasProperty("_BaseColor"))
-                _materials[i].SetColor("_BaseColor", hitColor);
-            else if (_materials[i].HasProperty("_Color"))
-                _materials[i].SetColor("_Color", hitColor);
+            yield return new WaitForSeconds(flashDuration);
+
+            // Orijinal renge dön
+            for (int i = 0; i < _materials.Length; i++)
+            {
+                if (_materials[i] != null && _materials[i].HasProperty("_Color"))
+                    _materials[i].color = _originalColors[i];
+            }
+
+            yield return new WaitForSeconds(flashDuration);
         }
 
-        yield return new WaitForSeconds(flashDuration);
-
-        // Eski renge dön
+        // Son garanti: orijinal renk
         for (int i = 0; i < _materials.Length; i++)
         {
-            if (_materials[i] == null) continue;
-
-            if (_materials[i].HasProperty("_BaseColor"))
-                _materials[i].SetColor("_BaseColor", _originalColors[i]);
-            else if (_materials[i].HasProperty("_Color"))
-                _materials[i].SetColor("_Color", _originalColors[i]);
+            if (_materials[i] != null && _materials[i].HasProperty("_Color"))
+                _materials[i].color = _originalColors[i];
         }
 
         _isFlashing = false;
@@ -212,6 +224,21 @@ public class EnemyHealth : MonoBehaviour
 
     #endregion
 
+    private void TrySpawnHeart()
+    {
+        if (heartPrefab == null) return;
+
+        if (Random.Range(0, 10) != 0) return;
+
+        Vector3 offset = new Vector3(
+            Random.Range(-heartSpawnRadius, heartSpawnRadius),
+            heartSpawnY,
+            Random.Range(-heartSpawnRadius, heartSpawnRadius)
+        );
+
+        Instantiate(heartPrefab, transform.position + offset, Quaternion.identity);
+    }
+
     #region GOLD Drop (Elite)
 
     private void SpawnGoldPieces()
@@ -223,11 +250,12 @@ public class EnemyHealth : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            Vector3 offset = new Vector3(
-                Random.Range(-goldSpawnRadius, goldSpawnRadius),
-                0.1f,
-                Random.Range(-goldSpawnRadius, goldSpawnRadius)
-            );
+            Vector3 offset =
+                new Vector3(
+                    Random.Range(-goldSpawnRadius, goldSpawnRadius),
+                    0.1f,
+                    Random.Range(-goldSpawnRadius, goldSpawnRadius)
+                );
 
             Vector3 spawnPos = transform.position + offset;
             Instantiate(goldPrefab, spawnPos, Quaternion.identity);
@@ -236,7 +264,7 @@ public class EnemyHealth : MonoBehaviour
 
     #endregion
 
-    #region ELITE / HEALTH HELPER
+    #region SetMaxHealth
 
     /// <summary>
     /// Dışarıdan maksimum canı ayarlamak için.

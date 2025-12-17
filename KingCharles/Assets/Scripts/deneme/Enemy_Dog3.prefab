@@ -4273,9 +4273,8 @@ MonoBehaviour:
   destroyDelay: 2
   animator: {fileID: 0}
   deathTriggerName: Death
-  renderersToFlash: []
-  hitColor: {r: 1, g: 0, b: 0, a: 1}
-  flashDuration: 0.2
+  showDamagePopup: 1
+  popupColor: {r: 1, g: 1, b: 1, a: 1}
   xpPrefab: {fileID: 6872700425443754515, guid: af0de3f40847ce447b413765b951c040, type: 3}
   xpBoxMin: 1
   xpBoxMax: 3
@@ -4284,6 +4283,12 @@ MonoBehaviour:
   goldMinPieces: 1
   goldMaxPieces: 5
   goldSpawnRadius: 0.5
+  heartPrefab: {fileID: 4288102118047953709, guid: 04d1211e0be9ad44cb1bcb91523e5d9c, type: 3}
+  heartSpawnRadius: 0.5
+  heartSpawnY: 0.1
+  flashDuration: 0.2
+  flashCount: 2
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &8766707232274100408
 MonoBehaviour:
   m_ObjectHideFlags: 0
