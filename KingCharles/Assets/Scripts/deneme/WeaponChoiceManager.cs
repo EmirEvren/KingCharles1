@@ -19,6 +19,15 @@ public enum UpgradeKind
     Damage          // Düz +hasar
 }
 
+public enum UpgradeRarity
+{
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
+}
+
 [Serializable]
 public class WeaponOption
 {
@@ -43,6 +52,7 @@ public class UpgradeData
     public string description;   // Kartta yazacak açıklama
     public WeaponType weaponType;
     public UpgradeKind kind;
+    public UpgradeRarity rarity; // <-- EKLENDİ
     public int intAmount;
     public float floatAmount;
 }
@@ -401,6 +411,37 @@ public class WeaponChoiceManager : MonoBehaviour
         ClosePanel();
     }
 
+    // luck01 = 0..1, Legendary max %90 (asla %100 garanti değil)
+    private UpgradeRarity RollRarityByLuck(float luck01)
+    {
+        luck01 = Mathf.Clamp01(luck01);
+
+        // luck düşükken (kötü)
+        float[] low = { 0.55f, 0.25f, 0.13f, 0.05f, 0.02f }; // %2 Legendary
+
+        // luck yüksekken (iyi) -> Legendary %90'a kadar
+        float[] high = { 0.03f, 0.03f, 0.02f, 0.02f, 0.90f }; // %90 Legendary
+
+        float r = UnityEngine.Random.value;
+        float acc = 0f;
+
+        for (int i = 0; i < 5; i++)
+        {
+            float w = Mathf.Lerp(low[i], high[i], luck01);
+            acc += w;
+
+            if (r <= acc)
+                return (UpgradeRarity)i;
+        }
+
+        return UpgradeRarity.Legendary;
+    }
+
+    private string RarityName(UpgradeRarity r)
+    {
+        return r.ToString(); // Common/Uncommon/Rare/Epic/Legendary
+    }
+
     private UpgradeData GenerateRandomUpgrade()
     {
         if (ownedWeapons.Count == 0)
@@ -412,35 +453,56 @@ public class WeaponChoiceManager : MonoBehaviour
         // Ne tür upgrade?
         UpgradeKind kind = (UpgradeKind)UnityEngine.Random.Range(0, 3);
 
+        // Luck oku (PlayerLuck yoksa 0 kabul)
+        float luck01 = 0f;
+        if (PlayerLuck.Instance != null)
+        {
+            int luck = Mathf.Max(0, PlayerLuck.Instance.luckLevel);
+
+            // luckLevel sınırsız -> 0..1'e yumuşak dönüşüm (asemptotik yaklaşır)
+            // luck büyüdükçe 1'e yaklaşır ama hiçbir zaman "garanti" mantığına dönüşmez.
+            luck01 = 1f - Mathf.Exp(-luck / 15f);
+        }
+
+        // Rarity roll
+        UpgradeRarity rarity = RollRarityByLuck(luck01);
+
         UpgradeData data = new UpgradeData();
         data.weaponType = wType;
         data.kind = kind;
+        data.rarity = rarity;
 
-        // Basit rarity / değer mantığı
+        int rarityIndex = (int)rarity; // 0..4
+        string rName = RarityName(rarity);
+
+        // 5 rarity tablosu
+        int[] countTable = { 1, 2, 3, 4, 5 };
+        float[] atkSpdTable = { 0.05f, 0.10f, 0.20f, 0.30f, 0.50f };
+        int[] dmgTable = { 5, 10, 15, 20, 50 };
+
         switch (kind)
         {
             case UpgradeKind.Count:
                 {
-                    int amount = UnityEngine.Random.value < 0.5f ? 1 : 2;
-                    string rarity = amount == 1 ? "Common" : "Rare";
+                    int amount = countTable[rarityIndex];
                     data.intAmount = amount;
-                    data.description = $"{rarity}: {wType} mermi sayısı +{amount}";
+                    data.description = $"{rName}: {wType} mermi sayısı +{amount}";
                     break;
                 }
+
             case UpgradeKind.AttackSpeed:
                 {
-                    float perc = UnityEngine.Random.value < 0.5f ? 0.10f : 0.20f; // %10 veya %20
-                    string rarity = perc < 0.15f ? "Common" : "Rare";
+                    float perc = atkSpdTable[rarityIndex];
                     data.floatAmount = perc;
-                    data.description = $"{rarity}: {wType} saldırı hızı %{Mathf.RoundToInt(perc * 100)} artar";
+                    data.description = $"{rName}: {wType} saldırı hızı %{Mathf.RoundToInt(perc * 100)} artar";
                     break;
                 }
+
             case UpgradeKind.Damage:
                 {
-                    int dmg = UnityEngine.Random.value < 0.5f ? 5 : 10;
-                    string rarity = dmg == 5 ? "Common" : "Rare";
+                    int dmg = dmgTable[rarityIndex];
                     data.intAmount = dmg;
-                    data.description = $"{rarity}: {wType} hasarı +{dmg}";
+                    data.description = $"{rName}: {wType} hasarı +{dmg}";
                     break;
                 }
         }
@@ -491,8 +553,14 @@ public class WeaponChoiceManager : MonoBehaviour
             return baseDamage;
         }
 
-        float result = baseDamage + stats.damageBonus;
-        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, result={result}");
+        // ---- GLOBAL DAMAGE EKLENDİ ----
+        float global = PlayerPermanentUpgrades.Instance != null
+            ? PlayerPermanentUpgrades.Instance.globalDamageBonus
+            : 0f;
+
+        float result = baseDamage + stats.damageBonus + global;
+
+        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, global={global}, result={result}");
         return result;
     }
 

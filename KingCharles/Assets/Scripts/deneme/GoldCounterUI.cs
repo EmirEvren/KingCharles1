@@ -31,7 +31,6 @@ public class GoldCounterUI : MonoBehaviour
     {
         if (goldText != null)
         {
-            // Önüne ikon, yazý vs. eklemek istersen formatý burada deðiþtirirsin
             goldText.text = $": {goldCount}";
         }
     }
@@ -46,6 +45,13 @@ public class GoldCounterUI : MonoBehaviour
     // Pickup'larýn rahat çaðýrabilmesi için static helper
     public static void RegisterGold(int amount)
     {
+        // ---- GOLD GAIN RATE BONUS (DogHouse upgrade) ----
+        if (PlayerPermanentUpgrades.Instance != null)
+        {
+            amount = PlayerPermanentUpgrades.Instance.ModifyGold(amount);
+        }
+        // -------------------------------------------------
+
         if (Instance != null)
         {
             Instance.AddGold(amount);

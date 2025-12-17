@@ -19,6 +19,13 @@ public class PlayerXP : MonoBehaviour
     {
         if (amount <= 0) return;
 
+        // ---- XP GAIN RATE BONUS (DogHouse upgrade) ----
+        if (PlayerPermanentUpgrades.Instance != null)
+        {
+            amount = PlayerPermanentUpgrades.Instance.ModifyXP(amount);
+        }
+        // ----------------------------------------------
+
         currentXP += amount;
 
         // Birden fazla seviye atlayabilsin diye while
