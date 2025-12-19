@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro; 
 using System.Collections.Generic;
+using System.Collections;
+// EKLENDİ: Unity Localization Kütüphanesi
+using UnityEngine.Localization.Settings; 
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -27,33 +30,36 @@ public class MainMenuManager : MonoBehaviour
     public string youtubeLink = "https://www.youtube.com/watch?v=DjaeJy_2lLk";
 
     [Header("--- DİL SİSTEMİ ---")]
-    public Image languageFlagImage;      // Bayrağın değişeceği Image (UI)
-    public TextMeshProUGUI languageNameText; // Dil isminin yazacağı Text (Varsa)
+    public Image languageFlagImage;      
+    public TextMeshProUGUI languageNameText; 
     
-    // Dil listesi (Editörden doldurulacak)
+    // ÖNEMLİ: Element 0'ı İngilizce yaparsan, oyun ilk açılışta (kayıt yoksa) İngilizce başlar.
     public List<LanguageData> languages; 
     
-    // Hangi dilde olduğumuzu tutan sayı
     private int currentLanguageIndex = 0;
-    
-    // Kayıt anahtarı (Hata yapmamak için sabit değişken)
     private const string PREF_LANGUAGE_INDEX = "SelectedLanguageIndex";
+
+    // Bayrak değişiminin çok hızlı olmasını engellemek için (opsiyonel)
+    private bool isChangingLanguage = false;
 
     [System.Serializable]
     public struct LanguageData
     {
-        public string languageName; // Örn: "English", "Türkçe"
+        public string languageName; // Örn: "English"
         public Sprite flagSprite;   // Bayrak resmi
-        public string languageCode; // "en", "tr"
+        public string languageCode; // Örn: "en", "tr-TR", "de" (Localization tablosundaki kod ile AYNI olmalı)
     }
 
-    private void Start()
+    // Start'ı IEnumerator yaptık çünkü Localization sisteminin yüklenmesini beklemeliyiz.
+    private IEnumerator Start()
     {
-        // 1. ÖNCE DİL AYARLARINI YÜKLE (En kritik kısım burası)
-        // Oyun açılır açılmaz hafızayı kontrol edip UI'ı günceller.
+        // 1. Localization sisteminin hazır olmasını bekle
+        yield return LocalizationSettings.InitializationOperation;
+
+        // 2. Kayıtlı dili yükle
         LoadLanguageSettings();
 
-        // 2. DİĞER BAŞLANGIÇ AYARLARI
+        // 3. Diğer ayarlar
         gameWorldContainer.SetActive(false);
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
         if(menuCameraObj != null) menuCameraObj.SetActive(true);
@@ -62,72 +68,81 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // =================================================
-    //              DİL SİSTEMİ (KAYITLI & OTO YÜKLEME)
+    //              DİL SİSTEMİ (GÜNCELLENDİ)
     // =================================================
 
-    // Oyun başlarken 1 kez çalışır
     private void LoadLanguageSettings()
     {
-        // PlayerPrefs.GetInt("Key", 0) -> Eğer kayıt yoksa 0 (Varsayılan) döner.
-        // Yani oyun ilk defa açılıyorsa otomatik olarak Element 0 (İngilizce) seçilir.
-        // Eğer kayıt varsa (mesela 2 - Korece), o sayı gelir.
+        // Kayıt yoksa 0 (İngilizce) döner.
         currentLanguageIndex = PlayerPrefs.GetInt(PREF_LANGUAGE_INDEX, 0);
 
-        // Güvenlik: Eğer kayıtlı sayı, listeden büyükse (listeyi değiştirirsen hata olmasın diye)
         if (languages.Count > 0 && currentLanguageIndex >= languages.Count) 
-        {
             currentLanguageIndex = 0;
-        }
 
-        // UI'ı hemen güncelle ki oyuncu eski bayrağı görmesin
+        // Hem UI'ı güncelle hem de Unity'nin dilini değiştir
         UpdateLanguageUI();
+        StartCoroutine(SetLocale(currentLanguageIndex));
     }
 
-    // Dil butonuna tıklandığında çalışır
     public void OnLanguageToggleClicked()
     {
-        if (languages.Count == 0) return;
+        if (languages.Count == 0 || isChangingLanguage) return;
 
-        // Bir sonraki dile geç
         currentLanguageIndex++;
 
-        // Listenin sonuna geldiysek başa dön (Döngü)
         if (currentLanguageIndex >= languages.Count)
-        {
             currentLanguageIndex = 0;
-        }
 
-        // --- KAYIT İŞLEMİ ---
-        // Yeni seçilen dili hafızaya atıyoruz.
+        // Kaydet
         PlayerPrefs.SetInt(PREF_LANGUAGE_INDEX, currentLanguageIndex);
-        PlayerPrefs.Save(); // Garanti olsun diye diske hemen yaz
+        PlayerPrefs.Save();
 
         // Görünümü güncelle
         UpdateLanguageUI();
+        
+        // Asıl Dili Değiştir (Localization)
+        StartCoroutine(SetLocale(currentLanguageIndex));
     }
 
     private void UpdateLanguageUI()
     {
-        // Liste boşsa hata vermesin diye çık
         if (languages.Count == 0) return;
 
-        // Mevcut dildeki verileri al
         LanguageData currentLang = languages[currentLanguageIndex];
 
-        // 1. Bayrağı değiştir
         if (languageFlagImage != null)
             languageFlagImage.sprite = currentLang.flagSprite;
 
-        // 2. Yazıyı değiştir (Varsa)
         if (languageNameText != null)
             languageNameText.text = currentLang.languageName;
+    }
 
-        // Konsol kontrolü
-        Debug.Log($"Dil Ayarlandı: {currentLang.languageName} (Kayıtlı Index: {currentLanguageIndex})");
+    // Unity Localization Paketine "Dili Değiştir" emrini veren fonksiyon
+    IEnumerator SetLocale(int _index)
+    {
+        isChangingLanguage = true;
+
+        // Listemizdeki dil kodunu alıyoruz (örn: "tr")
+        string targetCode = languages[_index].languageCode;
+        
+        // Localization sistemindeki uygun dili buluyoruz
+        var locale = LocalizationSettings.AvailableLocales.GetLocale(targetCode);
+        
+        // Eğer bulamazsa index sırasına göre deniyoruz (Yedek plan)
+        if (locale == null) 
+             locale = LocalizationSettings.AvailableLocales.Locales[_index];
+
+        // Dili değiştiriyoruz
+        LocalizationSettings.SelectedLocale = locale;
+
+        yield return null;
+        isChangingLanguage = false;
+        
+        Debug.Log("Dil değiştirildi: " + locale.Identifier.Code);
     }
 
     // =================================================
-    //              DİĞER FONKSİYONLAR
+    //              DİĞER FONKSİYONLAR (AYNI)
     // =================================================
     public void OnDiscordClicked() { Application.OpenURL(discordLink); }
     public void OnYoutubeClicked() { Application.OpenURL(youtubeLink); }
@@ -179,11 +194,6 @@ public class MainMenuManager : MonoBehaviour
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // DÜZELTME: Buradan 'gameWorldContainer.activeSelf' kontrolünü SİLDİK.
-            // Artık oyun açıkken ESC'ye basarsan MainMenuManager karışmayacak.
-            // İşi PauseManager halledecek.
-
-            // Sadece Menüdeyken alt menüler (Ayarlar, Multiplayer) açıksa geri gelmesi için:
             if (settingsPanel.activeSelf || multiplayerPanel.activeSelf)
             {
                 OnBackToMenuClicked();

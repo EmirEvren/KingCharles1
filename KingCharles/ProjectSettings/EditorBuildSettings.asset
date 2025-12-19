@@ -12,5 +12,7 @@ EditorBuildSettings:
     path: "Assets/buras\u0131.unity"
     guid: c8e902632829eaf48af254028ec638bb
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 0efcfe4cfbe3a034ca34d881cdb4cfb3, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: 2e21399568ce7114c80598b5cd872cdb, type: 2}
   m_UseUCBPForAssetBundles: 0
