@@ -27,6 +27,34 @@ MonoBehaviour:
     m_Key: Key_Quit
     m_Metadata:
       m_Items: []
+  - m_Id: 35754224205824
+    m_Key: Key_Graphics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35869391405056
+    m_Key: Key_Brightness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35872444858368
+    m_Key: Key_Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35890417451008
+    m_Key: Key_Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36065164738560
+    m_Key: Key_SFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36141853392896
+    m_Key: Key_Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36287689342976
+    m_Key: Key_MouseSensitivity
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -10,24 +10,52 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: MenuStringTableCollection_zh-Hans
+  m_Name: MenuStringTableCollection_en
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
   m_LocaleId:
-    m_Code: zh-Hans
+    m_Code: en
   m_SharedData: {fileID: 11400000, guid: 35243478a84bf0343b2dbf0ed98b535c, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 67248668672
-    m_Localized: "\u5F00\u59CB\u6E38\u620F"
+    m_Localized: Play
     m_Metadata:
       m_Items: []
   - m_Id: 1462555197440
-    m_Localized: "\u8BBE\u7F6E"
+    m_Localized: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 1466581729280
-    m_Localized: "\u9000\u51FA"
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35754224205824
+    m_Localized: Graphics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35869391405056
+    m_Localized: Brightness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35872444858368
+    m_Localized: Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35890417451008
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36065164738560
+    m_Localized: SFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36141853392896
+    m_Localized: Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36287689342976
+    m_Localized: Mouse Sensitivity
     m_Metadata:
       m_Items: []
   references:

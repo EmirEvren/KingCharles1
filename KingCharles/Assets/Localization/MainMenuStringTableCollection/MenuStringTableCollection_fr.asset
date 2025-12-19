@@ -10,24 +10,52 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: MenuStringTableCollection_en
+  m_Name: MenuStringTableCollection_fr
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
   m_LocaleId:
-    m_Code: en
+    m_Code: fr
   m_SharedData: {fileID: 11400000, guid: 35243478a84bf0343b2dbf0ed98b535c, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 67248668672
-    m_Localized: Play
+    m_Localized: Jouer
     m_Metadata:
       m_Items: []
   - m_Id: 1462555197440
-    m_Localized: Settings
+    m_Localized: "Param\xE8tres"
     m_Metadata:
       m_Items: []
   - m_Id: 1466581729280
-    m_Localized: Quit
+    m_Localized: Quitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35754224205824
+    m_Localized: Graphismes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35869391405056
+    m_Localized: "Luminosit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35872444858368
+    m_Localized: Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35890417451008
+    m_Localized: Musique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36065164738560
+    m_Localized: Effets (SFX)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36141853392896
+    m_Localized: "Contr\xF4les"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36287689342976
+    m_Localized: "Sensibilit\xE9 Souris"
     m_Metadata:
       m_Items: []
   references:
