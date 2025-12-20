@@ -259,14 +259,9 @@ public class WeaponChoiceManager : MonoBehaviour
 
     #region LEVEL UP → YENİ SEÇİM
 
-    /// <summary>
-    /// PlayerXP.AddXP içinde, level arttığında burayı çağır:
-    /// WeaponChoiceManager.Instance?.OnPlayerLevelUp(level);
-    /// </summary>
     public void OnPlayerLevelUp(int newLevel)
     {
         if (!initialChoiceDone) return; // İlk seçim yapılmadan level up geldi ise es geç
-
         OpenLevelUpChoice();
     }
 
@@ -274,7 +269,6 @@ public class WeaponChoiceManager : MonoBehaviour
     {
         if (ownedWeapons.Count == 0)
         {
-            // Güvenlik için; normalde olmaz
             OpenInitialChoice();
             return;
         }
@@ -312,7 +306,6 @@ public class WeaponChoiceManager : MonoBehaviour
 
         if (candidates.Count == 0)
         {
-            // Her şeyi almış → upgrade moduna geç
             SetupUpgradeChoices();
             return;
         }
@@ -356,11 +349,9 @@ public class WeaponChoiceManager : MonoBehaviour
 
     private void SetupUpgradeChoices()
     {
-        // Owned silahlar üzerinden 2 upgrade üret
         currentUpgrade1 = GenerateRandomUpgrade();
         currentUpgrade2 = GenerateRandomUpgrade();
 
-        // Butonlar artık OnUpgradeSelected kullanacak
         if (cardButton1 != null)
         {
             cardButton1.onClick.RemoveAllListeners();
@@ -373,11 +364,9 @@ public class WeaponChoiceManager : MonoBehaviour
             cardButton2.onClick.AddListener(() => OnUpgradeSelected(2));
         }
 
-        // UI: açıklama
         if (card1Title != null) card1Title.text = currentUpgrade1.description;
         if (card2Title != null) card2Title.text = currentUpgrade2.description;
 
-        // ICON: upgrade hangi silaha aitse, o silahın icon'u butona basılır
         SetupUpgradeCardIcon(currentUpgrade1, cardButton1);
         SetupUpgradeCardIcon(currentUpgrade2, cardButton2);
     }
@@ -416,11 +405,11 @@ public class WeaponChoiceManager : MonoBehaviour
     {
         luck01 = Mathf.Clamp01(luck01);
 
-        // luck düşükken (kötü)
-        float[] low = { 0.55f, 0.25f, 0.13f, 0.05f, 0.02f }; // %2 Legendary
+        // luck düşükken
+        float[] low = { 0.55f, 0.25f, 0.13f, 0.05f, 0.02f };
 
-        // luck yüksekken (iyi) -> Legendary %90'a kadar
-        float[] high = { 0.03f, 0.03f, 0.02f, 0.02f, 0.90f }; // %90 Legendary
+        // luck yüksekken -> Legendary %90'a kadar
+        float[] high = { 0.03f, 0.03f, 0.02f, 0.02f, 0.90f };
 
         float r = UnityEngine.Random.value;
         float acc = 0f;
@@ -439,32 +428,24 @@ public class WeaponChoiceManager : MonoBehaviour
 
     private string RarityName(UpgradeRarity r)
     {
-        return r.ToString(); // Common/Uncommon/Rare/Epic/Legendary
+        return r.ToString();
     }
 
     private UpgradeData GenerateRandomUpgrade()
     {
         if (ownedWeapons.Count == 0)
-            ownedWeapons.Add(WeaponType.Bone); // Güvenlik
+            ownedWeapons.Add(WeaponType.Bone);
 
-        // Hangi silaha gelecek?
         WeaponType wType = ownedWeapons[UnityEngine.Random.Range(0, ownedWeapons.Count)];
-
-        // Ne tür upgrade?
         UpgradeKind kind = (UpgradeKind)UnityEngine.Random.Range(0, 3);
 
-        // Luck oku (PlayerLuck yoksa 0 kabul)
         float luck01 = 0f;
         if (PlayerLuck.Instance != null)
         {
-            int luck = Mathf.Max(0, PlayerLuck.Instance.luckLevel);
-
-            // luckLevel sınırsız -> 0..1'e yumuşak dönüşüm (asemptotik yaklaşır)
-            // luck büyüdükçe 1'e yaklaşır ama hiçbir zaman "garanti" mantığına dönüşmez.
-            luck01 = 1f - Mathf.Exp(-luck / 15f);
+            // Artık Luck01 PlayerLuck içinde var (CS1061 fix)
+            luck01 = PlayerLuck.Instance.Luck01;
         }
 
-        // Rarity roll
         UpgradeRarity rarity = RollRarityByLuck(luck01);
 
         UpgradeData data = new UpgradeData();
@@ -475,7 +456,6 @@ public class WeaponChoiceManager : MonoBehaviour
         int rarityIndex = (int)rarity; // 0..4
         string rName = RarityName(rarity);
 
-        // 5 rarity tablosu
         int[] countTable = { 1, 2, 3, 4, 5 };
         float[] atkSpdTable = { 0.05f, 0.10f, 0.20f, 0.30f, 0.50f };
         int[] dmgTable = { 5, 10, 15, 20, 50 };
@@ -553,14 +533,22 @@ public class WeaponChoiceManager : MonoBehaviour
             return baseDamage;
         }
 
-        // ---- GLOBAL DAMAGE EKLENDİ ----
+        // ---- GLOBAL DAMAGE EKLENDİ (senin istediğin snippet) ----
         float global = PlayerPermanentUpgrades.Instance != null
             ? PlayerPermanentUpgrades.Instance.globalDamageBonus
             : 0f;
 
         float result = baseDamage + stats.damageBonus + global;
+        // --------------------------------------------------------
 
-        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, global={global}, result={result}");
+        // Sandık "Kılıç" çarpanı varsa uygula (yoksa 1)
+        float mul = PlayerPermanentUpgrades.Instance != null
+            ? PlayerPermanentUpgrades.Instance.globalDamageMultiplier
+            : 1f;
+
+        result *= (mul <= 0f ? 1f : mul);
+
+        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, global={global}, mul={mul}, result={result}");
         return result;
     }
 
@@ -612,7 +600,6 @@ public class WeaponChoiceManager : MonoBehaviour
         {
             ownedWeapons.Add(type);
 
-            // HUD iconlarını güncelle
             if (WeaponHUDIcons.Instance != null)
             {
                 WeaponHUDIcons.Instance.OnWeaponAcquired(type);

@@ -6,9 +6,11 @@ public class GoldCounterUI : MonoBehaviour
     public static GoldCounterUI Instance;
 
     [Header("UI Referansý")]
-    public TMP_Text goldText;   // Canvas üzerindeki TMP_Text'i buraya sürükle
+    public TMP_Text goldText;
 
     private int goldCount = 0;
+
+    public int GetGold() => goldCount;
 
     private void Awake()
     {
@@ -19,6 +21,17 @@ public class GoldCounterUI : MonoBehaviour
         }
 
         Instance = this;
+    }
+
+    public bool TrySpend(int amount)
+    {
+        if (amount <= 0) return true;
+        if (goldCount < amount) return false;
+
+        goldCount -= amount;
+        if (goldCount < 0) goldCount = 0;
+        RefreshText();
+        return true;
     }
 
     private void Start()
@@ -42,15 +55,14 @@ public class GoldCounterUI : MonoBehaviour
         RefreshText();
     }
 
-    // Pickup'larýn rahat çaðýrabilmesi için static helper
     public static void RegisterGold(int amount)
     {
-        // ---- GOLD GAIN RATE BONUS (DogHouse upgrade) ----
+        // ---- GOLD GAIN RATE BONUS ----
         if (PlayerPermanentUpgrades.Instance != null)
         {
             amount = PlayerPermanentUpgrades.Instance.ModifyGold(amount);
         }
-        // -------------------------------------------------
+        // -----------------------------
 
         if (Instance != null)
         {
