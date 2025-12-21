@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class SteakProjectile : MonoBehaviour
 {
@@ -8,33 +9,38 @@ public class SteakProjectile : MonoBehaviour
     public float lifeTime = 3f;
 
     [Header("Spin")]
-    public float spinSpeed = 360f;   // İstersen 0 yaparsın, dönmez
+    public float spinSpeed = 360f;
 
     [Header("Hasar")]
-    public float damage = 25f;       // Base damage (upgrade öncesi)
+    public float damage = 25f;
 
     [Header("Vuruş Alanı (Circle)")]
-    public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire
+    public float hitRadius = 1.5f;
+
+    [Header("Ricochet (Sekme)")]
+    public float ricochetSearchRadius = 8f;
 
     [Header("Sesler")]
-    public AudioClip flightSfx;      // Havada giderken
-    public AudioClip hitSfx;         // Düşmana çarpınca
+    public AudioClip flightSfx;
+    public AudioClip hitSfx;
     [Range(0f, 1f)]
     public float hitSfxVolume = 1f;
 
-    private AudioSource audioSource; // Uçuş sesi için (Ana AudioSource)
+    private AudioSource audioSource;
     private Vector3 moveDir;
     private Transform target;
 
+    private int ricochetsRemaining = 0;
+    private HashSet<int> hitEnemyIds = new HashSet<int>();
+
     private void Awake()
     {
-        // AudioSource hazırla (yoksa ekler)
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
-            audioSource.spatialBlend = 1f; // 3D ses
+            audioSource.spatialBlend = 1f;
         }
 
         IgnoreCameraCollision();
@@ -47,7 +53,9 @@ public class SteakProjectile : MonoBehaviour
         if (moveDir.sqrMagnitude < 0.001f)
             moveDir = transform.forward;
 
-        // Uçuş sesi
+        if (PlayerPermanentUpgrades.Instance != null)
+            ricochetsRemaining = Mathf.Max(0, PlayerPermanentUpgrades.Instance.ricochetBounces);
+
         if (flightSfx != null)
         {
             audioSource.clip = flightSfx;
@@ -58,7 +66,6 @@ public class SteakProjectile : MonoBehaviour
 
     private void Update()
     {
-        // Hedef varsa → homing
         if (target != null)
         {
             Vector3 dir = target.position - transform.position;
@@ -70,13 +77,12 @@ public class SteakProjectile : MonoBehaviour
                 moveDir = Vector3.Slerp(moveDir, dir, Time.deltaTime * turnSpeed);
             }
 
-            // Circle içine girdi mi?
-            Vector3 steakPos = transform.position;
+            Vector3 projPos = transform.position;
             Vector3 enemyPos = target.position;
-            steakPos.y = 0f;
+            projPos.y = 0f;
             enemyPos.y = 0f;
 
-            float sqrDist = (enemyPos - steakPos).sqrMagnitude;
+            float sqrDist = (enemyPos - projPos).sqrMagnitude;
             float sqrHitRadius = hitRadius * hitRadius;
 
             if (sqrDist <= sqrHitRadius)
@@ -86,21 +92,17 @@ public class SteakProjectile : MonoBehaviour
             }
         }
 
-        // Spin
         if (spinSpeed != 0f)
             transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.Self);
 
-        // İleri hareket
         transform.position += moveDir * speed * Time.deltaTime;
     }
 
-    // Shooter buradan hedef veriyor
     public void SetTarget(Transform t)
     {
         target = t;
     }
 
-    // Shooter ilk yönü buradan veriyor
     public void SetDirection(Vector3 dir)
     {
         if (dir.sqrMagnitude > 0.001f)
@@ -120,32 +122,85 @@ public class SteakProjectile : MonoBehaviour
             AudioSource tempSource = tempAudioObj.AddComponent<AudioSource>();
             tempSource.clip = hitSfx;
             tempSource.volume = hitSfxVolume;
-            tempSource.spatialBlend = 1f; // 3D ses
+            tempSource.spatialBlend = 1f;
 
             if (audioSource != null && audioSource.outputAudioMixerGroup != null)
-            {
                 tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
-            }
 
             tempSource.Play();
             Destroy(tempAudioObj, hitSfx.length);
         }
 
         // --- HASAR ---
+        EnemyHealth enemyHealth = null;
+
         if (target != null)
         {
-            EnemyHealth enemyHealth = target.GetComponent<EnemyHealth>();
+            hitEnemyIds.Add(target.gameObject.GetInstanceID());
+
+            enemyHealth = target.GetComponent<EnemyHealth>();
             if (enemyHealth == null)
                 enemyHealth = target.GetComponentInParent<EnemyHealth>();
+        }
 
-            if (enemyHealth != null)
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(damage);
+        }
+
+        // --- RICOCHET ---
+        if (ricochetsRemaining > 0)
+        {
+            Transform next = FindNextEnemy(transform.position, ricochetSearchRadius);
+            if (next != null)
             {
-                Debug.Log($"[SteakProjectile] Damage field used: {damage}");
-                enemyHealth.TakeDamage(damage);
+                ricochetsRemaining--;
+
+                target = next;
+
+                Vector3 newDir = (target.position - transform.position);
+                newDir.y = 0f;
+                if (newDir.sqrMagnitude < 0.001f) newDir = transform.forward;
+                moveDir = newDir.normalized;
+
+                transform.position += moveDir * 0.25f;
+
+                return;
             }
         }
 
         Destroy(gameObject);
+    }
+
+    private Transform FindNextEnemy(Vector3 fromPos, float radius)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        Transform best = null;
+        float bestSqr = Mathf.Infinity;
+
+        float rSqr = radius * radius;
+        Vector3 p = fromPos;
+        p.y = 0f;
+
+        foreach (GameObject e in enemies)
+        {
+            if (e == null || !e.activeInHierarchy) continue;
+
+            int id = e.GetInstanceID();
+            if (hitEnemyIds.Contains(id)) continue;
+
+            Vector3 ep = e.transform.position;
+            ep.y = 0f;
+
+            float sqr = (ep - p).sqrMagnitude;
+            if (sqr <= rSqr && sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                best = e.transform;
+            }
+        }
+
+        return best;
     }
 
     private void IgnoreCameraCollision()
@@ -164,9 +219,7 @@ public class SteakProjectile : MonoBehaviour
         foreach (var col in myColliders)
         {
             if (col != null)
-            {
                 Physics.IgnoreCollision(col, camCol, true);
-            }
         }
     }
 }

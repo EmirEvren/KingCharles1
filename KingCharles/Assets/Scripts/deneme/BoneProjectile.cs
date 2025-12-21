@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class BoneProjectile : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class BoneProjectile : MonoBehaviour
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;
 
+    [Header("Ricochet (Sekme)")]
+    public float ricochetSearchRadius = 8f; // yakındaki düşmanı bu yarıçapta ara
+
     [Header("Sesler")]
     public AudioClip flightSfx;
     public AudioClip hitSfx;
@@ -25,6 +29,9 @@ public class BoneProjectile : MonoBehaviour
     private AudioSource audioSource;
     private Vector3 moveDir;
     private Transform target;
+
+    private int ricochetsRemaining = 0; // kaç ekstra düşmana daha gidebilir
+    private HashSet<int> hitEnemyIds = new HashSet<int>();
 
     private void Awake()
     {
@@ -45,6 +52,10 @@ public class BoneProjectile : MonoBehaviour
 
         if (moveDir.sqrMagnitude < 0.001f)
             moveDir = transform.forward;
+
+        // Ricochet sayısını oyuncunun kalıcı upgrade'inden çek
+        if (PlayerPermanentUpgrades.Instance != null)
+            ricochetsRemaining = Mathf.Max(0, PlayerPermanentUpgrades.Instance.ricochetBounces);
 
         if (flightSfx != null)
         {
@@ -67,12 +78,12 @@ public class BoneProjectile : MonoBehaviour
                 moveDir = Vector3.Slerp(moveDir, dir, Time.deltaTime * turnSpeed);
             }
 
-            Vector3 bonePos = transform.position;
+            Vector3 projPos = transform.position;
             Vector3 enemyPos = target.position;
-            bonePos.y = 0f;
+            projPos.y = 0f;
             enemyPos.y = 0f;
 
-            float sqrDist = (enemyPos - bonePos).sqrMagnitude;
+            float sqrDist = (enemyPos - projPos).sqrMagnitude;
             float sqrHitRadius = hitRadius * hitRadius;
 
             if (sqrDist <= sqrHitRadius)
@@ -82,10 +93,7 @@ public class BoneProjectile : MonoBehaviour
             }
         }
 
-        // Spin
         transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.Self);
-
-        // İleri hareket
         transform.position += moveDir * speed * Time.deltaTime;
     }
 
@@ -116,29 +124,85 @@ public class BoneProjectile : MonoBehaviour
             tempSource.spatialBlend = 1f;
 
             if (audioSource != null && audioSource.outputAudioMixerGroup != null)
-            {
                 tempSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
-            }
 
             tempSource.Play();
             Destroy(tempAudioObj, hitSfx.length);
         }
 
         // --- HASAR ---
+        EnemyHealth enemyHealth = null;
+        int hitId = -1;
+
         if (target != null)
         {
-            EnemyHealth enemyHealth = target.GetComponent<EnemyHealth>();
+            hitId = target.gameObject.GetInstanceID();
+            hitEnemyIds.Add(hitId);
+
+            enemyHealth = target.GetComponent<EnemyHealth>();
             if (enemyHealth == null)
                 enemyHealth = target.GetComponentInParent<EnemyHealth>();
+        }
 
-            if (enemyHealth != null)
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(damage);
+        }
+
+        // --- RICOCHET ---
+        if (ricochetsRemaining > 0)
+        {
+            Transform next = FindNextEnemy(transform.position, ricochetSearchRadius);
+            if (next != null)
             {
-                Debug.Log($"[BoneProjectile] Damage field used: {damage}");
-                enemyHealth.TakeDamage(damage);
+                ricochetsRemaining--;
+
+                target = next;
+
+                Vector3 newDir = (target.position - transform.position);
+                newDir.y = 0f;
+                if (newDir.sqrMagnitude < 0.001f) newDir = transform.forward;
+                moveDir = newDir.normalized;
+
+                // aynı düşmanın içinde kalıp tekrar tetiklenmesin diye hafif it
+                transform.position += moveDir * 0.25f;
+
+                return; // yok etme, devam et
             }
         }
 
         Destroy(gameObject);
+    }
+
+    private Transform FindNextEnemy(Vector3 fromPos, float radius)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        Transform best = null;
+        float bestSqr = Mathf.Infinity;
+
+        float rSqr = radius * radius;
+        Vector3 p = fromPos;
+        p.y = 0f;
+
+        foreach (GameObject e in enemies)
+        {
+            if (e == null || !e.activeInHierarchy) continue;
+
+            int id = e.GetInstanceID();
+            if (hitEnemyIds.Contains(id)) continue;
+
+            Vector3 ep = e.transform.position;
+            ep.y = 0f;
+
+            float sqr = (ep - p).sqrMagnitude;
+            if (sqr <= rSqr && sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                best = e.transform;
+            }
+        }
+
+        return best;
     }
 
     private void IgnoreCameraCollision()
@@ -157,9 +221,7 @@ public class BoneProjectile : MonoBehaviour
         foreach (var col in myColliders)
         {
             if (col != null)
-            {
                 Physics.IgnoreCollision(col, camCol, true);
-            }
         }
     }
 }

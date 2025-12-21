@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class TennisBallProjectile : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class TennisBallProjectile : MonoBehaviour
     [Header("Vuruş Alanı (Circle)")]
     public float hitRadius = 1.5f;   // Düşmanın etrafındaki daire yarıçapı
 
+    [Header("Ricochet (Sekme)")]
+    public float ricochetSearchRadius = 8f; // Sekmede yeni hedef arama yarıçapı
+
     [Header("Sesler")]
     public AudioClip flightSfx;      // Havada giderken çalan ses (loop)
     public AudioClip hitSfx;         // Düşmana çarpınca çalan ses
@@ -25,6 +29,10 @@ public class TennisBallProjectile : MonoBehaviour
     private AudioSource audioSource; // Uçuş sesi için (Ana AudioSource)
     private Vector3 moveDir;
     private Transform target;
+
+    // Sekme state
+    private int ricochetsRemaining = 0;                    // Kaç sekme kaldı
+    private HashSet<int> hitEnemyIds = new HashSet<int>(); // Aynı düşmana tekrar vurmayı engelle
 
     private void Awake()
     {
@@ -46,6 +54,9 @@ public class TennisBallProjectile : MonoBehaviour
 
         if (moveDir.sqrMagnitude < 0.001f)
             moveDir = transform.forward;
+
+        // Sekme hakkını (eşya varsa) al
+        ricochetsRemaining = GetRicochetBouncesFromPermanentUpgrades();
 
         // Uçuş sesini başlat
         if (flightSfx != null)
@@ -134,20 +145,129 @@ public class TennisBallProjectile : MonoBehaviour
         }
 
         // --- HASAR ---
-        if (target != null)
-        {
-            EnemyHealth enemyHealth = target.GetComponent<EnemyHealth>();
-            if (enemyHealth == null)
-                enemyHealth = target.GetComponentInParent<EnemyHealth>();
+        Transform hitTr = target;
+        EnemyHealth enemyHealth = null;
 
-            if (enemyHealth != null)
+        if (hitTr != null)
+        {
+            enemyHealth = hitTr.GetComponent<EnemyHealth>();
+            if (enemyHealth == null)
+                enemyHealth = hitTr.GetComponentInParent<EnemyHealth>();
+        }
+
+        if (enemyHealth != null)
+        {
+            int id = enemyHealth.gameObject.GetInstanceID();
+            hitEnemyIds.Add(id);
+
+            Debug.Log($"[TennisBallProjectile] Damage field used: {damage}");
+            enemyHealth.TakeDamage(damage);
+        }
+
+        // --- RICOCHET ---
+        if (ricochetsRemaining > 0)
+        {
+            Transform next = FindNextEnemyTarget();
+            if (next != null)
             {
-                Debug.Log($"[TennisBallProjectile] Damage field used: {damage}");
-                enemyHealth.TakeDamage(damage);
+                ricochetsRemaining--;
+
+                target = next;
+
+                Vector3 dir = (target.position - transform.position);
+                dir.y = 0f;
+                if (dir.sqrMagnitude > 0.001f)
+                {
+                    moveDir = dir.normalized;
+                    transform.position += moveDir * 0.25f;
+                }
+
+                return; // yok olma, yeni hedefe devam
             }
         }
 
         Destroy(gameObject);
+    }
+
+    private Transform FindNextEnemyTarget()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, ricochetSearchRadius);
+        Transform best = null;
+        float bestSqr = Mathf.Infinity;
+
+        foreach (var c in cols)
+        {
+            if (c == null) continue;
+
+            EnemyHealth eh = c.GetComponent<EnemyHealth>();
+            if (eh == null) eh = c.GetComponentInParent<EnemyHealth>();
+            if (eh == null) continue;
+
+            GameObject go = eh.gameObject;
+            if (!go.activeInHierarchy) continue;
+
+            int id = go.GetInstanceID();
+            if (hitEnemyIds.Contains(id)) continue;
+
+            float sqr = (go.transform.position - transform.position).sqrMagnitude;
+            if (sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                best = go.transform;
+            }
+        }
+
+        return best;
+    }
+
+    private int GetRicochetBouncesFromPermanentUpgrades()
+    {
+        int result = 0;
+
+        var pu = PlayerPermanentUpgrades.Instance;
+        if (pu == null) return result;
+
+        var t = pu.GetType();
+
+        string[] intNames =
+        {
+            "ricochetBounces",
+            "bulletBounceCount",
+            "bounceCount",
+            "stickyBoneBounces"
+        };
+
+        foreach (var name in intNames)
+        {
+            var f = t.GetField(name);
+            if (f != null && f.FieldType == typeof(int))
+                return Mathf.Max(0, (int)f.GetValue(pu));
+
+            var p = t.GetProperty(name);
+            if (p != null && p.PropertyType == typeof(int) && p.CanRead)
+                return Mathf.Max(0, (int)p.GetValue(pu, null));
+        }
+
+        string[] boolNames =
+        {
+            "hasStickyBone",
+            "stickyBone",
+            "enableRicochet",
+            "hasRicochet"
+        };
+
+        foreach (var name in boolNames)
+        {
+            var f = t.GetField(name);
+            if (f != null && f.FieldType == typeof(bool) && (bool)f.GetValue(pu))
+                return 2;
+
+            var p = t.GetProperty(name);
+            if (p != null && p.PropertyType == typeof(bool) && p.CanRead && (bool)p.GetValue(pu, null))
+                return 2;
+        }
+
+        return result;
     }
 
     private void IgnoreCameraCollision()
