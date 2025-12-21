@@ -83,6 +83,13 @@ public class DogHouseUpgradeUI : MonoBehaviour
     public TMP_Text text2;
     public TMP_Text text3;
 
+    [Header("Rarity Colors (Buttons)")]
+    public Color commonColor = new Color(0.75f, 0.75f, 0.75f, 1f);     // gri
+    public Color uncommonColor = new Color(0.30f, 0.85f, 0.35f, 1f);   // yeþil
+    public Color rareColor = new Color(0.30f, 0.55f, 0.95f, 1f);       // mavi
+    public Color epicColor = new Color(0.65f, 0.30f, 0.95f, 1f);       // mor
+    public Color legendaryColor = new Color(0.95f, 0.80f, 0.15f, 1f);  // sarý
+
     public Action onClosed;
 
     private DogHouseUpgradeOption opt1;
@@ -111,10 +118,36 @@ public class DogHouseUpgradeUI : MonoBehaviour
     {
         if (txt != null) txt.text = opt.GetButtonText();
 
+        // --- EKLENDÝ: rarity'e göre buton rengi ---
+        ApplyRarityColor(btn, opt.tierIndex);
+        // -----------------------------------------
+
         if (btn == null) return;
 
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => OnPick(index));
+    }
+
+    private void ApplyRarityColor(Button btn, int tierIndex)
+    {
+        if (btn == null) return;
+
+        Image btnImg = btn.GetComponent<Image>();
+        if (btnImg == null) return;
+
+        Color c = commonColor;
+
+        // tierIndex: 0=Common, 1=Uncommon, 2=Rare, 3=Epic, 4=Legendary
+        switch (tierIndex)
+        {
+            case 0: c = commonColor; break;
+            case 1: c = uncommonColor; break;
+            case 2: c = rareColor; break;
+            case 3: c = epicColor; break;
+            default: c = legendaryColor; break;
+        }
+
+        btnImg.color = c;
     }
 
     private void OnPick(int index)

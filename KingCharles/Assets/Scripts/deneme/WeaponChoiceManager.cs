@@ -94,6 +94,13 @@ public class WeaponChoiceManager : MonoBehaviour
     private Dictionary<WeaponType, WeaponRuntimeStats> statsDict
         = new Dictionary<WeaponType, WeaponRuntimeStats>();
 
+    // -------------------- CURSOR + PAUSE CACHE (EKLENDİ) --------------------
+    private float prevTimeScale = 1f;
+    private CursorLockMode prevLockMode;
+    private bool prevCursorVisible;
+    private bool pausedByWeaponChoice = false;
+    // ----------------------------------------------------------------------
+
     private void Awake()
     {
         // Singleton
@@ -116,6 +123,15 @@ public class WeaponChoiceManager : MonoBehaviour
     private void Start()
     {
         OpenInitialChoice();
+    }
+
+    // Panel açıkken cursor'un asla kaybolmaması için zorla (EKLENDİ)
+    private void LateUpdate()
+    {
+        if (!panelOpen) return;
+
+        if (!Cursor.visible) Cursor.visible = true;
+        if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
     }
 
     #region STATS DICTIONARY
@@ -177,7 +193,11 @@ public class WeaponChoiceManager : MonoBehaviour
         }
 
         panelOpen = true;
-        Time.timeScale = 0f;
+
+        // --- EKLENDİ: OYUNU DURDUR + CURSOR AÇ ---
+        PauseGameAndShowCursor();
+        // ----------------------------------------
+
         SetExtraScriptsEnabled(false);
 
         if (choicePanel != null)
@@ -274,7 +294,11 @@ public class WeaponChoiceManager : MonoBehaviour
         }
 
         panelOpen = true;
-        Time.timeScale = 0f;
+
+        // --- EKLENDİ: OYUNU DURDUR + CURSOR AÇ ---
+        PauseGameAndShowCursor();
+        // ----------------------------------------
+
         SetExtraScriptsEnabled(false);
 
         if (choicePanel != null)
@@ -625,9 +649,47 @@ public class WeaponChoiceManager : MonoBehaviour
         if (choicePanel != null)
             choicePanel.SetActive(false);
 
-        Time.timeScale = 1f;
+        // --- EKLENDİ: OYUNU DEVAM ETTİR + CURSOR ESKİ HALİNE ---
+        ResumeGameAndRestoreCursor();
+        // ------------------------------------------------------
+
         SetExtraScriptsEnabled(true);
     }
 
     #endregion
+
+    // -------------------- CURSOR/PAUSE HELPERS (EKLENDİ) --------------------
+    private void PauseGameAndShowCursor()
+    {
+        if (pausedByWeaponChoice) return;
+        pausedByWeaponChoice = true;
+
+        prevTimeScale = Time.timeScale;
+        prevLockMode = Cursor.lockState;
+        prevCursorVisible = Cursor.visible;
+
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    private void ResumeGameAndRestoreCursor()
+    {
+        if (!pausedByWeaponChoice) return;
+        pausedByWeaponChoice = false;
+
+        Time.timeScale = prevTimeScale;
+        Cursor.visible = prevCursorVisible;
+        Cursor.lockState = prevLockMode;
+    }
+
+    private void OnDisable()
+    {
+        // UI kapanırsa oyun kilitli kalmasın
+        if (pausedByWeaponChoice)
+        {
+            ResumeGameAndRestoreCursor();
+        }
+    }
+    // ----------------------------------------------------------------------
 }
