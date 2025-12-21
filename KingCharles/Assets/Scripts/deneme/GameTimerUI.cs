@@ -3,27 +3,32 @@ using TMPro;
 
 public class GameTimerUI : MonoBehaviour
 {
+    public static GameTimerUI Instance;
+
     [Header("UI Referansý")]
-    public TMP_Text timeText;      // Inspector'dan atayacaðýn TMP Text
+    public TMP_Text timeText;
 
     [Header("Ayarlar")]
-    public bool startOnAwake = true;   // Oyun baþlar baþlamaz çalýþsýn mý?
+    public bool startOnAwake = true;
 
     private float elapsedTime = 0f;
     private bool isRunning = false;
 
     private void Awake()
     {
-        // Baþlangýçta 0:00 yaz
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         UpdateTimeText(0f);
     }
 
     private void Start()
     {
-        if (startOnAwake)
-        {
-            StartTimer();
-        }
+        if (startOnAwake) StartTimer();
     }
 
     private void Update()
@@ -42,26 +47,12 @@ public class GameTimerUI : MonoBehaviour
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
 
-        // 00:00 formatýnda yaz
         timeText.text = $"{minutes:0}:{seconds:00}";
     }
 
-    // ---- Dýþarýdan çaðýrabileceðin fonksiyonlar ----
-
-    public void StartTimer()
-    {
-        isRunning = true;
-    }
-
-    public void PauseTimer()
-    {
-        isRunning = false;
-    }
-
-    public void ResumeTimer()
-    {
-        isRunning = true;
-    }
+    public void StartTimer() => isRunning = true;
+    public void PauseTimer() => isRunning = false;
+    public void ResumeTimer() => isRunning = true;
 
     public void ResetTimer()
     {
@@ -69,9 +60,5 @@ public class GameTimerUI : MonoBehaviour
         UpdateTimeText(elapsedTime);
     }
 
-    // Ýstersen baþka scriptlerden süreyi okuyabil
-    public float GetElapsedTime()
-    {
-        return elapsedTime;
-    }
+    public float GetElapsedTime() => elapsedTime;
 }

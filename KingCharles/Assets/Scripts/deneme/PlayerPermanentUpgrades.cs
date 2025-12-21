@@ -17,7 +17,11 @@ public class PlayerPermanentUpgrades : MonoBehaviour
 
     [Header("Global Multipliers (Sandık itemları)")]
     public float globalDamageMultiplier = 1f;   // Kılıç: genel hasar çarpanı (1 = normal)
-    public float difficultyMultiplier = 1f;     // Boğa kafa tası: zorluk çarpanı (1 = normal)
+    public float difficultyMultiplier = 1f;     // (Eski sistem uyumluluğu) zorluk çarpanı (1 = normal)
+
+    [Header("Difficulty (Dakika Bazlı)")]
+    public int difficultyBonusMinutes = 0;      // BullSkull vb. ile eklenen "ilerleme dakikası"
+    public float difficultyMinuteMultiplier = 1.2f; // Her dakika çarpanı
 
     [Header("Move Speed (DogHouse / Sandık)")]
     public float moveSpeedBonus = 0f;           // +0.1, +0.15 vb
@@ -72,8 +76,37 @@ public class PlayerPermanentUpgrades : MonoBehaviour
         if (agent != null) baseAgentSpeed = agent.speed;
     }
 
-    public int ModifyXP(int baseXP) => Mathf.Max(0, baseXP + xpGainBonus);
-    public int ModifyGold(int baseGold) => Mathf.Max(0, baseGold + goldGainBonus);
+    // --- ZORLUK: dakika hesabı ---
+    private int GetCurrentDifficultyMinutes()
+    {
+        int elapsedMinutes = Mathf.FloorToInt(Time.timeSinceLevelLoad / 60f);
+        int total = elapsedMinutes + difficultyBonusMinutes;
+        return Mathf.Max(0, total);
+    }
+
+    private float GetDifficultyMinuteFactor()
+    {
+        int minutes = GetCurrentDifficultyMinutes();
+        // 1.2 ^ dakika
+        float mul = Mathf.Pow(difficultyMinuteMultiplier, minutes);
+        return mul;
+    }
+
+    public int ModifyXP(int baseXP)
+    {
+        int value = Mathf.Max(0, baseXP + xpGainBonus);
+        float diffMul = GetDifficultyMinuteFactor();
+        int result = Mathf.RoundToInt(value * diffMul);
+        return Mathf.Max(0, result);
+    }
+
+    public int ModifyGold(int baseGold)
+    {
+        int value = Mathf.Max(0, baseGold + goldGainBonus);
+        float diffMul = GetDifficultyMinuteFactor();
+        int result = Mathf.RoundToInt(value * diffMul);
+        return Mathf.Max(0, result);
+    }
 
     // ---- SANDIK: KILIÇ ----
     public void AddGlobalDamageMultiplierPercent(float percent)
@@ -88,17 +121,36 @@ public class PlayerPermanentUpgrades : MonoBehaviour
         AddGlobalDamageMultiplierPercent(percent);
     }
 
-    // ---- SANDIK: BOĞA KAFA TASI ----
+    // ---- (ESKİ) SANDIK: ZORLUK ÇARPANI ----
     public void AddDifficultyMultiplierPercent(float percent)
     {
         float mul = 1f + (percent / 100f);
         difficultyMultiplier *= mul;
     }
 
-    // ✅ CS1061 FIX: ChestRewardManager.cs AddDifficultyPercent çağırıyor
+    // ✅ CS1061 FIX + YENİ DAVRANIŞ:
+    // ChestRewardManager AddDifficultyPercent(...) çağırıyorsa artık "dakika bonusu" ekler.
+    // 5->1dk, 10->2dk, 15->3dk, 25->5dk, 50->10dk (senin tanımına göre)
     public void AddDifficultyPercent(float percent)
     {
-        AddDifficultyMultiplierPercent(percent);
+        int v = Mathf.RoundToInt(percent);
+        int minutesToAdd = 0;
+
+        switch (v)
+        {
+            case 5: minutesToAdd = 1; break;
+            case 10: minutesToAdd = 2; break;
+            case 15: minutesToAdd = 3; break;
+            case 25: minutesToAdd = 5; break;
+            case 50: minutesToAdd = 10; break;
+            default:
+                // Eğer başka değer gelirse güvenli fallback: 5'e bölerek dakika gibi yorumla
+                minutesToAdd = Mathf.Max(0, Mathf.RoundToInt(v / 5f));
+                break;
+        }
+
+        difficultyBonusMinutes += minutesToAdd;
+        if (difficultyBonusMinutes < 0) difficultyBonusMinutes = 0;
     }
 
     public void ApplyMoveSpeedBonus(float add)

@@ -51,6 +51,9 @@ public class EnemyHealth : MonoBehaviour
     private Color[] _originalColors;
     private bool _isFlashing = false;
 
+    // ---- ZORLUK / ELITE TESPİTİ İÇİN BASE MAX HP CACHE ----
+    private float baseMaxHealth = 0f;
+
     private void Awake()
     {
         // Başlangıçta canı maksimuma eşitle
@@ -78,6 +81,20 @@ public class EnemyHealth : MonoBehaviour
                     _originalColors[i] = Color.white;
             }
         }
+    }
+
+    private void Start()
+    {
+        // ---- ZORLUK: Spawn anında maxHealth çarp ----
+        baseMaxHealth = maxHealth; // Elite check bunun üzerinden yapılacak (difficulty yüzünden normal->elite olmasın)
+
+        float difficultyMul = GetDifficultyMultiplier();
+        if (difficultyMul > 0f)
+        {
+            maxHealth *= difficultyMul;
+            currentHealth = maxHealth; // spawn anında full HP
+        }
+        // --------------------------------------------
     }
 
     /// <summary>
@@ -126,8 +143,8 @@ public class EnemyHealth : MonoBehaviour
         if (destroyDelay > 0f)
             yield return new WaitForSeconds(destroyDelay);
 
-        // Elite mi? maxHealth >= 150 ise ELITE kabul ediyoruz
-        bool isEliteKill = maxHealth >= 150f;
+        // Elite mi? (difficulty yüzünden normal enemy elite sayılmasın diye BASE ile kontrol)
+        bool isEliteKill = baseMaxHealth >= 150f;
 
         if (isMiniBoss)
         {
@@ -151,13 +168,17 @@ public class EnemyHealth : MonoBehaviour
             }
         }
 
-        // --- KILL COUNTER ---
-        // Elite: +5, normal: +1
-        int addKills = isEliteKill ? 5 : 1;
-        for (int i = 0; i < addKills; i++)
+        // --- KILL COUNTER (ZORLUĞA GÖRE ARTAR) ---
+        int baseKills = isEliteKill ? 5 : 1;
+
+        float difficultyMul = GetDifficultyMultiplier();
+        int finalKills = Mathf.Max(1, Mathf.RoundToInt(baseKills * difficultyMul));
+
+        for (int i = 0; i < finalKills; i++)
         {
             KillCounterUI.RegisterKill();
         }
+        // ----------------------------------------
 
         // Artık düşmanı yok et
         Destroy(gameObject);
@@ -279,7 +300,8 @@ public class EnemyHealth : MonoBehaviour
     {
         if (heartPrefab == null) return;
 
-        if (Random.Range(0, 10) != 0) return;
+        // ---- 1/25 chance ----
+        if (Random.Range(0, 25) != 0) return;
 
         Vector3 offset = new Vector3(
             Random.Range(-heartSpawnRadius, heartSpawnRadius),
@@ -358,6 +380,8 @@ public class EnemyHealth : MonoBehaviour
     public void SetMaxHealth(float newMaxHealth, bool fullHeal = true)
     {
         maxHealth = newMaxHealth;
+        baseMaxHealth = newMaxHealth; // difficulty sonrası elite tespiti doğru kalsın
+
         if (fullHeal)
         {
             currentHealth = maxHealth;
@@ -365,4 +389,23 @@ public class EnemyHealth : MonoBehaviour
     }
 
     #endregion
+
+    // ---------------- ZORLUK HESABI (dakika + bonus) ----------------
+    private int GetDifficultyMinutes()
+    {
+        int minutesFromTime = Mathf.FloorToInt(Time.timeSinceLevelLoad / 60f);
+
+        int bonus = 0;
+        if (PlayerPermanentUpgrades.Instance != null)
+            bonus = Mathf.Max(0, PlayerPermanentUpgrades.Instance.difficultyBonusMinutes);
+
+        return Mathf.Max(0, minutesFromTime + bonus);
+    }
+
+    private float GetDifficultyMultiplier()
+    {
+        int m = GetDifficultyMinutes();
+        return Mathf.Pow(1.2f, m);
+    }
+    // ----------------------------------------------------------------
 }

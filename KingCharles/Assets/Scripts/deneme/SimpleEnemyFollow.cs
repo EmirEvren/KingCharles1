@@ -76,6 +76,14 @@ public class SimpleEnemyFollow : MonoBehaviour
                 playerStats = Player.GetComponentInParent<Stats>();
         }
 
+        // ---- ZORLUK: Spawn anında damage çarp ----
+        float difficultyMul = GetDifficultyMultiplier();
+        if (difficultyMul > 0f)
+        {
+            damage *= difficultyMul;
+        }
+        // -----------------------------------------
+
         aiTimer = Random.Range(0f, aiInterval); // İşlemciyi yormamak için rastgele offset
     }
 
@@ -216,4 +224,23 @@ public class SimpleEnemyFollow : MonoBehaviour
         // Malbers Stats sistemiyle Health düşürme
         playerStats.Stat_ModifyValue(healthStatID, -damage);
     }
+
+    // ---------------- ZORLUK HESABI (dakika + bonus) ----------------
+    private int GetDifficultyMinutes()
+    {
+        int minutesFromTime = Mathf.FloorToInt(Time.timeSinceLevelLoad / 60f);
+
+        int bonus = 0;
+        if (PlayerPermanentUpgrades.Instance != null)
+            bonus = Mathf.Max(0, PlayerPermanentUpgrades.Instance.difficultyBonusMinutes);
+
+        return Mathf.Max(0, minutesFromTime + bonus);
+    }
+
+    private float GetDifficultyMultiplier()
+    {
+        int m = GetDifficultyMinutes();
+        return Mathf.Pow(1.2f, m);
+    }
+    // ----------------------------------------------------------------
 }
