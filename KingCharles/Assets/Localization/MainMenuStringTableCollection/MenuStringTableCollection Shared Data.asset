@@ -79,6 +79,26 @@ MonoBehaviour:
     m_Key: Key_ScreenMode_Windowed
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Key: Key_Leaderboard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Key: Key_Demodayok
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Key: Key_BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Key: Key_CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Key: Key_PAUSED
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

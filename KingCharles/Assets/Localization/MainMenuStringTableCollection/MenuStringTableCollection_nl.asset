@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Venster
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: RANGLIJST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: RANGLIJSTEN ZIJN NIET BESCHIKBAAR IN DE DEMO. ZE WORDEN TOEGEVOEGD
+      IN DE VOLLEDIGE VERSIE. BEDANKT VOOR HET SPELEN!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: TERUG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: BEDIENING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: GEPAUZEERD
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

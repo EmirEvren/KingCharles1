@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Ventana
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: "CLASIFICACI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "LAS CLASIFICACIONES NO EST\xC1N DISPONIBLES EN LA DEMO. SE A\xD1ADIR\xC1N
+      EN LA VERSI\xD3N COMPLETA. \xA1GRACIAS POR JUGAR!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: "ATR\xC1S"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: CONTROLES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: EN PAUSA
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

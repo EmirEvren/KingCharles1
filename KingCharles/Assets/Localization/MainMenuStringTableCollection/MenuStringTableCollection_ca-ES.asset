@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Finestra
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: "CLASSIFICACI\xD3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "LES CLASSIFICACIONS NO ESTAN DISPONIBLES A LA DEMO. S'AFEGIRAN
+      A LA VERSI\xD3 COMPLETA. GR\xC0CIES PER JUGAR!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: ENRERE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: EN PAUSA
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

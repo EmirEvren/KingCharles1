@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: "Fen\xEAtr\xE9"
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: CLASSEMENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "LES CLASSEMENTS NE SONT PAS DISPONIBLES DANS LA D\xC9MO. ILS SERONT
+      AJOUT\xC9S DANS LA VERSION COMPL\xC8TE. MERCI D'AVOIR JOU\xC9 !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: RETOUR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: COMMANDES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: PAUSE
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

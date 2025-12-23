@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Windowed
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: LEADERBOARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: LEADERBOARDS ARE NOT AVAILABLE IN THE DEMO. THEY WILL BE ADDED IN
+      THE FULL VERSION. THANKS FOR PLAYING!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: PAUSED
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

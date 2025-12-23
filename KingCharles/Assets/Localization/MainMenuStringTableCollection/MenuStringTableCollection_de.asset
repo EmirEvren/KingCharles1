@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Fenstermodus
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: BESTENLISTE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "BESTENLISTEN SIND IN DER DEMO NICHT VERF\xDCGBAR. SIE WERDEN IN
+      DER VOLLVERSION HINZUGEF\xDCGT. DANKE F\xDCRS SPIELEN!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: "ZUR\xDCCK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: STEUERUNG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: PAUSE
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

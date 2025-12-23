@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Em Janela
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: "CLASSIFICA\xC7\xC3O"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "AS CLASSIFICA\xC7\xD5ES N\xC3O EST\xC3O DISPON\xCDVEIS NA DEMO.
+      SER\xC3O ADICIONADAS NA VERS\xC3O COMPLETA. OBRIGADO POR JOGAR!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: VOLTAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: CONTROLOS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: EM PAUSA
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

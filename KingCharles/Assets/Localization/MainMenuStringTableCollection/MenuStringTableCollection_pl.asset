@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: W oknie
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: RANKING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "RANKINGI NIE S\u0104 DOST\u0118PNE W WERSJI DEMO. ZOSTAN\u0104
+      DODANE W PE\u0141NEJ WERSJI. DZI\u0118KUJEMY ZA GR\u0118!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: WSTECZ
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: STEROWANIE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: WSTRZYMANO
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

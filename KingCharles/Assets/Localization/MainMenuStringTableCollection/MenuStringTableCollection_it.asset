@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Finestra
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: CLASSIFICA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: LE CLASSIFICHE NON SONO DISPONIBILI NELLA DEMO. SARANNO AGGIUNTE
+      NELLA VERSIONE COMPLETA. GRAZIE PER AVER GIOCATO!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: INDIETRO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: COMANDI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: IN PAUSA
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

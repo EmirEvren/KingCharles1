@@ -82,6 +82,27 @@ MonoBehaviour:
     m_Localized: Pencereli
     m_Metadata:
       m_Items: []
+  - m_Id: 1622847132090368
+    m_Localized: SIRALAMA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1624420251942912
+    m_Localized: "SIRALAMALAR DEMODA MEVCUT DE\u011E\u0130L. TAM S\xDCR\xDCMDE EKLENECEKLER.
+      OYNADI\u011EINIZ \u0130\xC7\u0130N TE\u015EEKK\xDCRLER!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632318705188864
+    m_Localized: "GER\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1632856255578112
+    m_Localized: KONTROLLER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1633269000257536
+    m_Localized: DURAKLATILDI
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
