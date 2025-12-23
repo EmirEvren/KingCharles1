@@ -4,11 +4,16 @@ using UnityEngine.InputSystem;
 using TMPro; 
 using System.Collections.Generic;
 using System.Collections;
-// EKLENDİ: Unity Localization Kütüphanesi
 using UnityEngine.Localization.Settings; 
 
 public class MainMenuManager : MonoBehaviour
 {
+    // =========================================================
+    // YENİ EKLENEN: RESTART KONTROLÜ
+    // =========================================================
+    // Bu değişken 'static' olduğu için sahne yenilense bile hafızada kalır.
+    public static bool RestartIstendi = false; 
+
     [Header("--- UI PANELLERİ ---")]
     public GameObject mainMenuPanel;
     public GameObject settingsPanel;
@@ -39,18 +44,18 @@ public class MainMenuManager : MonoBehaviour
     private int currentLanguageIndex = 0;
     private const string PREF_LANGUAGE_INDEX = "SelectedLanguageIndex";
 
-    // Bayrak değişiminin çok hızlı olmasını engellemek için (opsiyonel)
+    // Bayrak değişiminin çok hızlı olmasını engellemek için
     private bool isChangingLanguage = false;
 
     [System.Serializable]
     public struct LanguageData
     {
-        public string languageName; // Örn: "English"
-        public Sprite flagSprite;   // Bayrak resmi
-        public string languageCode; // Örn: "en", "tr-TR", "de" (Localization tablosundaki kod ile AYNI olmalı)
+        public string languageName; 
+        public Sprite flagSprite;   
+        public string languageCode; 
     }
 
-    // Start'ı IEnumerator yaptık çünkü Localization sisteminin yüklenmesini beklemeliyiz.
+    // Start fonksiyonu hem Localization'ı bekler hem de Restart kontrolü yapar
     private IEnumerator Start()
     {
         // 1. Localization sisteminin hazır olmasını bekle
@@ -59,21 +64,35 @@ public class MainMenuManager : MonoBehaviour
         // 2. Kayıtlı dili yükle
         LoadLanguageSettings();
 
-        // 3. Diğer ayarlar
-        gameWorldContainer.SetActive(false);
-        if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
-        if(menuCameraObj != null) menuCameraObj.SetActive(true);
-        
-        ShowMainMenu();
+        // =========================================================
+        // RESTART MANTIĞI BURADA DEVREYE GİRİYOR
+        // =========================================================
+        if (RestartIstendi)
+        {
+            // Eğer Pause menüsünden Restart'a basıldıysa burası çalışır.
+            RestartIstendi = false; // Değişkeni sıfırla ki bir sonraki normal açılışta menü gelsin.
+            
+            // Menüyü hiç göstermeden direkt oyunu başlat
+            OnPlayClicked();
+        }
+        else
+        {
+            // Normal açılış (Oyun ilk açıldığında veya menüye dönüldüğünde)
+            gameWorldContainer.SetActive(false);
+            if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
+            if(menuCameraObj != null) menuCameraObj.SetActive(true);
+            
+            ShowMainMenu();
+        }
     }
 
     // =================================================
-    //              DİL SİSTEMİ (GÜNCELLENDİ)
+    //              DİL SİSTEMİ
     // =================================================
 
     private void LoadLanguageSettings()
     {
-        // Kayıt yoksa 0 (İngilizce) döner.
+        // Kayıt yoksa 0 (Varsayılan) döner.
         currentLanguageIndex = PlayerPrefs.GetInt(PREF_LANGUAGE_INDEX, 0);
 
         if (languages.Count > 0 && currentLanguageIndex >= languages.Count) 
@@ -122,13 +141,13 @@ public class MainMenuManager : MonoBehaviour
     {
         isChangingLanguage = true;
 
-        // Listemizdeki dil kodunu alıyoruz (örn: "tr")
+        // Listemizdeki dil kodunu alıyoruz
         string targetCode = languages[_index].languageCode;
         
         // Localization sistemindeki uygun dili buluyoruz
         var locale = LocalizationSettings.AvailableLocales.GetLocale(targetCode);
         
-        // Eğer bulamazsa index sırasına göre deniyoruz (Yedek plan)
+        // Eğer bulamazsa index sırasına göre deniyoruz
         if (locale == null) 
              locale = LocalizationSettings.AvailableLocales.Locales[_index];
 
@@ -142,7 +161,7 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // =================================================
-    //              DİĞER FONKSİYONLAR (AYNI)
+    //              DİĞER FONKSİYONLAR
     // =================================================
     public void OnDiscordClicked() { Application.OpenURL(discordLink); }
     public void OnYoutubeClicked() { Application.OpenURL(youtubeLink); }
@@ -152,9 +171,15 @@ public class MainMenuManager : MonoBehaviour
         mainMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
         multiplayerPanel.SetActive(false);
+        
+        // Oyun dünyasını aktif et
         gameWorldContainer.SetActive(true);
+        
+        // Kameraları değiştir
         if(menuCameraObj != null) menuCameraObj.SetActive(false);
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(true);
+        
+        // Harita üretimi
         if (generateMapOnPlay && mapGeneratorScript != null)
             mapGeneratorScript.SendMessage("GenerateMap", SendMessageOptions.DontRequireReceiver);
     }

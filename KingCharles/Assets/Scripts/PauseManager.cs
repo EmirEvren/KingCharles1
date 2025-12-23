@@ -159,8 +159,14 @@ public class PauseManager : MonoBehaviour
 
     public void RestartGame()
     {
+        // 1. Önce zamanı ve pause durumunu düzelt
         Time.timeScale = 1f;
         IsPaused = false;
+
+        // 2. KRİTİK KISIM: MainMenuManager'a "Bu bir restarttır, menüyü açma" diyoruz.
+        MainMenuManager.RestartIstendi = true;
+
+        // 3. Sahneyi yeniden yükle
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
