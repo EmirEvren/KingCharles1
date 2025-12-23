@@ -55,6 +55,18 @@ MonoBehaviour:
     m_Key: Key_MouseSensitivity
     m_Metadata:
       m_Items: []
+  - m_Id: 1449529680461824
+    m_Key: Key_Resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1450272143572992
+    m_Key: Key_Restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1451589712871424
+    m_Key: Key_Menu
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

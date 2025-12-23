@@ -58,6 +58,18 @@ MonoBehaviour:
     m_Localized: Muisgevoeligheid
     m_Metadata:
       m_Items: []
+  - m_Id: 1449529680461824
+    m_Localized: Hervatten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1450272143572992
+    m_Localized: Herstarten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1451589712871424
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

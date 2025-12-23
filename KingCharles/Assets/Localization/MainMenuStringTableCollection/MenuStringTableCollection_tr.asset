@@ -58,6 +58,18 @@ MonoBehaviour:
     m_Localized: Fare Hassasiyeti
     m_Metadata:
       m_Items: []
+  - m_Id: 1449529680461824
+    m_Localized: Devam Et
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1450272143572992
+    m_Localized: "Yeniden Ba\u015Flat"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1451589712871424
+    m_Localized: "Men\xFC"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

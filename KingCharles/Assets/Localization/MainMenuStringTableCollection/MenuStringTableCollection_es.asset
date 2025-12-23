@@ -58,6 +58,18 @@ MonoBehaviour:
     m_Localized: "Sensib. del Rat\xF3n"
     m_Metadata:
       m_Items: []
+  - m_Id: 1449529680461824
+    m_Localized: Reanudar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1450272143572992
+    m_Localized: Reiniciar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1451589712871424
+    m_Localized: "Men\xFA"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
