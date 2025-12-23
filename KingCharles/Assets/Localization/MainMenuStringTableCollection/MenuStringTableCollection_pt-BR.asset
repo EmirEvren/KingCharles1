@@ -70,6 +70,18 @@ MonoBehaviour:
     m_Localized: Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Localized: Tela Cheia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Localized: Janela sem Bordas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Localized: Modo Janela
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -70,6 +70,18 @@ MonoBehaviour:
     m_Localized: "Men\xFC"
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Localized: Tam Ekran
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Localized: "\xC7er\xE7evesiz Pencereli"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Localized: Pencereli
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

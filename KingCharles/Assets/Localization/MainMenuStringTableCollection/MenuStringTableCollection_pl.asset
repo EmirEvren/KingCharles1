@@ -70,6 +70,18 @@ MonoBehaviour:
     m_Localized: Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Localized: "Pe\u0142ny ekran"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Localized: Okno bez ramek
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Localized: W oknie
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -70,6 +70,18 @@ MonoBehaviour:
     m_Localized: Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Localized: Volledig scherm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Localized: Randloos venster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Localized: Venster
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

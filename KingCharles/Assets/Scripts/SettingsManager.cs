@@ -5,9 +5,16 @@ using UnityEngine.InputSystem;
 using TMPro; 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Localization;            // EKLENDİ
+using UnityEngine.Localization.Settings;   // EKLENDİ
 
 public class SettingsManager : MonoBehaviour
 {
+    // --- LOCALIZATION KEYS ---
+    private const string KEY_SCREENMODE_EXCLUSIVE = "Key_ScreenMode_Exclusive";
+    private const string KEY_SCREENMODE_BORDERLESS = "Key_ScreenMode_Borderless";
+    private const string KEY_SCREENMODE_WINDOWED = "Key_ScreenMode_Windowed";
+
     [Header("--- AUDIO ---")]
     public AudioMixer mainAudioMixer; 
     public Slider musicSlider;
@@ -31,22 +38,37 @@ public class SettingsManager : MonoBehaviour
 
     public static float MouseSensitivity = 100f; 
 
+    // --- DİL DEĞİŞİMİNİ DİNLEMEK İÇİN GEREKLİ ---
+    private void OnEnable()
+    {
+        // Dil değişirse "OnLocaleChanged" fonksiyonunu çalıştır
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        // Script kapanınca dinlemeyi bırak (Hata vermemesi için)
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+    }
+
+    // Dil değiştiğinde otomatik çalışan fonksiyon
+    private void OnLocaleChanged(Locale locale)
+    {
+        // Sadece Screen Mode dropdown'ını güncellememiz yeterli, 
+        // çünkü içindeki metinler dinamik. Diğerleri (Quality vs) Unity'den geliyor.
+        SetupScreenModes();
+    }
+
     private void Start()
     {
-        // ÖNEMLİ: VSync'in kontrolü ele alabilmesi için Unity'nin kendi FPS limitini kaldırıyoruz.
         Application.targetFrameRate = -1;
 
-        // 1. TÜM DROPDOWN'LARI DOLDUR
         SetupResolutions();  
         SetupScreenModes();  
         SetupQuality();      
         SetupAA();           
 
-        // 2. KAYITLI AYARLARI YÜKLE
         LoadSettings();
-        
-        // 3. LISTENER'LARI EKLE
-        // Listener'ları en son ekliyoruz ki LoadSettings sırasında gereksiz tetiklenmesinler.
         AddListeners();
     }
 
@@ -69,6 +91,18 @@ public class SettingsManager : MonoBehaviour
     //                               SETUP FUNCTIONS
     // =============================================================================
 
+    private string GetLocalizedText(string key)
+    {
+        // "MenuStringTableCollection" tablosundan veriyi çek
+        var text = LocalizationSettings.StringDatabase.GetLocalizedString("MenuStringTableCollection", key);
+        
+        if (string.IsNullOrEmpty(text))
+        {
+            return key; 
+        }
+        return text; 
+    }
+
     private void SetupResolutions()
     {
         resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
@@ -90,11 +124,29 @@ public class SettingsManager : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
     }
 
+    // --- GÜNCELLENEN KISIM: DİL DEĞİŞİNCE BOZULMAMASI İÇİN ---
     private void SetupScreenModes()
     {
+        // 1. Mevcut seçili ayarı (0, 1 veya 2) hafızada tut
+        int storedValue = screenModeDropdown.value;
+
+        // 2. Listeyi temizle
         screenModeDropdown.ClearOptions();
-        List<string> options = new List<string> { "Exclusive Fullscreen", "Borderless Window", "Windowed" };
+
+        // 3. Yeni dildeki karşılıkları al
+        List<string> options = new List<string> 
+        { 
+            GetLocalizedText(KEY_SCREENMODE_EXCLUSIVE), 
+            GetLocalizedText(KEY_SCREENMODE_BORDERLESS), 
+            GetLocalizedText(KEY_SCREENMODE_WINDOWED) 
+        };
+
+        // 4. Listeyi tekrar doldur
         screenModeDropdown.AddOptions(options);
+
+        // 5. Eski seçimi geri yükle (yoksa liste sıfırlanır ve en başa döner)
+        screenModeDropdown.SetValueWithoutNotify(storedValue);
+        screenModeDropdown.RefreshShownValue();
     }
 
     private void SetupQuality()
@@ -134,16 +186,10 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetInt("ScreenMode", modeIndex);
     }
 
-    // --- KRİTİK DÜZELTME BURADA ---
     public void SetQuality(int qualityIndex)
     {
-        // 1. Kalite seviyesini değiştir
         QualitySettings.SetQualityLevel(qualityIndex);
         PlayerPrefs.SetInt("QualityLevel", qualityIndex);
-
-        // 2. DÜZELTME: Unity, kalite seviyesi değişince VSync ve AA ayarlarını 
-        // o kalitenin varsayılanına sıfırlar. Biz bunu engellemek için
-        // UI'daki seçili ayarları ZORLA tekrar uyguluyoruz.
         
         if (vsyncToggle != null) SetVSync(vsyncToggle.isOn);
         if (aaDropdown != null) SetAntiAliasing(aaDropdown.value);
@@ -151,8 +197,6 @@ public class SettingsManager : MonoBehaviour
 
     public void SetAntiAliasing(int aaIndex)
     {
-        // Not: Eğer URP kullanıyorsan bu kod çalışmaz, URP Asset üzerinden ayar gerekir.
-        // Built-in Render Pipeline için bu kod doğrudur.
         switch (aaIndex)
         {
             case 0: QualitySettings.antiAliasing = 0; break;
@@ -165,15 +209,12 @@ public class SettingsManager : MonoBehaviour
 
     public void SetVSync(bool isEnabled)
     {
-        // vSyncCount: 0 = Kapalı, 1 = Açık (Monitör Hz'ine kilitler)
         QualitySettings.vSyncCount = isEnabled ? 1 : 0;
         PlayerPrefs.SetInt("VSync", isEnabled ? 1 : 0);
     }
 
     public void SetHDR(bool isEnabled)
     {
-        // HDR genellikle RenderPipelineAsset üzerinden yönetilir ama 
-        // Built-in'de bazı durumlarda bu yeterlidir.
         PlayerPrefs.SetInt("HDR", isEnabled ? 1 : 0);
     }
 
@@ -220,14 +261,13 @@ public class SettingsManager : MonoBehaviour
     {
         // Screen Mode
         int screenMode = PlayerPrefs.GetInt("ScreenMode", 1);
-        if(screenModeDropdown != null) screenModeDropdown.value = screenMode;
+        // Önce dropdown değerini ayarla, sonra Switch ile uygula
+        if(screenModeDropdown != null) screenModeDropdown.SetValueWithoutNotify(screenMode);
         SetScreenMode(screenMode);
 
         // Quality
         int quality = PlayerPrefs.GetInt("QualityLevel", 2);
         if (qualityDropdown != null) qualityDropdown.value = quality;
-        // Burada SetQuality çağırmıyoruz çünkü SetQuality içinde VSync/AA tekrar tetikleniyor.
-        // Sadece Unity ayarını yapıyoruz:
         QualitySettings.SetQualityLevel(quality);
 
         // AA 

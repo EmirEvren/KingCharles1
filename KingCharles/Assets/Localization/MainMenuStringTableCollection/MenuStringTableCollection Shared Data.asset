@@ -67,6 +67,18 @@ MonoBehaviour:
     m_Key: Key_Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Key: Key_ScreenMode_Exclusive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Key: Key_ScreenMode_Borderless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Key: Key_ScreenMode_Windowed
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

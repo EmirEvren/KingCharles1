@@ -70,6 +70,18 @@ MonoBehaviour:
     m_Localized: "Men\xFA"
     m_Metadata:
       m_Items: []
+  - m_Id: 1492280522440704
+    m_Localized: Pantalla completa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492293029855232
+    m_Localized: Ventana sin bordes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1492323841212416
+    m_Localized: Ventana
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
