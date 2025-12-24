@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class SteakAutoShooter : MonoBehaviour
 {
@@ -86,6 +87,10 @@ public class SteakAutoShooter : MonoBehaviour
         {
             GameObject go = Instantiate(steakPrefab, firePoint.position, rot);
 
+            // --- LİMİTLEYİCİ TOKEN: aynı anda en fazla 10 tane görünsün/ses versin ---
+            go.AddComponent<SteakProjectileVisibilityLimiterToken>();
+            // -----------------------------------------------------------------------
+
             SteakProjectile proj = go.GetComponent<SteakProjectile>();
             if (proj != null)
             {
@@ -104,5 +109,99 @@ public class SteakAutoShooter : MonoBehaviour
         }
 
         Debug.Log($"[SteakAutoShooter] Fired {totalProjectiles} steaks.");
+    }
+}
+
+/// <summary>
+/// Sahnede aynı anda en fazla N SteakProjectile görünsün ve ses çıkarsın.
+/// N üstündekiler görünmez + sessiz olur.
+/// Bir tanesi yok olunca sıradaki görünür olur.
+/// </summary>
+public class SteakProjectileVisibilityLimiterToken : MonoBehaviour
+{
+    private const int MAX_VISIBLE = 10;
+
+    private static readonly List<SteakProjectileVisibilityLimiterToken> Active = new List<SteakProjectileVisibilityLimiterToken>();
+
+    private Renderer[] cachedRenderers;
+    private AudioSource[] cachedAudioSources;
+
+    private SteakProjectile proj;
+    private AudioClip cachedHitSfx;
+
+    private bool isVisible = true;
+
+    private void Awake()
+    {
+        // Cache components
+        cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        cachedAudioSources = GetComponentsInChildren<AudioSource>(true);
+
+        proj = GetComponent<SteakProjectile>();
+        if (proj != null)
+        {
+            cachedHitSfx = proj.hitSfx;
+        }
+
+        // Register
+        Active.Add(this);
+        RefreshAll();
+    }
+
+    private void OnDestroy()
+    {
+        Active.Remove(this);
+        RefreshAll();
+    }
+
+    private static void RefreshAll()
+    {
+        // null temizliği
+        for (int i = Active.Count - 1; i >= 0; i--)
+        {
+            if (Active[i] == null) Active.RemoveAt(i);
+        }
+
+        // İlk 10 görünür, geri kalanı gizli
+        for (int i = 0; i < Active.Count; i++)
+        {
+            bool shouldBeVisible = (i < MAX_VISIBLE);
+            Active[i].SetVisible(shouldBeVisible);
+        }
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (isVisible == visible) return;
+        isVisible = visible;
+
+        // --- Renderer kapat/aç ---
+        if (cachedRenderers != null)
+        {
+            for (int i = 0; i < cachedRenderers.Length; i++)
+            {
+                if (cachedRenderers[i] != null)
+                    cachedRenderers[i].enabled = visible;
+            }
+        }
+
+        // --- Ses kapat/aç (mute) ---
+        if (cachedAudioSources != null)
+        {
+            for (int i = 0; i < cachedAudioSources.Length; i++)
+            {
+                if (cachedAudioSources[i] != null)
+                    cachedAudioSources[i].mute = !visible;
+            }
+        }
+
+        // --- Hit SFX kapat/aç (gizliyken vurunca da ses çıkmasın) ---
+        if (proj != null)
+        {
+            if (visible)
+                proj.hitSfx = cachedHitSfx;
+            else
+                proj.hitSfx = null;
+        }
     }
 }
