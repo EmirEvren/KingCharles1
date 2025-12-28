@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class BoneAutoShooter : MonoBehaviour
 {
-    [Header("Kemik Atýþ Ayarlarý")]
-    public GameObject bonePrefab;   // Fýrlatýlacak kemik prefabý
-    public Transform firePoint;     // Kemiðin çýkacaðý nokta
-    public float attackRange = 15f; // En yakýndaki düþmaný bu mesafe içinde arayacak
-    public float fireRate = 2f;     // Saniyede kaç kere fire (2 => 0.5 sn'de bir, upgrade öncesi)
+    [Header("Kemik AtÄ±ÅŸ AyarlarÄ±")]
+    public GameObject bonePrefab;   // FÄ±rlatÄ±lacak kemik prefabÄ±
+    public Transform firePoint;     // KemiÄŸin Ã§Ä±kacaÄŸÄ± nokta
+    public float attackRange = 15f; // En yakÄ±ndaki dÃ¼ÅŸmanÄ± bu mesafe iÃ§inde arayacak
+    public float fireRate = 2f;     // Saniyede kaÃ§ kere fire (2 => 0.5 sn'de bir, upgrade Ã¶ncesi)
 
     private float fireCooldown;
 
@@ -19,7 +19,7 @@ public class BoneAutoShooter : MonoBehaviour
         Transform nearestEnemy = FindNearestEnemy();
         if (nearestEnemy != null)
         {
-            // Fire rate'i upgrade'den gelen çarpanla buff’la
+            // Fire rate'i upgrade'den gelen Ã§arpanla buffâ€™la
             float finalFireRate = fireRate;
 
             if (WeaponChoiceManager.Instance != null)
@@ -64,7 +64,7 @@ public class BoneAutoShooter : MonoBehaviour
     {
         if (bonePrefab == null || firePoint == null) return;
 
-        // Hedef yönü
+        // Hedef yÃ¶nÃ¼
         Vector3 dir = (target.position - firePoint.position);
         dir.y = 0f;
         if (dir.sqrMagnitude < 0.001f)
@@ -73,7 +73,7 @@ public class BoneAutoShooter : MonoBehaviour
         dir.Normalize();
         Quaternion rot = Quaternion.LookRotation(dir);
 
-        // Fazladan mermi sayýsýný upgrade sisteminden çek
+        // Fazladan mermi sayÄ±sÄ±nÄ± upgrade sisteminden Ã§ek
         int extraCount = 0;
         if (WeaponChoiceManager.Instance != null)
         {
@@ -86,7 +86,7 @@ public class BoneAutoShooter : MonoBehaviour
         {
             GameObject bone = Instantiate(bonePrefab, firePoint.position, rot);
 
-            // --- LÝMÝTLEYÝCÝ TOKEN: ayný anda en fazla 10 tane görünsün/ses versin ---
+            // --- LÄ°MÄ°TLEYÄ°CÄ° TOKEN: aynÄ± anda en fazla 10 tane gÃ¶rÃ¼nsÃ¼n/ses versin ---
             bone.AddComponent<BoneProjectileVisibilityLimiterToken>();
             // -----------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ public class BoneAutoShooter : MonoBehaviour
                 if (WeaponChoiceManager.Instance != null)
                 {
                     float modified = WeaponChoiceManager.Instance.GetModifiedDamage(WeaponType.Bone, baseDamage);
-                    proj.damage = modified; // Artýk component'in damage field'i de buff’lý
+                    proj.damage = modified; // ArtÄ±k component'in damage field'i de buffâ€™lÄ±
                     Debug.Log($"[BoneAutoShooter] Bone projectile damage set to {proj.damage}");
                 }
 
@@ -112,15 +112,19 @@ public class BoneAutoShooter : MonoBehaviour
 }
 
 /// <summary>
-/// Sahnede ayný anda en fazla N BoneProjectile görünsün ve ses çýkarsýn.
-/// N üstündekiler görünmez + sessiz olur.
-/// Bir tanesi yok olunca sýradaki görünür olur.
+/// Sahnede aynÄ± anda en fazla N BoneProjectile gÃ¶rÃ¼nsÃ¼n ve ses Ã§Ä±karsÄ±n.
+/// N Ã¼stÃ¼ndekiler gÃ¶rÃ¼nmez + sessiz olur.
+/// Bir tanesi yok olunca sÄ±radaki gÃ¶rÃ¼nÃ¼r olur.
 /// </summary>
 public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
 {
     private const int MAX_VISIBLE = 10;
+    private const string PLAYER_TAG = "Animal";
+    private const float REFRESH_INTERVAL = 0.10f;
 
     private static readonly List<BoneProjectileVisibilityLimiterToken> Active = new List<BoneProjectileVisibilityLimiterToken>();
+    private static Transform player;
+    private static float nextRefreshAt = 0f;
 
     private Renderer[] cachedRenderers;
     private AudioSource[] cachedAudioSources;
@@ -132,18 +136,22 @@ public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
 
     private void Awake()
     {
-        // Cache components
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
         cachedAudioSources = GetComponentsInChildren<AudioSource>(true);
 
         proj = GetComponent<BoneProjectile>();
-        if (proj != null)
-        {
-            cachedHitSfx = proj.hitSfx;
-        }
+        if (proj != null) cachedHitSfx = proj.hitSfx;
 
-        // Register
         Active.Add(this);
+        RefreshAll();
+    }
+
+    private void Update()
+    {
+        // Her zaman oyuncuya en yakÄ±n 10 tane gÃ¶rÃ¼nsÃ¼n diye periyodik refresh
+        if (Time.unscaledTime < nextRefreshAt) return;
+        nextRefreshAt = Time.unscaledTime + REFRESH_INTERVAL;
+
         RefreshAll();
     }
 
@@ -153,15 +161,44 @@ public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
         RefreshAll();
     }
 
+    private static void EnsurePlayer()
+    {
+        if (player != null) return;
+
+        var pObj = GameObject.FindGameObjectWithTag(PLAYER_TAG);
+        if (pObj != null) player = pObj.transform;
+    }
+
     private static void RefreshAll()
     {
-        // null temizliði
+        // null temizliÄŸi
         for (int i = Active.Count - 1; i >= 0; i--)
         {
             if (Active[i] == null) Active.RemoveAt(i);
         }
 
-        // Ýlk 10 görünür, geri kalaný gizli
+        EnsurePlayer();
+
+        if (player != null)
+        {
+            Vector3 pp = player.position;
+            pp.y = 0f;
+
+            Active.Sort((a, b) =>
+            {
+                Vector3 ap = a.transform.position; ap.y = 0f;
+                Vector3 bp = b.transform.position; bp.y = 0f;
+
+                float da = (ap - pp).sqrMagnitude;
+                float db = (bp - pp).sqrMagnitude;
+
+                int cmp = da.CompareTo(db);
+                if (cmp != 0) return cmp;
+                return a.GetInstanceID().CompareTo(b.GetInstanceID());
+            });
+        }
+        // player yoksa sÄ±ralama yapma â†’ eski oluÅŸma sÄ±rasÄ± kalÄ±r
+
         for (int i = 0; i < Active.Count; i++)
         {
             bool shouldBeVisible = (i < MAX_VISIBLE);
@@ -174,7 +211,6 @@ public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
         if (isVisible == visible) return;
         isVisible = visible;
 
-        // --- Renderer kapat/aç ---
         if (cachedRenderers != null)
         {
             for (int i = 0; i < cachedRenderers.Length; i++)
@@ -184,7 +220,6 @@ public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
             }
         }
 
-        // --- Ses kapat/aç (mute) ---
         if (cachedAudioSources != null)
         {
             for (int i = 0; i < cachedAudioSources.Length; i++)
@@ -194,13 +229,10 @@ public class BoneProjectileVisibilityLimiterToken : MonoBehaviour
             }
         }
 
-        // --- Hit SFX kapat/aç (gizliyken vurunca da ses çýkmasýn) ---
         if (proj != null)
         {
-            if (visible)
-                proj.hitSfx = cachedHitSfx;
-            else
-                proj.hitSfx = null;
+            proj.hitSfx = visible ? cachedHitSfx : null;
         }
     }
 }
+

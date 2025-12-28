@@ -118,8 +118,12 @@ public class TennisBallAutoShooter : MonoBehaviour
 public class TennisBallProjectileVisibilityLimiterToken : MonoBehaviour
 {
     private const int MAX_VISIBLE = 10;
+    private const string PLAYER_TAG = "Animal";
+    private const float REFRESH_INTERVAL = 0.10f;
 
     private static readonly List<TennisBallProjectileVisibilityLimiterToken> Active = new List<TennisBallProjectileVisibilityLimiterToken>();
+    private static Transform player;
+    private static float nextRefreshAt = 0f;
 
     private Renderer[] cachedRenderers;
     private AudioSource[] cachedAudioSources;
@@ -131,18 +135,21 @@ public class TennisBallProjectileVisibilityLimiterToken : MonoBehaviour
 
     private void Awake()
     {
-        // Cache components
         cachedRenderers = GetComponentsInChildren<Renderer>(true);
         cachedAudioSources = GetComponentsInChildren<AudioSource>(true);
 
         proj = GetComponent<TennisBallProjectile>();
-        if (proj != null)
-        {
-            cachedHitSfx = proj.hitSfx;
-        }
+        if (proj != null) cachedHitSfx = proj.hitSfx;
 
-        // Register
         Active.Add(this);
+        RefreshAll();
+    }
+
+    private void Update()
+    {
+        if (Time.unscaledTime < nextRefreshAt) return;
+        nextRefreshAt = Time.unscaledTime + REFRESH_INTERVAL;
+
         RefreshAll();
     }
 
@@ -152,15 +159,41 @@ public class TennisBallProjectileVisibilityLimiterToken : MonoBehaviour
         RefreshAll();
     }
 
+    private static void EnsurePlayer()
+    {
+        if (player != null) return;
+
+        var pObj = GameObject.FindGameObjectWithTag(PLAYER_TAG);
+        if (pObj != null) player = pObj.transform;
+    }
+
     private static void RefreshAll()
     {
-        // null temizliği
         for (int i = Active.Count - 1; i >= 0; i--)
         {
             if (Active[i] == null) Active.RemoveAt(i);
         }
 
-        // İlk 10 görünür, geri kalanı gizli
+        EnsurePlayer();
+
+        if (player != null)
+        {
+            Vector3 pp = player.position; pp.y = 0f;
+
+            Active.Sort((a, b) =>
+            {
+                Vector3 ap = a.transform.position; ap.y = 0f;
+                Vector3 bp = b.transform.position; bp.y = 0f;
+
+                float da = (ap - pp).sqrMagnitude;
+                float db = (bp - pp).sqrMagnitude;
+
+                int cmp = da.CompareTo(db);
+                if (cmp != 0) return cmp;
+                return a.GetInstanceID().CompareTo(b.GetInstanceID());
+            });
+        }
+
         for (int i = 0; i < Active.Count; i++)
         {
             bool shouldBeVisible = (i < MAX_VISIBLE);
@@ -173,33 +206,22 @@ public class TennisBallProjectileVisibilityLimiterToken : MonoBehaviour
         if (isVisible == visible) return;
         isVisible = visible;
 
-        // --- Renderer kapat/aç ---
         if (cachedRenderers != null)
         {
             for (int i = 0; i < cachedRenderers.Length; i++)
-            {
-                if (cachedRenderers[i] != null)
-                    cachedRenderers[i].enabled = visible;
-            }
+                if (cachedRenderers[i] != null) cachedRenderers[i].enabled = visible;
         }
 
-        // --- Ses kapat/aç (mute) ---
         if (cachedAudioSources != null)
         {
             for (int i = 0; i < cachedAudioSources.Length; i++)
-            {
-                if (cachedAudioSources[i] != null)
-                    cachedAudioSources[i].mute = !visible;
-            }
+                if (cachedAudioSources[i] != null) cachedAudioSources[i].mute = !visible;
         }
 
-        // --- Hit SFX kapat/aç (gizliyken vurunca da ses çıkmasın) ---
         if (proj != null)
         {
-            if (visible)
-                proj.hitSfx = cachedHitSfx;
-            else
-                proj.hitSfx = null;
+            proj.hitSfx = visible ? cachedHitSfx : null;
         }
     }
 }
+
