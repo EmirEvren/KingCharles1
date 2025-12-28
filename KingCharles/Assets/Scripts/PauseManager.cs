@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement; 
-using UnityEngine.InputSystem;     
+using UnityEngine.InputSystem;    
 
 public class PauseManager : MonoBehaviour
 {
@@ -172,19 +172,16 @@ public class PauseManager : MonoBehaviour
 
     public void QuitToMainMenu()
     {
+        // 1. Zamanı normale döndür (Yoksa menüde animasyonlar çalışmaz)
         Time.timeScale = 1f;
         IsPaused = false;
 
-        if (mainMenuManager != null)
-        {
-            pauseMenuPanel.SetActive(false);
-            mainMenuManager.OnBackToMenuClicked();
-        }
-        else
-        {
-            // Fallback: Eğer manager yoksa direkt sahneyi yeniden yükle veya çık
-            Debug.LogWarning("MainMenuManager atanmamış!");
-            SceneManager.LoadScene(0); // Genelde 0. sahne menüdür
-        }
+        // 2. ÖNEMLİ: Restart bayrağını FALSE yapıyoruz.
+        // Böylece sahne yüklendiğinde MainMenuManager "Ha, restart istenmemiş, menüyü açayım" der.
+        MainMenuManager.RestartIstendi = false;
+
+        // 3. Sahneyi baştan yükle
+        // Bu işlem haritayı, karakteri, envanteri siler ve her şeyi "Start" haline getirir.
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-}
+} // <-- BURASI EKSİKTİ (Class'ı kapatan parantez)
