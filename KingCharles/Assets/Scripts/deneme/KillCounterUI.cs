@@ -9,7 +9,7 @@ public class KillCounterUI : MonoBehaviour
     public TMP_Text killText;   // Canvas üzerindeki TMP_Text'i buraya sürükle
 
     private int killCount = 0;
-
+    public int GetKillCount() => killCount;
     private void Awake()
     {
         if (Instance != null && Instance != this)
