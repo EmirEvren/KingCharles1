@@ -127,6 +127,14 @@ MonoBehaviour:
     m_Localized: OS
     m_Metadata:
       m_Items: []
+  - m_Id: 13172123653980160
+    m_Localized: Nombre de morts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13178061387546624
+    m_Localized: HAS MORT
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

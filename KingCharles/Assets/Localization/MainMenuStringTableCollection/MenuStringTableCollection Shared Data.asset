@@ -123,6 +123,14 @@ MonoBehaviour:
     m_Key: Key_Bone
     m_Metadata:
       m_Items: []
+  - m_Id: 13172123653980160
+    m_Key: Key_KillLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13178061387546624
+    m_Key: Key_DeathTitle
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -2,19 +2,24 @@ using UnityEngine;
 using TMPro;
 using MalbersAnimations;
 using MalbersAnimations.Scriptables;
+using UnityEngine.Localization; // <-- Şart
 
 public class DeathScreenUI : MonoBehaviour
 {
     public static DeathScreenUI Instance;
 
     [Header("UI")]
-    public GameObject rootPanel;     // DeathPanel
-    public TMP_Text titleText;       // "�LD�N"
-    public TMP_Text killText;        // "Kill Count: X"
+    public GameObject rootPanel;     
+    public TMP_Text titleText;       // "ÖLDÜN" yazan text
+    public TMP_Text killText;        // "Kill Count" yazan text
+
+    [Header("Localization")]
+    public LocalizedString killLabelKey;  // Kill Count Key'i
+    public LocalizedString titleLabelKey; // <-- YENİ EKLENDİ (You Died Key'i)
 
     [Header("Player")]
-    public string playerTag = "Animal";  // Senin player tag'in
-    public StatID healthID;              // Player'�n Health StatID'si
+    public string playerTag = "Animal";  
+    public StatID healthID;              
 
     private Stats playerStats;
     private bool shown = false;
@@ -72,15 +77,23 @@ public class DeathScreenUI : MonoBehaviour
         if (shown) return;
         shown = true;
 
+        // --- 1. TITLE (BAŞLIK) ÇEVİRİSİ ---
         if (titleText != null)
-            titleText.text = "You DIED";
+        {
+            // Tablodan "YOU DIED" / "ÖLDÜN" çevirisini alıp basıyoruz
+            titleText.text = titleLabelKey.GetLocalizedString();
+        }
 
+        // --- 2. KILL COUNT ÇEVİRİSİ ---
         int kills = 0;
         if (KillCounterUI.Instance != null)
             kills = KillCounterUI.Instance.GetKillCount();
 
         if (killText != null)
-            killText.text = $"Kill Count: {kills}";
+        {
+            string translatedLabel = killLabelKey.GetLocalizedString();
+            killText.text = $"{translatedLabel}: {kills}";
+        }
 
         PauseGameAndShowCursor();
 
@@ -99,7 +112,6 @@ public class DeathScreenUI : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    // �leride restart/continue eklemek istersen diye haz�r:
     public void HideAndResume()
     {
         if (!shown) return;

@@ -127,6 +127,14 @@ MonoBehaviour:
     m_Localized: "KO\u015A\u0106"
     m_Metadata:
       m_Items: []
+  - m_Id: 13172123653980160
+    m_Localized: "Liczba zab\xF3jstw"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13178061387546624
+    m_Localized: "ZGIN\u0104\u0141E\u015A"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

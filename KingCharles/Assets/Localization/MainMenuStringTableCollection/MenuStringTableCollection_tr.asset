@@ -127,6 +127,14 @@ MonoBehaviour:
     m_Localized: "KEM\u0130K"
     m_Metadata:
       m_Items: []
+  - m_Id: 13172123653980160
+    m_Localized: "\xD6ld\xFCrme Say\u0131s\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13178061387546624
+    m_Localized: "\xD6LD\xDCN"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
