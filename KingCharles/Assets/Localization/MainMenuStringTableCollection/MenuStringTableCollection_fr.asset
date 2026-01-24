@@ -203,6 +203,38 @@ MonoBehaviour:
     m_Localized: "L\xE9gendaire"
     m_Metadata:
       m_Items: []
+  - m_Id: 13221747450265600
+    m_Localized: '{0} : {1} Munitions +{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13222182533808128
+    m_Localized: '{0} : {1} Vitesse +%{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13223088176316416
+    m_Localized: "{0} : {1} D\xE9g\xE2ts +{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232286402428928
+    m_Localized: Wouf !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232819162923008
+    m_Localized: On joue !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13233157332877312
+    m_Localized: Le roi Charles ordonne !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13235479291183104
+    m_Localized: Tu es un Alpha !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13236200929574912
+    m_Localized: Est-ce un ennemi ?
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -199,6 +199,38 @@ MonoBehaviour:
     m_Key: Key_Rarity_Legendary
     m_Metadata:
       m_Items: []
+  - m_Id: 13221747450265600
+    m_Key: Key_Pattern_Count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13222182533808128
+    m_Key: Key_Pattern_Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13223088176316416
+    m_Key: Key_Pattern_Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232286402428928
+    m_Key: Mascot_Woof
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232819162923008
+    m_Key: Mascot_Play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13233157332877312
+    m_Key: Mascot_King
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13235479291183104
+    m_Key: Mascot_Alpha
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13236200929574912
+    m_Key: Mascot_Food
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

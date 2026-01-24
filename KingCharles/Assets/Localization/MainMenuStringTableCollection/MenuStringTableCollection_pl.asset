@@ -203,6 +203,38 @@ MonoBehaviour:
     m_Localized: Legendarny
     m_Metadata:
       m_Items: []
+  - m_Id: 13221747450265600
+    m_Localized: '{0}: {1} Amunicja +{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13222182533808128
+    m_Localized: "{0}: {1} Pr\u0119dko\u015B\u0107 +%{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13223088176316416
+    m_Localized: "{0}: {1} Obra\u017Cenia +{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232286402428928
+    m_Localized: Hau!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232819162923008
+    m_Localized: Zagrajmy!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13233157332877312
+    m_Localized: "Kr\xF3l Charles rozkazuje!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13235479291183104
+    m_Localized: "Jeste\u015B Alf\u0105!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13236200929574912
+    m_Localized: "Czy to wr\xF3g?"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

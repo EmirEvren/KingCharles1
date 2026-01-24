@@ -203,6 +203,38 @@ MonoBehaviour:
     m_Localized: Legendario
     m_Metadata:
       m_Items: []
+  - m_Id: 13221747450265600
+    m_Localized: "{0}: {1} Munici\xF3n +{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13222182533808128
+    m_Localized: '{0}: {1} Velocidad +%{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13223088176316416
+    m_Localized: "{0}: {1} Da\xF1o +{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232286402428928
+    m_Localized: "\xA1Guau!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232819162923008
+    m_Localized: "\xA1Juguemos!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13233157332877312
+    m_Localized: "\xA1El rey Charles ordena!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13235479291183104
+    m_Localized: "\xA1Eres un Alpha!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13236200929574912
+    m_Localized: "\xBFEs un enemigo?"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

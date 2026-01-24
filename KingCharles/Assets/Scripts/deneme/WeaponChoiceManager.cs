@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Localization;            // <-- EKLENDİ
+using UnityEngine.Localization.Settings;   // <-- EKLENDİ
 
 public enum WeaponType
 {
@@ -31,50 +33,70 @@ public enum UpgradeRarity
 [Serializable]
 public class WeaponOption
 {
-    public string weaponName;             // Kartta görünen isim (Localization varsa burası ezilir)
-    public WeaponType type;               // Hangi silah
-    public MonoBehaviour shooterScript;   // Player üzerindeki AutoShooter
-    public Sprite icon;                   // BUTON görseli için kullanılacak icon
+    public string weaponName;             
+    public WeaponType type;               
+    public MonoBehaviour shooterScript;   
+    public Sprite icon;                   
 }
 
 [Serializable]
 public class WeaponRuntimeStats
 {
     public WeaponType type;
-    public int extraCount;                  // Fazladan mermi sayısı
-    public float damageBonus;               // Düz +damage
-    public float attackSpeedMultiplier = 1f;    // Atış hızı çarpanı
+    public int extraCount;                  
+    public float damageBonus;               
+    public float attackSpeedMultiplier = 1f;    
 }
 
 [Serializable]
 public class UpgradeData
 {
-    public string description;   // Kartta yazacak açıklama
+    public string description;   // Artık buraya ÇEVRİLMİŞ metin gelecek
     public WeaponType weaponType;
     public UpgradeKind kind;
-    public UpgradeRarity rarity; // <-- EKLENDİ
+    public UpgradeRarity rarity; 
     public int intAmount;
     public float floatAmount;
 }
 
 public class WeaponChoiceManager : MonoBehaviour
 {
-    public static WeaponChoiceManager Instance;   // Singleton
+    public static WeaponChoiceManager Instance;   
 
-    [Header("Silah Opsiyonları (4 tane doldur)")]
-    public WeaponOption[] weapons;   // BUNUN icon alanını kullanıyoruz
+    [Header("Silah Opsiyonları")]
+    public WeaponOption[] weapons;   
 
     [Header("UI Referansları")]
-    public GameObject choicePanel;   // Kartların olduğu ana panel
+    public GameObject choicePanel;   
     public Button cardButton1;
     public Button cardButton2;
     public TMP_Text card1Title;
     public TMP_Text card2Title;
 
-    [Header("Seçim sırasında durdurulacak scriptler")]
-    public MonoBehaviour[] scriptsToDisableWhileChoosing; // EnemySpawner, CMBrain, vs
+    // ---------------------------------------------------------------------
+    // YENİ EKLENEN LOCALIZATION DEĞİŞKENLERİ (MEVCUT KODU BOZMAZ)
+    // ---------------------------------------------------------------------
+    [Header("Localization - Yükseltme Kalıpları")]
+    public LocalizedString patternCount;  // Key_Pattern_Count
+    public LocalizedString patternSpeed;  // Key_Pattern_Speed
+    public LocalizedString patternDamage; // Key_Pattern_Damage
 
-    [Header("Ayarlar")]
+    [Header("Localization - Nadirlik İsimleri")]
+    public LocalizedString rarityCommon;
+    public LocalizedString rarityUncommon;
+    public LocalizedString rarityRare;
+    public LocalizedString rarityEpic;
+    public LocalizedString rarityLegendary;
+
+    [Header("Localization - Silah İsimleri")]
+    public LocalizedString nameBone;
+    public LocalizedString nameSteak;
+    public LocalizedString nameFireball;
+    public LocalizedString nameTennisBall;
+    // ---------------------------------------------------------------------
+
+    [Header("Diğer Ayarlar")]
+    public MonoBehaviour[] scriptsToDisableWhileChoosing; 
     public int maxWeaponSlots = 2;
 
     // ---- Internal state ----
@@ -82,28 +104,23 @@ public class WeaponChoiceManager : MonoBehaviour
     private bool initialChoiceDone = false;
     private bool panelOpen = false;
 
-    // Weapon seçim modunda kullanılan indexler
     private int currentWeaponIndex1 = -1;
     private int currentWeaponIndex2 = -1;
 
-    // Upgrade seçim modunda kullanılan veriler
     private UpgradeData currentUpgrade1;
     private UpgradeData currentUpgrade2;
 
-    // Runtime statlar artık Inspector’dan değil, DICTIONARY’den gelir
     private Dictionary<WeaponType, WeaponRuntimeStats> statsDict
         = new Dictionary<WeaponType, WeaponRuntimeStats>();
 
-    // -------------------- CURSOR + PAUSE CACHE (EKLENDİ) --------------------
+    // Cursor Cache
     private float prevTimeScale = 1f;
     private CursorLockMode prevLockMode;
     private bool prevCursorVisible;
     private bool pausedByWeaponChoice = false;
-    // ----------------------------------------------------------------------
 
     private void Awake()
     {
-        // Singleton
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -112,11 +129,7 @@ public class WeaponChoiceManager : MonoBehaviour
         Instance = this;
 
         BuildStatsDictionary();
-
-        // Başta bütün silahları kapat
         DisableAllWeapons();
-
-        // Oyuncu kart seçene kadar bazı sistemler çalışmasın
         SetExtraScriptsEnabled(false);
     }
 
@@ -125,22 +138,17 @@ public class WeaponChoiceManager : MonoBehaviour
         OpenInitialChoice();
     }
 
-    // Panel açıkken cursor'un asla kaybolmaması için zorla (EKLENDİ)
     private void LateUpdate()
     {
         if (!panelOpen) return;
-
         if (!Cursor.visible) Cursor.visible = true;
         if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
     }
 
     #region STATS DICTIONARY
-
     private void BuildStatsDictionary()
     {
         statsDict.Clear();
-
-        // Tüm WeaponType enum değerleri için default stat oluştur
         foreach (WeaponType t in Enum.GetValues(typeof(WeaponType)))
         {
             if (!statsDict.ContainsKey(t))
@@ -154,70 +162,49 @@ public class WeaponChoiceManager : MonoBehaviour
                 });
             }
         }
-
-        Debug.Log("[WeaponChoiceManager] Stats dictionary oluşturuldu.");
     }
 
     private WeaponRuntimeStats GetRuntimeStats(WeaponType t)
     {
-        WeaponRuntimeStats s;
-        if (statsDict.TryGetValue(t, out s))
-            return s;
+        if (statsDict.TryGetValue(t, out var s)) return s;
         return null;
     }
 
-    // PUBLIC yapıldı ki HUD erişebilsin
     public WeaponOption GetWeaponOption(WeaponType t)
     {
         if (weapons == null) return null;
-
         foreach (var w in weapons)
         {
-            if (w != null && w.type == t)
-                return w;
+            if (w != null && w.type == t) return w;
         }
-
         return null;
     }
-
     #endregion
 
-    #region INITIAL CHOICE (Oyun başı ilk silah seçimi)
-
+    #region INITIAL CHOICE
     private void OpenInitialChoice()
     {
         if (weapons == null || weapons.Length < 2)
         {
-            Debug.LogError("[WeaponChoiceManager] En az 2 silah tanımlaman gerekiyor!");
+            Debug.LogError("[WeaponChoiceManager] En az 2 silah lazım!");
             return;
         }
 
         panelOpen = true;
-
-        // --- EKLENDİ: OYUNU DURDUR + CURSOR AÇ ---
         PauseGameAndShowCursor();
-        // ----------------------------------------
-
         SetExtraScriptsEnabled(false);
 
-        if (choicePanel != null)
-            choicePanel.SetActive(true);
+        if (choicePanel != null) choicePanel.SetActive(true);
 
-        // 4 silahtan rastgele 2 tanesini seç
         PickTwoRandomWeapons(out currentWeaponIndex1, out currentWeaponIndex2);
         
-        // -----------------------------------------------------------------
-        // EKLENDİ: Localization (Çeviri) Sistemini Tetikliyoruz
-        // -----------------------------------------------------------------
+        // Silah Seçimi Çevirileri (RewardTranslator Varsa)
         if (RewardTranslator.Instance != null)
         {
             WeaponType type1 = weapons[currentWeaponIndex1].type;
             WeaponType type2 = weapons[currentWeaponIndex2].type;
-            
-            // Textlerin içine çevrilmiş Keyleri atıyoruz
             RewardTranslator.Instance.UpdateCardTexts(type1, type2);
         }
-        // -----------------------------------------------------------------
 
         SetupWeaponChoiceCards(currentWeaponIndex1, currentWeaponIndex2);
     }
@@ -226,7 +213,6 @@ public class WeaponChoiceManager : MonoBehaviour
     {
         int count = weapons.Length;
         index1 = UnityEngine.Random.Range(0, count);
-
         do
         {
             index2 = UnityEngine.Random.Range(0, count);
@@ -235,7 +221,6 @@ public class WeaponChoiceManager : MonoBehaviour
 
     private void SetupWeaponChoiceCards(int idx1, int idx2)
     {
-        // Buton listenerları
         if (cardButton1 != null)
         {
             cardButton1.onClick.RemoveAllListeners();
@@ -255,50 +240,34 @@ public class WeaponChoiceManager : MonoBehaviour
     private void SetupWeaponCardUI(int idx, Button button, TMP_Text title)
     {
         if (weapons == null || idx < 0 || idx >= weapons.Length) return;
-
         var w = weapons[idx];
         
-        // DİKKAT: RewardTranslator kullanıyorsak buradaki manuel text atamasını
-        // devre dışı bırakıyoruz ki Localization sistemi ezilmesin.
-        // if (title != null) title.text = w.weaponName; // <-- Bu satır kapatıldı
-
-        // ICON → Butonun kendi Image'ından, WeaponOption.icon kullan
+        // Not: Title text RewardTranslator tarafından yönetiliyor.
+        
         if (button != null)
         {
             Image img = button.GetComponent<Image>();
-            if (img != null && w.icon != null)
-            {
-                img.sprite = w.icon;
-            }
+            if (img != null && w.icon != null) img.sprite = w.icon;
         }
     }
 
     private void OnWeaponSelected(int weaponIndex)
     {
-        if (weapons == null || weaponIndex < 0 || weaponIndex >= weapons.Length)
-            return;
+        if (weapons == null || weaponIndex < 0 || weaponIndex >= weapons.Length) return;
 
         var w = weapons[weaponIndex];
-
-        // Bu silahı aktif et
         EnableWeapon(weaponIndex);
         AddOwnedWeapon(w.type);
 
-        if (!initialChoiceDone)
-        {
-            initialChoiceDone = true;
-        }
-
+        if (!initialChoiceDone) initialChoiceDone = true;
         ClosePanel();
     }
-
     #endregion
 
-    #region LEVEL UP → YENİ SEÇİM
-
+    #region LEVEL UP
     public void OnPlayerLevelUp(int newLevel)
     {
-        if (!initialChoiceDone) return; // İlk seçim yapılmadan level up geldi ise es geç
+        if (!initialChoiceDone) return;
         OpenLevelUpChoice();
     }
 
@@ -311,38 +280,27 @@ public class WeaponChoiceManager : MonoBehaviour
         }
 
         panelOpen = true;
-
-        // --- EKLENDİ: OYUNU DURDUR + CURSOR AÇ ---
         PauseGameAndShowCursor();
-        // ----------------------------------------
-
         SetExtraScriptsEnabled(false);
 
-        if (choicePanel != null)
-            choicePanel.SetActive(true);
+        if (choicePanel != null) choicePanel.SetActive(true);
 
-        // Eğer 2 slot dolmamışsa → yeni silah öner
         if (ownedWeapons.Count < maxWeaponSlots)
         {
             SetupNewWeaponChoices();
         }
         else
         {
-            // 2 silahı da seçmiş → upgrade kartları göster
             SetupUpgradeChoices();
         }
     }
 
     private void SetupNewWeaponChoices()
     {
-        // Sahip olunmayan silahları listele
         List<int> candidates = new List<int>();
         for (int i = 0; i < weapons.Length; i++)
         {
-            if (!ownedWeapons.Contains(weapons[i].type))
-            {
-                candidates.Add(i);
-            }
+            if (!ownedWeapons.Contains(weapons[i].type)) candidates.Add(i);
         }
 
         if (candidates.Count == 0)
@@ -352,7 +310,6 @@ public class WeaponChoiceManager : MonoBehaviour
         }
 
         int idx1, idx2;
-
         if (candidates.Count == 1)
         {
             idx1 = candidates[0];
@@ -362,35 +319,23 @@ public class WeaponChoiceManager : MonoBehaviour
         {
             idx1 = candidates[UnityEngine.Random.Range(0, candidates.Count)];
             int temp;
-            do
-            {
-                temp = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-            } while (temp == idx1);
+            do { temp = candidates[UnityEngine.Random.Range(0, candidates.Count)]; } while (temp == idx1);
             idx2 = temp;
         }
 
         currentWeaponIndex1 = idx1;
         currentWeaponIndex2 = idx2;
 
-        // -----------------------------------------------------------------
-        // EKLENDİ: Localization (Çeviri) Sistemini Tetikliyoruz (YENİ SİLAH SEÇİMİ İÇİN)
-        // -----------------------------------------------------------------
         if (RewardTranslator.Instance != null)
         {
-            WeaponType type1 = weapons[idx1].type;
-            WeaponType type2 = weapons[idx2].type;
-            
-            // Textlerin içine çevrilmiş Keyleri atıyoruz
-            RewardTranslator.Instance.UpdateCardTexts(type1, type2);
+            RewardTranslator.Instance.UpdateCardTexts(weapons[idx1].type, weapons[idx2].type);
         }
-        // -----------------------------------------------------------------
 
         if (cardButton1 != null)
         {
             cardButton1.onClick.RemoveAllListeners();
             cardButton1.onClick.AddListener(() => OnWeaponSelected(idx1));
         }
-
         if (cardButton2 != null)
         {
             cardButton2.onClick.RemoveAllListeners();
@@ -401,6 +346,7 @@ public class WeaponChoiceManager : MonoBehaviour
         SetupWeaponCardUI(idx2, cardButton2, card2Title);
     }
 
+    // --- BURASI GÜNCELLENDİ: ARTIK ÇEVİRİLİ METİNLERİ BASIYOR ---
     private void SetupUpgradeChoices()
     {
         currentUpgrade1 = GenerateRandomUpgrade();
@@ -418,9 +364,7 @@ public class WeaponChoiceManager : MonoBehaviour
             cardButton2.onClick.AddListener(() => OnUpgradeSelected(2));
         }
 
-        // NOT: Upgradeler dinamik olduğu için (örn: "Damage +10"), 
-        // buraya Localization Event yerine manuel Text yazdırıyoruz.
-        // Localization sistemi sadece "Silah İsimleri" (RewardTranslator) için yapıldı.
+        // Çevrilmiş metinleri (GenerateRandomUpgrade içinde oluşturduk) basıyoruz
         if (card1Title != null) card1Title.text = currentUpgrade1.description;
         if (card2Title != null) card2Title.text = currentUpgrade2.description;
 
@@ -431,91 +375,64 @@ public class WeaponChoiceManager : MonoBehaviour
     private void SetupUpgradeCardIcon(UpgradeData data, Button button)
     {
         if (button == null || data == null) return;
-
         var opt = GetWeaponOption(data.weaponType);
         if (opt != null && opt.icon != null)
         {
             Image img = button.GetComponent<Image>();
-            if (img != null)
-            {
-                img.sprite = opt.icon;
-            }
+            if (img != null) img.sprite = opt.icon;
         }
     }
 
     private void OnUpgradeSelected(int cardIndex)
     {
-        UpgradeData chosen = null;
-        if (cardIndex == 1) chosen = currentUpgrade1;
-        else if (cardIndex == 2) chosen = currentUpgrade2;
-
-        if (chosen != null)
-        {
-            ApplyUpgrade(chosen);
-        }
-
+        UpgradeData chosen = (cardIndex == 1) ? currentUpgrade1 : currentUpgrade2;
+        if (chosen != null) ApplyUpgrade(chosen);
         ClosePanel();
     }
 
-    // luck01 = 0..1, Legendary max %90 (asla %100 garanti değil)
     private UpgradeRarity RollRarityByLuck(float luck01)
     {
         luck01 = Mathf.Clamp01(luck01);
-
-        // luck düşükken
         float[] low = { 0.55f, 0.25f, 0.13f, 0.05f, 0.02f };
-
-        // luck yüksekken -> Legendary %90'a kadar
         float[] high = { 0.03f, 0.03f, 0.02f, 0.02f, 0.90f };
 
         float r = UnityEngine.Random.value;
         float acc = 0f;
-
         for (int i = 0; i < 5; i++)
         {
             float w = Mathf.Lerp(low[i], high[i], luck01);
             acc += w;
-
-            if (r <= acc)
-                return (UpgradeRarity)i;
+            if (r <= acc) return (UpgradeRarity)i;
         }
-
         return UpgradeRarity.Legendary;
     }
 
-    private string RarityName(UpgradeRarity r)
-    {
-        return r.ToString();
-    }
-
+    // --- KRİTİK DEĞİŞİKLİK BURADA (LOCALIZATION) ---
     private UpgradeData GenerateRandomUpgrade()
     {
-        if (ownedWeapons.Count == 0)
-            ownedWeapons.Add(WeaponType.Bone);
+        if (ownedWeapons.Count == 0) ownedWeapons.Add(WeaponType.Bone);
 
         WeaponType wType = ownedWeapons[UnityEngine.Random.Range(0, ownedWeapons.Count)];
         UpgradeKind kind = (UpgradeKind)UnityEngine.Random.Range(0, 3);
 
-        float luck01 = 0f;
-        if (PlayerLuck.Instance != null)
-        {
-            // Artık Luck01 PlayerLuck içinde var (CS1061 fix)
-            luck01 = PlayerLuck.Instance.Luck01;
-        }
-
+        float luck01 = (PlayerLuck.Instance != null) ? PlayerLuck.Instance.Luck01 : 0f;
         UpgradeRarity rarity = RollRarityByLuck(luck01);
+        int rarityIndex = (int)rarity;
 
         UpgradeData data = new UpgradeData();
         data.weaponType = wType;
         data.kind = kind;
         data.rarity = rarity;
 
-        int rarityIndex = (int)rarity; // 0..4
-        string rName = RarityName(rarity);
-
+        // Veri Tabloları
         int[] countTable = { 1, 2, 3, 4, 5 };
         float[] atkSpdTable = { 0.05f, 0.10f, 0.20f, 0.30f, 0.50f };
         int[] dmgTable = { 5, 10, 15, 20, 50 };
+
+        // 1. Çevrilmiş Parçaları Alalım (Helper Fonksiyonlar Aşağıda)
+        string translatedRarity = GetLocalizedRarity(rarity);
+        string translatedWeapon = GetLocalizedWeaponName(wType);
+        string finalDesc = "";
 
         switch (kind)
         {
@@ -523,7 +440,12 @@ public class WeaponChoiceManager : MonoBehaviour
                 {
                     int amount = countTable[rarityIndex];
                     data.intAmount = amount;
-                    data.description = $"{rName}: {wType} mermi sayısı +{amount}";
+                    
+                    // Kalıbı al ve doldur: "{0}: {1} Ammo +{2}" -> "Yaygın: Kemik Mermi +1"
+                    if (patternCount != null && !patternCount.IsEmpty)
+                        finalDesc = patternCount.GetLocalizedString(translatedRarity, translatedWeapon, amount);
+                    else
+                        finalDesc = $"{rarity}: {wType} Count +{amount}"; // Yedek
                     break;
                 }
 
@@ -531,7 +453,12 @@ public class WeaponChoiceManager : MonoBehaviour
                 {
                     float perc = atkSpdTable[rarityIndex];
                     data.floatAmount = perc;
-                    data.description = $"{rName}: {wType} saldırı hızı %{Mathf.RoundToInt(perc * 100)} artar";
+                    int percInt = Mathf.RoundToInt(perc * 100);
+                    
+                    if (patternSpeed != null && !patternSpeed.IsEmpty)
+                        finalDesc = patternSpeed.GetLocalizedString(translatedRarity, translatedWeapon, percInt);
+                    else
+                        finalDesc = $"{rarity}: {wType} Speed +{percInt}%";
                     break;
                 }
 
@@ -539,116 +466,99 @@ public class WeaponChoiceManager : MonoBehaviour
                 {
                     int dmg = dmgTable[rarityIndex];
                     data.intAmount = dmg;
-                    data.description = $"{rName}: {wType} hasarı +{dmg}";
+                    
+                    if (patternDamage != null && !patternDamage.IsEmpty)
+                        finalDesc = patternDamage.GetLocalizedString(translatedRarity, translatedWeapon, dmg);
+                    else
+                        finalDesc = $"{rarity}: {wType} Damage +{dmg}";
                     break;
                 }
         }
 
+        data.description = finalDesc;
         return data;
     }
 
+    // --- YARDIMCI ÇEVİRİ FONKSİYONLARI (KODU KİRLETMEMEK İÇİN AYIRDIK) ---
+    private string GetLocalizedRarity(UpgradeRarity r)
+    {
+        switch (r)
+        {
+            case UpgradeRarity.Common: return (rarityCommon != null && !rarityCommon.IsEmpty) ? rarityCommon.GetLocalizedString() : r.ToString();
+            case UpgradeRarity.Uncommon: return (rarityUncommon != null && !rarityUncommon.IsEmpty) ? rarityUncommon.GetLocalizedString() : r.ToString();
+            case UpgradeRarity.Rare: return (rarityRare != null && !rarityRare.IsEmpty) ? rarityRare.GetLocalizedString() : r.ToString();
+            case UpgradeRarity.Epic: return (rarityEpic != null && !rarityEpic.IsEmpty) ? rarityEpic.GetLocalizedString() : r.ToString();
+            case UpgradeRarity.Legendary: return (rarityLegendary != null && !rarityLegendary.IsEmpty) ? rarityLegendary.GetLocalizedString() : r.ToString();
+            default: return r.ToString();
+        }
+    }
+
+    private string GetLocalizedWeaponName(WeaponType t)
+    {
+        switch (t)
+        {
+            case WeaponType.Bone: return (nameBone != null && !nameBone.IsEmpty) ? nameBone.GetLocalizedString() : t.ToString();
+            case WeaponType.Steak: return (nameSteak != null && !nameSteak.IsEmpty) ? nameSteak.GetLocalizedString() : t.ToString();
+            case WeaponType.Fireball: return (nameFireball != null && !nameFireball.IsEmpty) ? nameFireball.GetLocalizedString() : t.ToString();
+            case WeaponType.TennisBall: return (nameTennisBall != null && !nameTennisBall.IsEmpty) ? nameTennisBall.GetLocalizedString() : t.ToString();
+            default: return t.ToString();
+        }
+    }
+    // --------------------------------------------------------------------
+
     #endregion
 
-    #region UPGRADE UYGULAMA + RUNTIME STATS
-
+    #region UPGRADE APPLY + HELPERS
     private void ApplyUpgrade(UpgradeData data)
     {
-        Debug.Log($"[WeaponChoiceManager] Upgrade seçildi: {data.description}");
+        Debug.Log($"[WeaponChoiceManager] Upgrade: {data.description}");
 
         var stats = GetRuntimeStats(data.weaponType);
-        if (stats == null)
-        {
-            Debug.LogWarning($"[WeaponChoiceManager] {data.weaponType} için runtime stat bulunamadı!");
-            return;
-        }
+        if (stats == null) return;
 
         switch (data.kind)
         {
-            case UpgradeKind.Count:
-                stats.extraCount += data.intAmount;
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} extraCount +{data.intAmount} => {stats.extraCount}");
-                break;
-
-            case UpgradeKind.AttackSpeed:
-                stats.attackSpeedMultiplier *= (1f + data.floatAmount);
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} attackSpeedMultiplier x{1f + data.floatAmount} => {stats.attackSpeedMultiplier}");
-                break;
-
-            case UpgradeKind.Damage:
-                stats.damageBonus += data.intAmount;
-                Debug.Log($"[WeaponChoiceManager] {data.weaponType} damageBonus +{data.intAmount} => {stats.damageBonus}");
-                break;
+            case UpgradeKind.Count: stats.extraCount += data.intAmount; break;
+            case UpgradeKind.AttackSpeed: stats.attackSpeedMultiplier *= (1f + data.floatAmount); break;
+            case UpgradeKind.Damage: stats.damageBonus += data.intAmount; break;
         }
     }
 
     public float GetModifiedDamage(WeaponType type, float baseDamage)
     {
         var stats = GetRuntimeStats(type);
-        if (stats == null)
-        {
-            Debug.LogWarning($"[WeaponChoiceManager] GetModifiedDamage: {type} için stats bulunamadı, baseDamage dönüyorum.");
-            return baseDamage;
-        }
+        if (stats == null) return baseDamage;
 
-        // ---- GLOBAL DAMAGE EKLENDİ (senin istediğin snippet) ----
-        float global = PlayerPermanentUpgrades.Instance != null
-            ? PlayerPermanentUpgrades.Instance.globalDamageBonus
-            : 0f;
-
+        float global = (PlayerPermanentUpgrades.Instance != null) ? PlayerPermanentUpgrades.Instance.globalDamageBonus : 0f;
         float result = baseDamage + stats.damageBonus + global;
-        // --------------------------------------------------------
-
-        // Sandık "Kılıç" çarpanı varsa uygula (yoksa 1)
-        float mul = PlayerPermanentUpgrades.Instance != null
-            ? PlayerPermanentUpgrades.Instance.globalDamageMultiplier
-            : 1f;
-
+        float mul = (PlayerPermanentUpgrades.Instance != null) ? PlayerPermanentUpgrades.Instance.globalDamageMultiplier : 1f;
         result *= (mul <= 0f ? 1f : mul);
-
-        Debug.Log($"[WeaponChoiceManager] GetModifiedDamage({type}): base={baseDamage}, bonus={stats.damageBonus}, global={global}, mul={mul}, result={result}");
         return result;
     }
 
     public float GetAttackSpeedMultiplier(WeaponType type)
     {
         var stats = GetRuntimeStats(type);
-        if (stats == null) return 1f;
-        return stats.attackSpeedMultiplier <= 0f ? 1f : stats.attackSpeedMultiplier;
+        return (stats == null || stats.attackSpeedMultiplier <= 0f) ? 1f : stats.attackSpeedMultiplier;
     }
 
     public int GetExtraCount(WeaponType type)
     {
         var stats = GetRuntimeStats(type);
-        if (stats == null) return 0;
-        return stats.extraCount;
+        return (stats == null) ? 0 : stats.extraCount;
     }
-
-    #endregion
-
-    #region WEAPON ENABLE/DISABLE + DİĞER SCRIPTLER
 
     private void DisableAllWeapons()
     {
         if (weapons == null) return;
-
-        foreach (var w in weapons)
-        {
-            if (w != null && w.shooterScript != null)
-            {
-                w.shooterScript.enabled = false;
-            }
-        }
+        foreach (var w in weapons) if (w?.shooterScript != null) w.shooterScript.enabled = false;
     }
 
     private void EnableWeapon(int index)
     {
         if (weapons == null || index < 0 || index >= weapons.Length) return;
-
         var w = weapons[index];
-        if (w != null && w.shooterScript != null)
-        {
-            w.shooterScript.enabled = true;
-        }
+        if (w?.shooterScript != null) w.shooterScript.enabled = true;
     }
 
     private void AddOwnedWeapon(WeaponType type)
@@ -656,51 +566,31 @@ public class WeaponChoiceManager : MonoBehaviour
         if (!ownedWeapons.Contains(type))
         {
             ownedWeapons.Add(type);
-
-            if (WeaponHUDIcons.Instance != null)
-            {
-                WeaponHUDIcons.Instance.OnWeaponAcquired(type);
-            }
+            if (WeaponHUDIcons.Instance != null) WeaponHUDIcons.Instance.OnWeaponAcquired(type);
         }
     }
 
     private void SetExtraScriptsEnabled(bool enabled)
     {
         if (scriptsToDisableWhileChoosing == null) return;
-
-        foreach (var s in scriptsToDisableWhileChoosing)
-        {
-            if (s != null)
-                s.enabled = enabled;
-        }
+        foreach (var s in scriptsToDisableWhileChoosing) if (s != null) s.enabled = enabled;
     }
 
     private void ClosePanel()
     {
         panelOpen = false;
-
-        if (choicePanel != null)
-            choicePanel.SetActive(false);
-
-        // --- EKLENDİ: OYUNU DEVAM ETTİR + CURSOR ESKİ HALİNE ---
+        if (choicePanel != null) choicePanel.SetActive(false);
         ResumeGameAndRestoreCursor();
-        // ------------------------------------------------------
-
         SetExtraScriptsEnabled(true);
     }
 
-    #endregion
-
-    // -------------------- CURSOR/PAUSE HELPERS (EKLENDİ) --------------------
     private void PauseGameAndShowCursor()
     {
         if (pausedByWeaponChoice) return;
         pausedByWeaponChoice = true;
-
         prevTimeScale = Time.timeScale;
         prevLockMode = Cursor.lockState;
         prevCursorVisible = Cursor.visible;
-
         Time.timeScale = 0f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -710,7 +600,6 @@ public class WeaponChoiceManager : MonoBehaviour
     {
         if (!pausedByWeaponChoice) return;
         pausedByWeaponChoice = false;
-
         Time.timeScale = prevTimeScale;
         Cursor.visible = prevCursorVisible;
         Cursor.lockState = prevLockMode;
@@ -718,11 +607,7 @@ public class WeaponChoiceManager : MonoBehaviour
 
     private void OnDisable()
     {
-        // UI kapanırsa oyun kilitli kalmasın
-        if (pausedByWeaponChoice)
-        {
-            ResumeGameAndRestoreCursor();
-        }
+        if (pausedByWeaponChoice) ResumeGameAndRestoreCursor();
     }
-    // ----------------------------------------------------------------------
+    #endregion
 }

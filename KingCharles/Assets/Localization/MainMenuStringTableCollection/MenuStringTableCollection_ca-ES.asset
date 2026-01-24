@@ -203,6 +203,38 @@ MonoBehaviour:
     m_Localized: Llegendari
     m_Metadata:
       m_Items: []
+  - m_Id: 13221747450265600
+    m_Localized: "{0}: {1} Munici\xF3 +{2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13222182533808128
+    m_Localized: '{0}: {1} Velocitat +%{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13223088176316416
+    m_Localized: '{0}: {1} Dany +{2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232286402428928
+    m_Localized: Bup!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13232819162923008
+    m_Localized: Juguem!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13233157332877312
+    m_Localized: El rei Charles mana!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13235479291183104
+    m_Localized: Ets un alfa!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13236200929574912
+    m_Localized: "\xC9s un enemic?"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

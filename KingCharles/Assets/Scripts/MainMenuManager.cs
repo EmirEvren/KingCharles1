@@ -31,8 +31,8 @@ public class MainMenuManager : MonoBehaviour
     public bool generateMapOnPlay = true;
 
     [Header("--- SOSYAL MEDYA ---")]
-    public string discordLink = "https://discord.gg/qhjW8etr";
-    public string youtubeLink = "https://www.youtube.com/watch?v=DjaeJy_2lLk";
+    public string discordLink = "https://discord.gg/CFdn96Wb";
+    public string youtubeLink = "https://www.youtube.com/@realify-games";
 
     [Header("--- DİL SİSTEMİ ---")]
     public Image languageFlagImage;      
