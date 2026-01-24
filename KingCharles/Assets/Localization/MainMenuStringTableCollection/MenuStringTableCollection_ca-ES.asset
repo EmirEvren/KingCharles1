@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: HAS MORT
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: "Taxa de guany d\u2019XP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: "Taxa de guany d\u2019or"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: Dany de totes les armes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: Velocitat de moviment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: Sort
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: "Salut m\xE0xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: "Augmenta l\u2019XP obtinguda dels orbes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: "Augmenta l\u2019or obtingut de les monedes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: Augmenta el dany de totes les armes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: Augmenta la velocitat de moviment del jugador.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: "Augmenta l\u2019atribut de sort."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Augmenta la salut m\xE0xima del jugador."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: "Com\xFA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: "Poc com\xFA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Rar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: "\xC8pic"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: Llegendari
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

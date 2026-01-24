@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Localization;            // <-- EKLENDÄ°
+using UnityEngine.Localization.Settings;   // <-- EKLENDÄ°
 
 public enum DogUpgradeType
 {
@@ -17,39 +19,12 @@ public enum DogUpgradeType
 public struct DogHouseUpgradeOption
 {
     public DogUpgradeType type;
-    public int tierIndex;         // 0..4
-    public string rarityName;     // Common..Legendary
+    public int tierIndex;         // 0..4 (0=Common, 4=Legendary)
+    public string rarityName;     // (ArtÄ±k bunu kullanmayacaÄŸÄ±z, koddan Ã§evireceÄŸiz)
     public int intValue;
     public float floatValue;
 
-    public string GetTitle()
-    {
-        return type switch
-        {
-            DogUpgradeType.XPGainRate => "XP Gain Rate",
-            DogUpgradeType.GoldGainRate => "Gold Gain Rate",
-            DogUpgradeType.GlobalWeaponDamage => "All Weapons Damage",
-            DogUpgradeType.MoveSpeed => "Move Speed",
-            DogUpgradeType.Luck => "Luck",
-            DogUpgradeType.MaxHealth => "Max Health",
-            _ => "Upgrade"
-        };
-    }
-
-    public string GetDesc()
-    {
-        return type switch
-        {
-            DogUpgradeType.XPGainRate => "(Yerden toplanan XP kürelerinden alýnan XP miktarýný arttýrýr)",
-            DogUpgradeType.GoldGainRate => "(Yerden toplanan coinlerden alýnan altýn miktarýný arttýrýr)",
-            DogUpgradeType.GlobalWeaponDamage => "(Tüm silahlarýn hasarýný arttýrýr)",
-            DogUpgradeType.MoveSpeed => "(Oyuncu hareket hýzýný arttýrýr)",
-            DogUpgradeType.Luck => "(Þans deðerini arttýrýr)",
-            DogUpgradeType.MaxHealth => "(Oyuncu maksimum can deðerini arttýrýr)",
-            _ => ""
-        };
-    }
-
+    // Value text'i sayÄ± olduÄŸu iÃ§in buradan almaya devam edebiliriz
     public string GetValueText()
     {
         return type switch
@@ -62,11 +37,6 @@ public struct DogHouseUpgradeOption
             DogUpgradeType.MaxHealth => $"+{intValue}",
             _ => ""
         };
-    }
-
-    public string GetButtonText()
-    {
-        return $"{rarityName}: {GetTitle()} {GetValueText()}\n{GetDesc()}";
     }
 }
 
@@ -85,10 +55,35 @@ public class DogHouseUpgradeUI : MonoBehaviour
 
     [Header("Rarity Colors (Buttons)")]
     public Color commonColor = new Color(0.75f, 0.75f, 0.75f, 1f);     // gri
-    public Color uncommonColor = new Color(0.30f, 0.85f, 0.35f, 1f);   // yeþil
+    public Color uncommonColor = new Color(0.30f, 0.85f, 0.35f, 1f);   // yeÅŸil
     public Color rareColor = new Color(0.30f, 0.55f, 0.95f, 1f);       // mavi
     public Color epicColor = new Color(0.65f, 0.30f, 0.95f, 1f);       // mor
-    public Color legendaryColor = new Color(0.95f, 0.80f, 0.15f, 1f);  // sarý
+    public Color legendaryColor = new Color(0.95f, 0.80f, 0.15f, 1f);  // sarÄ±
+
+    [Header("Localization Keys (Inspector'dan SeÃ§)")]
+    // BaÅŸlÄ±klar
+    public LocalizedString titleXP;
+    public LocalizedString titleGold;
+    public LocalizedString titleDamage;
+    public LocalizedString titleSpeed;
+    public LocalizedString titleLuck;
+    public LocalizedString titleHealth;
+
+    // AÃ§Ä±klamalar
+    public LocalizedString descXP;
+    public LocalizedString descGold;
+    public LocalizedString descDamage;
+    public LocalizedString descSpeed;
+    public LocalizedString descLuck;
+    public LocalizedString descHealth;
+
+    // Nadirlik Ä°simleri
+    public LocalizedString rarityCommon;
+    public LocalizedString rarityUncommon;
+    public LocalizedString rarityRare;
+    public LocalizedString rarityEpic;
+    public LocalizedString rarityLegendary;
+
 
     public Action onClosed;
 
@@ -116,11 +111,20 @@ public class DogHouseUpgradeUI : MonoBehaviour
 
     private void Setup(Button btn, TMP_Text txt, DogHouseUpgradeOption opt, int index)
     {
-        if (txt != null) txt.text = opt.GetButtonText();
+        // --- TEXT OLUÅžTURMA (Localization ile) ---
+        if (txt != null)
+        {
+            string rName = GetLocalizedRarity(opt.tierIndex); // Common
+            string title = GetLocalizedTitle(opt.type);       // XP Gain
+            string val = opt.GetValueText();                  // +5
+            string desc = GetLocalizedDesc(opt.type);         // (Increases XP...)
 
-        // --- EKLENDÝ: rarity'e göre buton rengi ---
+            // Format: "Common: XP Gain +5 \n (Increases XP...)"
+            txt.text = $"{rName}: {title} {val}\n({desc})";
+        }
+
+        // --- RENK AYARLAMA ---
         ApplyRarityColor(btn, opt.tierIndex);
-        // -----------------------------------------
 
         if (btn == null) return;
 
@@ -128,16 +132,58 @@ public class DogHouseUpgradeUI : MonoBehaviour
         btn.onClick.AddListener(() => OnPick(index));
     }
 
+    // --- YARDIMCI Ã‡EVÄ°RÄ° FONKSÄ°YONLARI ---
+
+    private string GetLocalizedTitle(DogUpgradeType type)
+    {
+        switch (type)
+        {
+            case DogUpgradeType.XPGainRate: return titleXP.GetLocalizedString();
+            case DogUpgradeType.GoldGainRate: return titleGold.GetLocalizedString();
+            case DogUpgradeType.GlobalWeaponDamage: return titleDamage.GetLocalizedString();
+            case DogUpgradeType.MoveSpeed: return titleSpeed.GetLocalizedString();
+            case DogUpgradeType.Luck: return titleLuck.GetLocalizedString();
+            case DogUpgradeType.MaxHealth: return titleHealth.GetLocalizedString();
+            default: return "";
+        }
+    }
+
+    private string GetLocalizedDesc(DogUpgradeType type)
+    {
+        switch (type)
+        {
+            case DogUpgradeType.XPGainRate: return descXP.GetLocalizedString();
+            case DogUpgradeType.GoldGainRate: return descGold.GetLocalizedString();
+            case DogUpgradeType.GlobalWeaponDamage: return descDamage.GetLocalizedString();
+            case DogUpgradeType.MoveSpeed: return descSpeed.GetLocalizedString();
+            case DogUpgradeType.Luck: return descLuck.GetLocalizedString();
+            case DogUpgradeType.MaxHealth: return descHealth.GetLocalizedString();
+            default: return "";
+        }
+    }
+
+    private string GetLocalizedRarity(int tierIndex)
+    {
+        switch (tierIndex)
+        {
+            case 0: return rarityCommon.GetLocalizedString();
+            case 1: return rarityUncommon.GetLocalizedString();
+            case 2: return rarityRare.GetLocalizedString();
+            case 3: return rarityEpic.GetLocalizedString();
+            case 4: return rarityLegendary.GetLocalizedString();
+            default: return rarityCommon.GetLocalizedString();
+        }
+    }
+
+    // -------------------------------------
+
     private void ApplyRarityColor(Button btn, int tierIndex)
     {
         if (btn == null) return;
-
         Image btnImg = btn.GetComponent<Image>();
         if (btnImg == null) return;
 
         Color c = commonColor;
-
-        // tierIndex: 0=Common, 1=Uncommon, 2=Rare, 3=Epic, 4=Legendary
         switch (tierIndex)
         {
             case 0: c = commonColor; break;
@@ -146,7 +192,6 @@ public class DogHouseUpgradeUI : MonoBehaviour
             case 3: c = epicColor; break;
             default: c = legendaryColor; break;
         }
-
         btnImg.color = c;
     }
 
@@ -173,7 +218,7 @@ public class DogHouseUpgradeUI : MonoBehaviour
             return;
         }
 
-        // Diðerleri
+        // DiÄŸerleri
         if (PlayerPermanentUpgrades.Instance == null) return;
 
         switch (opt.type)

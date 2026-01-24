@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: MORISTE
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: Tasa de ganancia de XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: Tasa de ganancia de oro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: "Da\xF1o de todas las armas"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: Velocidad de movimiento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: Suerte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: "Salud m\xE1xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: Aumenta el XP obtenido de los orbes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: Aumenta el oro obtenido de las monedas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: "Aumenta el da\xF1o de todas las armas."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: Aumenta la velocidad de movimiento del jugador.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: "Aumenta la estad\xEDstica de suerte."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Aumenta la salud m\xE1xima del jugador."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: "Com\xFAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: "Poco com\xFAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Raro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: "\xC9pico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: Legendario
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

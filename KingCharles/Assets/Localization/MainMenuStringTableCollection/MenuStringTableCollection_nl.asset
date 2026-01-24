@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: JE BENT GESTORVEN
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: XP-verkrijgingssnelheid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: Goud-verkrijgingssnelheid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: Schade van alle wapens
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: Bewegingssnelheid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: Geluk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: Maximale gezondheid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: Verhoogt de XP die je krijgt van orbs.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: Verhoogt het goud dat je krijgt van munten.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: Verhoogt de schade van alle wapens.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: Verhoogt de bewegingssnelheid van de speler.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: Verhoogt de geluksstatistiek.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: Verhoogt de maximale gezondheid van de speler.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: Gewoon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: Ongewoon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Zeldzaam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: Episch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: Legendarisch
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

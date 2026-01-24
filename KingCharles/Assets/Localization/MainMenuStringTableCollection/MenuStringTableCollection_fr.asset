@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: "VOUS \xCATES MORT"
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: "Taux de gain d\u2019XP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: "Taux de gain d\u2019or"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: "D\xE9g\xE2ts de toutes les armes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: "Vitesse de d\xE9placement"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: "Sant\xE9 maximale"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: "Augmente l\u2019XP obtenue \xE0 partir des orbes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: "Augmente l\u2019or obtenu \xE0 partir des pi\xE8ces."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: "Augmente les d\xE9g\xE2ts de toutes les armes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: "Augmente la vitesse de d\xE9placement du joueur."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: Augmente la statistique de chance.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Augmente la sant\xE9 maximale du joueur."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: Commun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: Peu commun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Rare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: "\xC9pique"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: "L\xE9gendaire"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

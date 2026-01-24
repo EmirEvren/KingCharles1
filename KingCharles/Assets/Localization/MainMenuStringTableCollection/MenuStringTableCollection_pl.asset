@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: "ZGIN\u0104\u0141E\u015A"
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: Tempo zdobywania XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: "Tempo zdobywania z\u0142ota"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: "Obra\u017Cenia wszystkich broni"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: "Pr\u0119dko\u015B\u0107 ruchu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: "Szcz\u0119\u015Bcie"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: Maksymalne zdrowie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: "Zwi\u0119ksza ilo\u015B\u0107 XP zdobywanego z orb\xF3w."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: "Zwi\u0119ksza ilo\u015B\u0107 z\u0142ota zdobywanego z monet."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: "Zwi\u0119ksza obra\u017Cenia wszystkich broni."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: "Zwi\u0119ksza pr\u0119dko\u015B\u0107 poruszania si\u0119 gracza."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: "Zwi\u0119ksza statystyk\u0119 szcz\u0119\u015Bcia."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Zwi\u0119ksza maksymalne zdrowie gracza."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: "Zwyk\u0142y"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: "Niezwyk\u0142y"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Rzadki
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: Epicki
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: Legendarny
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

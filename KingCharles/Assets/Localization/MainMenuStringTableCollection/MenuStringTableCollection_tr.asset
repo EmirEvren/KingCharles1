@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: "\xD6LD\xDCN"
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: "XP Kazan\u0131m Oran\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: "Alt\u0131n Kazan\u0131m Oran\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: "T\xFCm Silah Hasar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: "Hareket H\u0131z\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: "\u015Eans"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: Maksimum Can
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: "K\xFCrelerden kazan\u0131lan XP miktar\u0131n\u0131 art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: "Paralardan kazan\u0131lan alt\u0131n miktar\u0131n\u0131 art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: "T\xFCm silahlar\u0131n verdi\u011Fi hasar\u0131 art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: "Oyuncunun hareket h\u0131z\u0131n\u0131 art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: "\u015Eans istatisti\u011Fini art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: " Oyuncunun maksimum can\u0131n\u0131 art\u0131r\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: "Yayg\u0131n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: "Yayg\u0131n de\u011Fil"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Nadir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: Efsanevi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: Efsanevi
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

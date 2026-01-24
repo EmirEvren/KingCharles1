@@ -131,6 +131,74 @@ MonoBehaviour:
     m_Key: Key_DeathTitle
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Key: Key_Upgrade_XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Key: Key_Upgrade_Gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Key: Key_Upgrade_Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Key: Key_Upgrade_Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Key: Key_Upgrade_Luck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Key: Key_Upgrade_Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Key: Key_Desc_XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Key: Key_Desc_Gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Key: Key_Desc_Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Key: Key_Desc_Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Key: Key_Desc_Luck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Key: Key_Desc_Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Key: Key_Rarity_Common
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Key: Key_Rarity_Uncommon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Key: Key_Rarity_Rare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Key: Key_Rarity_Epic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Key: Key_Rarity_Legendary
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

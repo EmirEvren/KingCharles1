@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: DU BIST GESTORBEN
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: XP-Gewinnrate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: Gold-Gewinnrate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: Schaden aller Waffen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: Bewegungsgeschwindigkeit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: "Gl\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: Maximale Gesundheit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: "Erh\xF6ht die durch Orbs erhaltene XP."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: "Erh\xF6ht das aus M\xFCnzen erhaltene Gold."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: "Erh\xF6ht den Schaden aller Waffen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: "Erh\xF6ht die Bewegungsgeschwindigkeit des Spielers."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: "Erh\xF6ht den Gl\xFCckswert."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Erh\xF6ht die maximale Gesundheit des Spielers."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: "Gew\xF6hnlich"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: "Ungew\xF6hnlich"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Selten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: Episch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: "Legend\xE4r"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

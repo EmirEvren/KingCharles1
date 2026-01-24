@@ -135,6 +135,74 @@ MonoBehaviour:
     m_Localized: MORRESTE
     m_Metadata:
       m_Items: []
+  - m_Id: 13184877905182720
+    m_Localized: Taxa de ganho de XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13185501946314752
+    m_Localized: Taxa de ganho de ouro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186118865518592
+    m_Localized: Dano de todas as armas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13186916169154560
+    m_Localized: Velocidade de movimento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13187717147000832
+    m_Localized: Sorte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188202256007168
+    m_Localized: "Vida m\xE1xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13188752980705280
+    m_Localized: Aumenta o XP obtido a partir dos orbes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13189719981686784
+    m_Localized: Aumenta o ouro obtido a partir das moedas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190458590232576
+    m_Localized: Aumenta o dano de todas as armas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13190963592822784
+    m_Localized: Aumenta a velocidade de movimento do jogador.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13191546919845888
+    m_Localized: Aumenta o atributo de sorte.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13192084747059200
+    m_Localized: "Aumenta a vida m\xE1xima do jogador."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193150209327104
+    m_Localized: Comum
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13193846321184768
+    m_Localized: Incomum
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13194466050572288
+    m_Localized: Raro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13197078724476928
+    m_Localized: "\xC9pico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13200109599850496
+    m_Localized: "Lend\xE1rio"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
