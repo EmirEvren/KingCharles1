@@ -102,6 +102,14 @@ MonoBehaviour:
     m_Localized: "\u66AB\u505C"
     m_Metadata:
       m_Items: []
+  - m_Id: 13138105852051456
+    m_Localized: "\u7EDF\u8BA1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13141026320760832
+    m_Localized: "\u96BE\u5EA6"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

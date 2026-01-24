@@ -103,6 +103,14 @@ MonoBehaviour:
     m_Localized: IN PAUSA
     m_Metadata:
       m_Items: []
+  - m_Id: 13138105852051456
+    m_Localized: STATISTICHE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13141026320760832
+    m_Localized: "Difficolt\xE0"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

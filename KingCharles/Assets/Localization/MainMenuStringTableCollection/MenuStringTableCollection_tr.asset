@@ -103,6 +103,14 @@ MonoBehaviour:
     m_Localized: DURAKLATILDI
     m_Metadata:
       m_Items: []
+  - m_Id: 13138105852051456
+    m_Localized: "\u0130STAT\u0130ST\u0130K"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13141026320760832
+    m_Localized: Zorluk
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -99,6 +99,14 @@ MonoBehaviour:
     m_Key: Key_PAUSED
     m_Metadata:
       m_Items: []
+  - m_Id: 13138105852051456
+    m_Key: Key_STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13141026320760832
+    m_Key: Key_Difficulty
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
