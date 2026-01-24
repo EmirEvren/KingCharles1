@@ -31,18 +31,18 @@ public enum UpgradeRarity
 [Serializable]
 public class WeaponOption
 {
-    public string weaponName;             // Kartta görünen isim
-    public WeaponType type;              // Hangi silah
-    public MonoBehaviour shooterScript;  // Player üzerindeki AutoShooter
-    public Sprite icon;                  // BUTON görseli için kullanılacak icon
+    public string weaponName;             // Kartta görünen isim (Localization varsa burası ezilir)
+    public WeaponType type;               // Hangi silah
+    public MonoBehaviour shooterScript;   // Player üzerindeki AutoShooter
+    public Sprite icon;                   // BUTON görseli için kullanılacak icon
 }
 
 [Serializable]
 public class WeaponRuntimeStats
 {
     public WeaponType type;
-    public int extraCount;                      // Fazladan mermi sayısı
-    public float damageBonus;                   // Düz +damage
+    public int extraCount;                  // Fazladan mermi sayısı
+    public float damageBonus;               // Düz +damage
     public float attackSpeedMultiplier = 1f;    // Atış hızı çarpanı
 }
 
@@ -205,6 +205,20 @@ public class WeaponChoiceManager : MonoBehaviour
 
         // 4 silahtan rastgele 2 tanesini seç
         PickTwoRandomWeapons(out currentWeaponIndex1, out currentWeaponIndex2);
+        
+        // -----------------------------------------------------------------
+        // EKLENDİ: Localization (Çeviri) Sistemini Tetikliyoruz
+        // -----------------------------------------------------------------
+        if (RewardTranslator.Instance != null)
+        {
+            WeaponType type1 = weapons[currentWeaponIndex1].type;
+            WeaponType type2 = weapons[currentWeaponIndex2].type;
+            
+            // Textlerin içine çevrilmiş Keyleri atıyoruz
+            RewardTranslator.Instance.UpdateCardTexts(type1, type2);
+        }
+        // -----------------------------------------------------------------
+
         SetupWeaponChoiceCards(currentWeaponIndex1, currentWeaponIndex2);
     }
 
@@ -243,7 +257,10 @@ public class WeaponChoiceManager : MonoBehaviour
         if (weapons == null || idx < 0 || idx >= weapons.Length) return;
 
         var w = weapons[idx];
-        if (title != null) title.text = w.weaponName;
+        
+        // DİKKAT: RewardTranslator kullanıyorsak buradaki manuel text atamasını
+        // devre dışı bırakıyoruz ki Localization sistemi ezilmesin.
+        // if (title != null) title.text = w.weaponName; // <-- Bu satır kapatıldı
 
         // ICON → Butonun kendi Image'ından, WeaponOption.icon kullan
         if (button != null)
@@ -355,6 +372,19 @@ public class WeaponChoiceManager : MonoBehaviour
         currentWeaponIndex1 = idx1;
         currentWeaponIndex2 = idx2;
 
+        // -----------------------------------------------------------------
+        // EKLENDİ: Localization (Çeviri) Sistemini Tetikliyoruz (YENİ SİLAH SEÇİMİ İÇİN)
+        // -----------------------------------------------------------------
+        if (RewardTranslator.Instance != null)
+        {
+            WeaponType type1 = weapons[idx1].type;
+            WeaponType type2 = weapons[idx2].type;
+            
+            // Textlerin içine çevrilmiş Keyleri atıyoruz
+            RewardTranslator.Instance.UpdateCardTexts(type1, type2);
+        }
+        // -----------------------------------------------------------------
+
         if (cardButton1 != null)
         {
             cardButton1.onClick.RemoveAllListeners();
@@ -388,6 +418,9 @@ public class WeaponChoiceManager : MonoBehaviour
             cardButton2.onClick.AddListener(() => OnUpgradeSelected(2));
         }
 
+        // NOT: Upgradeler dinamik olduğu için (örn: "Damage +10"), 
+        // buraya Localization Event yerine manuel Text yazdırıyoruz.
+        // Localization sistemi sadece "Silah İsimleri" (RewardTranslator) için yapıldı.
         if (card1Title != null) card1Title.text = currentUpgrade1.description;
         if (card2Title != null) card2Title.text = currentUpgrade2.description;
 

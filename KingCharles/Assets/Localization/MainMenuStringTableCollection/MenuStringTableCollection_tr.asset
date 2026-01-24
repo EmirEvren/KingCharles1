@@ -111,6 +111,22 @@ MonoBehaviour:
     m_Localized: Zorluk
     m_Metadata:
       m_Items: []
+  - m_Id: 13154319294873600
+    m_Localized: "TEN\u0130S TOPU"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154359056875520
+    m_Localized: "ATE\u015E TOPU"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154455127408640
+    m_Localized: "B\u0130FTEK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154506197254144
+    m_Localized: "KEM\u0130K"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

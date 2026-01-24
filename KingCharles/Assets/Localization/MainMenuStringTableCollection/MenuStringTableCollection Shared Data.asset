@@ -107,6 +107,22 @@ MonoBehaviour:
     m_Key: Key_Difficulty
     m_Metadata:
       m_Items: []
+  - m_Id: 13154319294873600
+    m_Key: Key_Tennisball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154359056875520
+    m_Key: Key_Fireball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154455127408640
+    m_Key: Key_Steak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13154506197254144
+    m_Key: Key_Bone
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
