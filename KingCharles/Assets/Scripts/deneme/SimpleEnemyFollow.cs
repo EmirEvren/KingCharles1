@@ -38,6 +38,7 @@ public class SimpleEnemyFollow : MonoBehaviour
 
     // FİZİK
     private Rigidbody rb;
+    private float pivotToBottomOffsetY = 0f;
 
     [Header("Zemin Algılama")]
     public float groundRayDistance = 2f; // Alttaki zemini ararken kullanılacak mesafe
@@ -53,6 +54,29 @@ public class SimpleEnemyFollow : MonoBehaviour
         // Gravity kullansın
         rb.useGravity = true;
         rb.isKinematic = false;   // KESİNLİKLE kinematic olmasın
+    }
+    private void CacheBottomOffset()
+    {
+        Collider[] cols = GetComponentsInChildren<Collider>();
+        float minY = float.PositiveInfinity;
+        bool found = false;
+
+        foreach (var c in cols)
+        {
+            if (c == null) continue;
+            if (c.isTrigger) continue;
+            minY = Mathf.Min(minY, c.bounds.min.y);
+            found = true;
+        }
+
+        if (!found)
+        {
+            pivotToBottomOffsetY = 0f;
+            return;
+        }
+
+        // rb.position.y ile collider tabanı arasındaki offset
+        pivotToBottomOffsetY = rb.position.y - minY;
     }
 
     private void Start()
@@ -85,6 +109,8 @@ public class SimpleEnemyFollow : MonoBehaviour
         // -----------------------------------------
 
         aiTimer = Random.Range(0f, aiInterval); // İşlemciyi yormamak için rastgele offset
+        CacheBottomOffset();
+
     }
 
     private void Update()
@@ -142,26 +168,45 @@ public class SimpleEnemyFollow : MonoBehaviour
     /// </summary>
     private void GroundStick()
     {
-        // Ray'i biraz yukarıdan başlat (tam ayak tabanından başlatma ki zeminin içine girmesin)
         Vector3 origin = rb.position + Vector3.up * 0.5f;
 
-        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, groundRayDistance))
+        RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down, groundRayDistance, ~0, QueryTriggerInteraction.Ignore);
+        if (hits == null || hits.Length == 0) return;
+
+        bool foundGround = false;
+        float bestDist = float.PositiveInfinity;
+        RaycastHit bestHit = default;
+
+        for (int i = 0; i < hits.Length; i++)
         {
+            var h = hits[i];
+            if (h.collider == null) continue;
+
+            // Kendi collider'ını yok say
+            if (h.collider.transform.IsChildOf(transform)) continue;
+
             // Rampa ise (tag: Climb) → ELLEME
-            if (hit.collider.CompareTag("Climb"))
+            if (h.collider.CompareTag("Climb")) continue;
+
+            if (h.distance < bestDist)
             {
-                return;
+                bestDist = h.distance;
+                bestHit = h;
+                foundGround = true;
             }
-
-            // Diğer her collider (TerrainCollider, MeshCollider, vb.) zemin say:
-            Vector3 pos = rb.position;
-            pos.y = hit.point.y;
-
-            // Y eksenindeki hızı sıfırlayıp pozisyonu zemine çekiyoruz
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-            rb.MovePosition(pos);
         }
+
+        if (!foundGround) return;
+
+        Vector3 pos = rb.position;
+
+        // Pivotu değil, collider tabanını zemine oturt:
+        pos.y = bestHit.point.y + pivotToBottomOffsetY;
+
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        rb.MovePosition(pos);
     }
+
 
     private void DoAI()
     {

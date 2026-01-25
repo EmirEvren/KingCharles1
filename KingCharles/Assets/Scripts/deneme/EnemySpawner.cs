@@ -207,9 +207,35 @@ public class EnemySpawner : MonoBehaviour
         if (enemy == null) return;
 
         Vector3 origin = enemy.transform.position + Vector3.up * 10f;
-        if (!Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 200f, groundMask, QueryTriggerInteraction.Ignore))
-            return;
 
+        // RaycastAll ile atıp, "kendi collider'ına çarpma" durumunu filtreliyoruz.
+        RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down, 200f, groundMask, QueryTriggerInteraction.Ignore);
+        if (hits == null || hits.Length == 0) return;
+
+        // En yakın "self olmayan" hit'i bul
+        bool foundGround = false;
+        float bestDist = float.PositiveInfinity;
+        RaycastHit bestHit = default;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var h = hits[i];
+            if (h.collider == null) continue;
+
+            // Kendi collider'ını (child dahil) yok say
+            if (h.collider.transform.IsChildOf(enemy.transform)) continue;
+
+            if (h.distance < bestDist)
+            {
+                bestDist = h.distance;
+                bestHit = h;
+                foundGround = true;
+            }
+        }
+
+        if (!foundGround) return;
+
+        // Collider altını zemine oturt
         Collider[] cols = enemy.GetComponentsInChildren<Collider>();
         float minY = float.PositiveInfinity;
         bool found = false;
@@ -223,17 +249,36 @@ public class EnemySpawner : MonoBehaviour
             found = true;
         }
 
+        Vector3 pos = enemy.transform.position;
+
         if (!found)
         {
-            Vector3 p = enemy.transform.position;
-            p.y = hit.point.y + groundSnapEpsilon;
-            enemy.transform.position = p;
-            return;
+            // Collider yoksa pivot'u zemine koy (fallback)
+            pos.y = bestHit.point.y + groundSnapEpsilon;
+            enemy.transform.position = pos;
+        }
+        else
+        {
+            float delta = (bestHit.point.y - minY) + groundSnapEpsilon;
+            enemy.transform.position += new Vector3(0f, delta, 0f);
         }
 
-        float delta = (hit.point.y - minY) + groundSnapEpsilon;
-        enemy.transform.position += new Vector3(0f, delta, 0f);
+        // NavMeshAgent varsa yeni pozisyona "warp" et (havada yürüme bugını azaltır)
+        var agent = enemy.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (agent != null && agent.enabled)
+        {
+            agent.Warp(enemy.transform.position);
+        }
+
+        // Rigidbody varsa konumu syncle + düşey hızı sıfırla
+        var rb = enemy.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            Physics.SyncTransforms();
+        }
     }
+
 
     private void OnDrawGizmosSelected()
     {
