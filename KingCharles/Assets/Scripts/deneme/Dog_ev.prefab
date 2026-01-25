@@ -133,6 +133,7 @@ MonoBehaviour:
   upgradeUI: {fileID: 0}
   scriptsToDisableWhileChoosing:
   - {fileID: 0}
+  destroyTarget: {fileID: 8198730209941659326}
 --- !u!65 &554679660954178262
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,25 +13,45 @@ public class DogHouseUpgradeStation : MonoBehaviour
     public Slider holdSlider;              // value 0..1
     public DogHouseUpgradeUI upgradeUI;    // 3 buton paneli
 
-    [Header("Seçim Açýlýnca Durdurulacak Scriptler (Opsiyonel)")]
+    [Header("SeÃ§im AÃ§Ä±lÄ±nca Durdurulacak Scriptler (Opsiyonel)")]
     public MonoBehaviour[] scriptsToDisableWhileChoosing;
+
+    [Header("Destroy")]
+    [Tooltip("BoÅŸ bÄ±rakÄ±rsan bu GameObject'i siler. Doghouse kÃ¶kÃ¼nÃ¼ silmek istiyorsan buraya root objeyi ver.")]
+    public GameObject destroyTarget;
 
     private bool inRange = false;
     private bool usedThisStay = false;
     private float holdTimer = 0f;
 
-    // --- EKLENDÝ: 1 kere kullanýldýktan sonra istasyonu silmek için ---
+    // 1 kere aÃ§Ä±ldÄ± mÄ±? (Exploit kilidi)
+    private bool usedEver = false;
+
+    // UI kapandÄ±ktan sonra silinsin
     private bool destroyAfterClose = false;
 
     private static readonly string[] RarityNames = { "Common", "Uncommon", "Rare", "Epic", "Legendary" };
 
-    // Tier tablolarý (0..4)
     private static readonly int[] XP_TIERS = { 1, 2, 3, 4, 5 };
     private static readonly int[] GOLD_TIERS = { 1, 2, 3, 4, 5 };
     private static readonly int[] DMG_TIERS = { 5, 10, 15, 20, 25 };
     private static readonly float[] SPEED_TIERS = { 0.1f, 0.15f, 0.2f, 0.25f, 0.5f };
     private static readonly int[] LUCK_TIERS = { 1, 3, 5, 10, 20 };
     private static readonly int[] MAXHP_TIERS = { 10, 25, 50, 100, 250 };
+
+    private void Awake()
+    {
+        // Start yerine Awake: event kaÃ§Ä±rma riskini azaltÄ±r
+        if (upgradeUI != null)
+            upgradeUI.onClosed += OnUpgradeClosed;
+    }
+
+    private void OnDestroy()
+    {
+        // Memory leak / ghost callback Ã¶nlemi
+        if (upgradeUI != null)
+            upgradeUI.onClosed -= OnUpgradeClosed;
+    }
 
     private void Start()
     {
@@ -42,16 +62,22 @@ public class DogHouseUpgradeStation : MonoBehaviour
             holdSlider.maxValue = 1f;
             holdSlider.value = 0f;
         }
-
-        if (upgradeUI != null)
-        {
-            upgradeUI.onClosed += OnUpgradeClosed;
-        }
     }
 
     private void Update()
     {
+        // EÄŸer bir kere aÃ§Ä±ldÄ±ysa ve kapanmÄ±ÅŸsa (hangi yolla kapanÄ±rsa kapansÄ±n) sil
+        if (destroyAfterClose)
+        {
+            if (upgradeUI == null || !upgradeUI.IsOpen)
+            {
+                DestroySelf();
+                return;
+            }
+        }
+
         if (!inRange) return;
+        if (usedEver) return; // Exploit kilidi
         if (upgradeUI != null && upgradeUI.IsOpen) return;
         if (usedThisStay) return;
 
@@ -93,7 +119,9 @@ public class DogHouseUpgradeStation : MonoBehaviour
     {
         if (upgradeUI == null) return;
 
-        // 6 upgradeden rastgele 3 farklý tane seç
+        // Exploit kilidi: UI aÃ§Ä±ldÄ± mÄ± artÄ±k tekrar aÃ§ma
+        usedEver = true;
+
         List<DogUpgradeType> pool = new List<DogUpgradeType>
         {
             DogUpgradeType.XPGainRate,
@@ -110,7 +138,6 @@ public class DogHouseUpgradeStation : MonoBehaviour
         DogHouseUpgradeOption o2 = RollOption(pool[1]);
         DogHouseUpgradeOption o3 = RollOption(pool[2]);
 
-        // Panel açýlýnca oyunu durdur
         Time.timeScale = 0f;
         SetExtraScriptsEnabled(false);
         Cursor.visible = true;
@@ -118,7 +145,7 @@ public class DogHouseUpgradeStation : MonoBehaviour
 
         upgradeUI.Open(o1, o2, o3);
 
-        // --- EKLENDÝ: seçim bittikten sonra (UI kapanýnca) bu istasyonu sil ---
+        // UI kapanÄ±nca silinecek. (OnClosed kaÃ§arsa Update fallback yakalar)
         destroyAfterClose = true;
     }
 
@@ -149,17 +176,15 @@ public class DogHouseUpgradeStation : MonoBehaviour
         return opt;
     }
 
-    // Legendary ihtimali luck arttýkça artar ama %90'ý geçmez (asemptotik yaklaþýr)
     private int RollTierIndexByLuck(int luckLevel)
     {
-        float norm = 1f - Mathf.Exp(-luckLevel / 15f);     // luck çok büyürse 1'e yaklaþýr
-        float pLegend = Mathf.Lerp(0.02f, 0.90f, norm);    // max %90
+        float norm = 1f - Mathf.Exp(-luckLevel / 15f);
+        float pLegend = Mathf.Lerp(0.02f, 0.90f, norm);
 
-        // Kalan % (1 - pLegend) diðer tierlara daðýtýlýr (luck arttýkça üst tierlar aðýr basar)
         float remaining = 1f - pLegend;
 
-        float[] w0 = { 0.55f, 0.25f, 0.13f, 0.05f }; // Common..Epic (luck düþük)
-        float[] w1 = { 0.10f, 0.15f, 0.25f, 0.50f }; // Common..Epic (luck yüksek)
+        float[] w0 = { 0.55f, 0.25f, 0.13f, 0.05f };
+        float[] w1 = { 0.10f, 0.15f, 0.25f, 0.50f };
 
         float[] w = new float[4];
         float sum = 0f;
@@ -169,28 +194,22 @@ public class DogHouseUpgradeStation : MonoBehaviour
             sum += w[i];
         }
 
-        // normalize + remaining uygula
         for (int i = 0; i < 4; i++)
             w[i] = (w[i] / sum) * remaining;
 
         float r = Random.value;
 
-        // Legendary (tier 4)
         if (r < pLegend) return 4;
         r -= pLegend;
 
-        // Epic (tier 3)
         if (r < w[3]) return 3;
         r -= w[3];
 
-        // Rare (tier 2)
         if (r < w[2]) return 2;
         r -= w[2];
 
-        // Uncommon (tier 1)
         if (r < w[1]) return 1;
 
-        // Common (tier 0)
         return 0;
     }
 
@@ -201,11 +220,23 @@ public class DogHouseUpgradeStation : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        // --- EKLENDÝ: 1 kere kullanýldýysa istasyonu sil ---
+        // Normal yol: seÃ§imden sonra Close() geldi â†’ burada sil
         if (destroyAfterClose)
+            DestroySelf();
+    }
+
+    private void DestroySelf()
+    {
+        // Slider vs aÃ§Ä±k kalmasÄ±n
+        if (holdSlider != null)
         {
-            Destroy(gameObject);
+            holdSlider.value = 0f;
+            holdSlider.gameObject.SetActive(false);
         }
+
+        // Hedef verildiyse onu, yoksa kendini sil
+        GameObject target = destroyTarget != null ? destroyTarget : gameObject;
+        Destroy(target);
     }
 
     private void SetExtraScriptsEnabled(bool enabled)

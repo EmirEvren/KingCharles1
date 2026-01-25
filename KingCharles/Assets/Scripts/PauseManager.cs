@@ -1,15 +1,15 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; 
-using UnityEngine.InputSystem;    
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class PauseManager : MonoBehaviour
 {
     [Header("--- UI ANA KAPSIYICILAR ---")]
     [Tooltip("Tüm her şeyi kapsayan ana panel (PauseMenuPanel)")]
-    public GameObject pauseMenuPanel; 
-    
+    public GameObject pauseMenuPanel;
+
     [Tooltip("Pause menüsü içine oluşturduğun Settings_Inner_Panel")]
-    public GameObject pauseSettingsPanel; 
+    public GameObject pauseSettingsPanel;
 
     [Tooltip("Harita paneli")]
     public GameObject mapPanel;
@@ -22,7 +22,7 @@ public class PauseManager : MonoBehaviour
     public GameObject titleText;          // Resimdeki: TitleText (İstersen kalsın, istersen gizle)
 
     [Header("--- MANAGER REFERANSI ---")]
-    public MainMenuManager mainMenuManager; 
+    public MainMenuManager mainMenuManager;
 
     // Oyunun durup durmadığını kontrol eden değişken
     public static bool IsPaused = false;
@@ -33,9 +33,9 @@ public class PauseManager : MonoBehaviour
         IsPaused = false;
         Time.timeScale = 1f;
 
-        if(pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
-        if(mapPanel != null) mapPanel.SetActive(false);
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        if (pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
+        if (mapPanel != null) mapPanel.SetActive(false);
     }
 
     private void Update()
@@ -45,6 +45,14 @@ public class PauseManager : MonoBehaviour
         {
             // Eğer Ana Menüdeysek (Oyun dünyası kapalıysa) bu script çalışmasın
             if (!mainMenuManager.gameWorldContainer.activeSelf) return;
+        }
+
+        // 1.5 DEATH SCREEN KONTROLÜ (ÖNEMLİ)
+        if (IsDeathScreenOpen())
+        {
+            // DeathScreen açıkken pause UI'ları kapalı kalsın + input ignore
+            ForceClosePauseUI();
+            return;
         }
 
         // 2. ESC TUŞU KONTROLÜ
@@ -72,16 +80,37 @@ public class PauseManager : MonoBehaviour
     }
 
     // =================================================
+    //              DEATHSCREEN GUARD
+    // =================================================
+
+    private bool IsDeathScreenOpen()
+    {
+        return DeathScreenUI.Instance != null && DeathScreenUI.Instance.IsOpen;
+    }
+
+    private void ForceClosePauseUI()
+    {
+        if (pauseMenuPanel != null && pauseMenuPanel.activeSelf) pauseMenuPanel.SetActive(false);
+        if (pauseSettingsPanel != null && pauseSettingsPanel.activeSelf) pauseSettingsPanel.SetActive(false);
+        if (mapPanel != null && mapPanel.activeSelf) mapPanel.SetActive(false);
+
+        // Pause state’i de temizle (ResumeGame tetiklenmesin)
+        IsPaused = false;
+    }
+
+    // =================================================
     //              TEMEL FONKSİYONLAR
     // =================================================
 
     public void ResumeGame()
     {
+        if (IsDeathScreenOpen()) return;
+
         // Her şeyi kapat
-        pauseMenuPanel.SetActive(false);
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         // Settings zaten pauseMenuPanel içinde olduğu için o da kapanır ama garanti olsun:
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
-        if(mapPanel != null) mapPanel.SetActive(false);
+        if (pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
+        if (mapPanel != null) mapPanel.SetActive(false);
 
         Time.timeScale = 1f; // Zamanı akıt
         IsPaused = false;
@@ -92,11 +121,13 @@ public class PauseManager : MonoBehaviour
 
     private void PauseGame()
     {
-        pauseMenuPanel.SetActive(true);
-        
+        if (IsDeathScreenOpen()) return;
+
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
+
         // Pause ilk açıldığında ana içerikler GÖRÜNÜR, ayarlar GİZLİ olmalı
         ToggleMainContent(true);
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
+        if (pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
 
         Time.timeScale = 0f; // Zamanı durdur
         IsPaused = true;
@@ -111,13 +142,17 @@ public class PauseManager : MonoBehaviour
 
     public void OpenMap()
     {
-        pauseMenuPanel.SetActive(false); // Harita tam ekran olacağı için menüyü kapat
-        if(mapPanel != null) mapPanel.SetActive(true);
+        if (IsDeathScreenOpen()) return;
+
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false); // Harita tam ekran olacağı için menüyü kapat
+        if (mapPanel != null) mapPanel.SetActive(true);
     }
 
     public void CloseMap()
     {
-        if(mapPanel != null) mapPanel.SetActive(false);
+        if (IsDeathScreenOpen()) return;
+
+        if (mapPanel != null) mapPanel.SetActive(false);
         PauseGame(); // Harita kapanınca oyun devam etmez, Pause menüsüne döner
     }
 
@@ -127,18 +162,22 @@ public class PauseManager : MonoBehaviour
 
     public void OpenSettings()
     {
+        if (IsDeathScreenOpen()) return;
+
         // DİKKAT: pauseMenuPanel'i kapatmıyoruz! Çünkü Ayarlar onun içinde.
         // Sadece içindeki diğer kalabalık yapan şeyleri gizliyoruz.
         ToggleMainContent(false);
 
         // Ayarlar panelini aç
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(true);
+        if (pauseSettingsPanel != null) pauseSettingsPanel.SetActive(true);
     }
 
     public void CloseSettings()
     {
+        if (IsDeathScreenOpen()) return;
+
         // Ayarlar panelini kapat
-        if(pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
+        if (pauseSettingsPanel != null) pauseSettingsPanel.SetActive(false);
 
         // Ana içerikleri (Envanter, Butonlar) geri getir
         ToggleMainContent(true);
@@ -147,10 +186,10 @@ public class PauseManager : MonoBehaviour
     // Resimdeki objeleri topluca açıp kapatan yardımcı fonksiyon
     private void ToggleMainContent(bool isActive)
     {
-        if(leftInventoryPanel) leftInventoryPanel.SetActive(isActive);
-        if(rightStatsPanel) rightStatsPanel.SetActive(isActive);
-        if(buttonsGroup) buttonsGroup.SetActive(isActive);
-        if(titleText) titleText.SetActive(isActive);
+        if (leftInventoryPanel) leftInventoryPanel.SetActive(isActive);
+        if (rightStatsPanel) rightStatsPanel.SetActive(isActive);
+        if (buttonsGroup) buttonsGroup.SetActive(isActive);
+        if (titleText) titleText.SetActive(isActive);
     }
 
     // =================================================
@@ -159,6 +198,10 @@ public class PauseManager : MonoBehaviour
 
     public void RestartGame()
     {
+        // DeathScreen açıkken de restart edebilmek istersen bu guard'ı kaldırabilirsin.
+        // Şimdilik güvenli olması için kapatmıyorum:
+        // if (IsDeathScreenOpen()) return;
+
         // 1. Önce zamanı ve pause durumunu düzelt
         Time.timeScale = 1f;
         IsPaused = false;
@@ -172,6 +215,10 @@ public class PauseManager : MonoBehaviour
 
     public void QuitToMainMenu()
     {
+        // DeathScreen açıkken de ana menüye çıkabilmek istersen bu guard'ı kaldırabilirsin.
+        // Şimdilik güvenli olması için kapatmıyorum:
+        // if (IsDeathScreenOpen()) return;
+
         // 1. Zamanı normale döndür (Yoksa menüde animasyonlar çalışmaz)
         Time.timeScale = 1f;
         IsPaused = false;
@@ -184,4 +231,4 @@ public class PauseManager : MonoBehaviour
         // Bu işlem haritayı, karakteri, envanteri siler ve her şeyi "Start" haline getirir.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-} // <-- BURASI EKSİKTİ (Class'ı kapatan parantez)
+}

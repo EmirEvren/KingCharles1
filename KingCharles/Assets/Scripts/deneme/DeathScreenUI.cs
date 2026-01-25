@@ -23,6 +23,7 @@ public class DeathScreenUI : MonoBehaviour
 
     private Stats playerStats;
     private bool shown = false;
+    public bool IsOpen => shown && rootPanel != null && rootPanel.activeSelf;
 
     private float prevTimeScale = 1f;
     private CursorLockMode prevLockMode;
