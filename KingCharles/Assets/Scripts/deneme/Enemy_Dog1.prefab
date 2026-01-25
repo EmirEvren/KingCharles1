@@ -3202,6 +3202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ef8c730164937044b87ebbbecb9e82d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySingleAudioLeader
+  groupKey: EnemyTypeA
   targetAudio: {fileID: 1927160363359624017}
   autoPlayWhenLeader: 1
   disableAudioSourceWhenNotLeader: 1
@@ -3263,7 +3264,15 @@ MonoBehaviour:
   damage: 2
   healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 1074824311
+  groundProbeUp: 0.6
   groundRayDistance: 2
+  groundedTolerance: 0.15
+  groundStickForce: 50
+  extraGravityInAir: 300
+  ignoreClimbTag: 0
 --- !u!54 &6483905739120355910
 Rigidbody:
   m_ObjectHideFlags: 0

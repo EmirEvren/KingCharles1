@@ -4332,7 +4332,15 @@ MonoBehaviour:
   damage: 2
   healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 1074824311
+  groundProbeUp: 0.6
   groundRayDistance: 2
+  groundedTolerance: 0.15
+  groundStickForce: 50
+  extraGravityInAir: 300
+  ignoreClimbTag: 0
 --- !u!54 &3183445568816303937
 Rigidbody:
   m_ObjectHideFlags: 0

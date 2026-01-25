@@ -1060,6 +1060,7 @@ GameObject:
   - component: {fileID: 913856703663997299}
   - component: {fileID: 8279211881805127234}
   - component: {fileID: -3523071460246713569}
+  - component: {fileID: 2122142959393341269}
   m_Layer: 0
   m_Name: MiniBoss1_Prefab
   m_TagString: Enemy
@@ -1163,7 +1164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f932ccec4bf9949956b06e97c8f9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleEnemyFollow
-  moveSpeed: 6
+  moveSpeed: 15
   aiInterval: 0.06
   stopDistance: 1.5
   attackDistance: 2
@@ -1172,7 +1173,15 @@ MonoBehaviour:
   damage: 2
   healthStatID: {fileID: 11400000, guid: d6b3e636d59a6c547a2cad40b69f4432, type: 2}
   animator: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 1074824311
+  groundProbeUp: 0.6
   groundRayDistance: 2
+  groundedTolerance: 0.15
+  groundStickForce: 50
+  extraGravityInAir: 300
+  ignoreClimbTag: 0
 --- !u!114 &8279211881805127234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1230,7 +1239,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 5.7227173
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
@@ -1306,6 +1315,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!65 &2122142959393341269
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3546904191587171785}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 0.8277964, z: 1.2163702}
+  m_Center: {x: 0, y: 0.566628, z: 0.10818359}
 --- !u!1 &3593623622673539372
 GameObject:
   m_ObjectHideFlags: 0
