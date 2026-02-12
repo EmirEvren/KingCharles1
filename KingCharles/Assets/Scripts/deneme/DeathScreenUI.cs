@@ -2,24 +2,25 @@ using UnityEngine;
 using TMPro;
 using MalbersAnimations;
 using MalbersAnimations.Scriptables;
-using UnityEngine.Localization; // <-- Şart
+using UnityEngine.Localization;
+using Steamworks;
 
 public class DeathScreenUI : MonoBehaviour
 {
     public static DeathScreenUI Instance;
 
     [Header("UI")]
-    public GameObject rootPanel;     
-    public TMP_Text titleText;       // "ÖLDÜN" yazan text
-    public TMP_Text killText;        // "Kill Count" yazan text
+    public GameObject rootPanel;
+    public TMP_Text titleText;
+    public TMP_Text killText;
 
     [Header("Localization")]
-    public LocalizedString killLabelKey;  // Kill Count Key'i
-    public LocalizedString titleLabelKey; // <-- YENİ EKLENDİ (You Died Key'i)
+    public LocalizedString killLabelKey;
+    public LocalizedString titleLabelKey;
 
     [Header("Player")]
-    public string playerTag = "Animal";  
-    public StatID healthID;              
+    public string playerTag = "Animal";
+    public StatID healthID;
 
     private Stats playerStats;
     private bool shown = false;
@@ -29,6 +30,8 @@ public class DeathScreenUI : MonoBehaviour
     private CursorLockMode prevLockMode;
     private bool prevCursorVisible;
 
+    private bool scoreUploaded = false; // 🔥 çift upload koruması
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -36,9 +39,12 @@ public class DeathScreenUI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
 
-        if (rootPanel != null) rootPanel.SetActive(false);
+        if (rootPanel != null)
+            rootPanel.SetActive(false);
+
         CachePlayer();
     }
 
@@ -78,17 +84,23 @@ public class DeathScreenUI : MonoBehaviour
         if (shown) return;
         shown = true;
 
-        // --- 1. TITLE (BAŞLIK) ÇEVİRİSİ ---
-        if (titleText != null)
-        {
-            // Tablodan "YOU DIED" / "ÖLDÜN" çevirisini alıp basıyoruz
-            titleText.text = titleLabelKey.GetLocalizedString();
-        }
-
-        // --- 2. KILL COUNT ÇEVİRİSİ ---
         int kills = 0;
+
         if (KillCounterUI.Instance != null)
             kills = KillCounterUI.Instance.GetKillCount();
+
+        // 🔥 STEAM UPLOAD (tek seferlik)
+        if (!scoreUploaded &&
+            SteamManager.Initialized &&
+            SteamLeaderboardManager.Instance != null)
+        {
+            SteamLeaderboardManager.Instance.UploadScore(kills);
+            scoreUploaded = true;
+        }
+
+        // UI Text
+        if (titleText != null)
+            titleText.text = titleLabelKey.GetLocalizedString();
 
         if (killText != null)
         {
@@ -123,5 +135,8 @@ public class DeathScreenUI : MonoBehaviour
         Time.timeScale = prevTimeScale;
         Cursor.visible = prevCursorVisible;
         Cursor.lockState = prevLockMode;
+
+        shown = false;
+        scoreUploaded = false; // 🔥 restart için reset
     }
 }

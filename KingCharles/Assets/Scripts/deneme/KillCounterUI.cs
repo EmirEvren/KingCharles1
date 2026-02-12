@@ -5,11 +5,13 @@ public class KillCounterUI : MonoBehaviour
 {
     public static KillCounterUI Instance;
 
-    [Header("UI Referansý")]
-    public TMP_Text killText;   // Canvas üzerindeki TMP_Text'i buraya sürükle
+    [Header("UI Reference")]
+    [SerializeField] private TMP_Text killText;
 
     private int killCount = 0;
+
     public int GetKillCount() => killCount;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -21,28 +23,25 @@ public class KillCounterUI : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        RefreshText(); // UI aÃ§Ä±ldÄ±ÄŸÄ±nda gÃ¼ncel deÄŸeri yaz
+    }
+
     private void Start()
     {
-        killCount = 0;
-        RefreshText();
+        ResetKills();
     }
 
-    private void RefreshText()
-    {
-        if (killText != null)
-        {
-            // Ýstersen sadece killCount.ToString() da yazdýrabilirsin
-            killText.text = $": {killCount}";
-        }
-    }
-
+    // --------------------------------------------------
+    // KILL EKLEME
+    // --------------------------------------------------
     public void AddKill()
     {
         killCount++;
         RefreshText();
     }
 
-    // EnemyHealth içinden statik çaðrý kullanmak için:
     public static void RegisterKill()
     {
         if (Instance != null)
@@ -51,7 +50,30 @@ public class KillCounterUI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[KillCounterUI] Sahnede Instance yok, KillCounterUI objesini ekleyip killText referansýný doldur.");
+            Debug.LogWarning("[KillCounterUI] Instance bulunamadÄ±.");
         }
+    }
+
+    // --------------------------------------------------
+    // RESET
+    // --------------------------------------------------
+    public void ResetKills()
+    {
+        killCount = 0;
+        RefreshText();
+    }
+
+    // --------------------------------------------------
+    // UI UPDATE
+    // --------------------------------------------------
+    private void RefreshText()
+    {
+        if (killText == null)
+        {
+            Debug.LogWarning("[KillCounterUI] killText atanmadÄ±!");
+            return;
+        }
+
+        killText.text = $"KILLS: {killCount}";
     }
 }

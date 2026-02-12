@@ -5,6 +5,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Localization.Settings; 
+using Steamworks;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -69,12 +70,13 @@ public class MainMenuManager : MonoBehaviour
         // =========================================================
         if (RestartIstendi)
         {
-            // Eğer Pause menüsünden Restart'a basıldıysa burası çalışır.
-            RestartIstendi = false; // Değişkeni sıfırla ki bir sonraki normal açılışta menü gelsin.
-            
-            // Menüyü hiç göstermeden direkt oyunu başlat
+            RestartIstendi = false;
+
+            KillCounterUI.Instance?.ResetKills(); // 🔥 EKLE
+
             OnPlayClicked();
         }
+
         else
         {
             // Normal açılış (Oyun ilk açıldığında veya menüye dönüldüğünde)
@@ -168,21 +170,22 @@ public class MainMenuManager : MonoBehaviour
 
     public void OnPlayClicked()
     {
+        // 🔥 Kill sıfırla
+        KillCounterUI.Instance?.ResetKills();
+
         mainMenuPanel.SetActive(false);
         settingsPanel.SetActive(false);
         multiplayerPanel.SetActive(false);
-        
-        // Oyun dünyasını aktif et
+
         gameWorldContainer.SetActive(true);
-        
-        // Kameraları değiştir
+
         if(menuCameraObj != null) menuCameraObj.SetActive(false);
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(true);
-        
-        // Harita üretimi
+
         if (generateMapOnPlay && mapGeneratorScript != null)
             mapGeneratorScript.SendMessage("GenerateMap", SendMessageOptions.DontRequireReceiver);
     }
+
 
     public void OnMultiplayerClicked()
     {
@@ -206,6 +209,12 @@ public class MainMenuManager : MonoBehaviour
         if(cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
         if(menuCameraObj != null) menuCameraObj.SetActive(true);
         mainMenuPanel.SetActive(true);
+        // 🔥 Leaderboard tekrar çek
+        if (SteamManager.Initialized && SteamLeaderboardManager.Instance != null)
+        {
+            SteamLeaderboardManager.Instance.DownloadTop10();
+        }
+
     }
 
     private void ShowMainMenu()
@@ -213,7 +222,14 @@ public class MainMenuManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
         settingsPanel.SetActive(false);
         multiplayerPanel.SetActive(false);
+
+        // 🎯 Steam Leaderboard çek
+        if (SteamManager.Initialized && SteamLeaderboardManager.Instance != null)
+        {
+            SteamLeaderboardManager.Instance.DownloadTop10();
+        }
     }
+
 
     private void Update()
     {
@@ -225,4 +241,4 @@ public class MainMenuManager : MonoBehaviour
             }
         }
     }
-}
+} 
