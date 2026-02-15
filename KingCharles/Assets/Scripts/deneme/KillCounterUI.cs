@@ -74,6 +74,6 @@ public class KillCounterUI : MonoBehaviour
             return;
         }
 
-        killText.text = $"KILLS: {killCount}";
+        killText.text = $": {killCount}";
     }
 }
