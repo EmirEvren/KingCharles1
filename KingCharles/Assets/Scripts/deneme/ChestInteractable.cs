@@ -14,6 +14,9 @@ public class ChestInteractable : MonoBehaviour
     public GameObject holdRoot;
     public Slider holdSlider;
 
+    [Header("Yok Edilecek Text (Opsiyonel)")]
+    public GameObject textToDestroy; // Inspector'dan yok edilmesini istediğin text'i buraya sürükle
+
     private bool inRange = false;
     private float holdTimer = 0f;
     private bool opened = false;
@@ -31,6 +34,12 @@ public class ChestInteractable : MonoBehaviour
 
         if (Input.GetKey(interactKey))
         {
+            // E tuşuna basılı tutulduğu an text'i gizle
+            if (textToDestroy != null && textToDestroy.activeSelf)
+            {
+                textToDestroy.SetActive(false);
+            }
+
             holdTimer += Time.deltaTime;
 
             if (holdRoot != null && !holdRoot.activeSelf)
@@ -52,7 +61,11 @@ public class ChestInteractable : MonoBehaviour
 
     private void TryOpenChest()
     {
-        ResetHold();
+        // ResetHold çağırırsak text bir anlığına geri gelebilir (yanıp sönme yapar), 
+        // bu yüzden UI'ı manuel sıfırlıyoruz.
+        holdTimer = 0f;
+        if (holdSlider != null) holdSlider.value = 0f;
+        if (holdRoot != null) holdRoot.SetActive(false);
 
         if (opened) return;
 
@@ -75,6 +88,8 @@ public class ChestInteractable : MonoBehaviour
         if (!paid)
         {
             Debug.Log("[ChestInteractable] Yeterli gold yok.");
+            // Parası yetmediği için işlemi iptal ettik, text'i geri gösterelim
+            if (textToDestroy != null) textToDestroy.SetActive(true);
             return;
         }
 
@@ -91,12 +106,18 @@ public class ChestInteractable : MonoBehaviour
 
         ChestReward reward = ChestRewardManager.Instance.RollReward();
 
-        // �d�l� uygula
+        // Ödülü uygula
         ChestRewardManager.Instance.ApplyReward(reward);
 
-        // UI g�ster; butona bas�nca sand��� yok et
+        // UI göster; butona basınca sandığı ve text'i yok et
         ChestUI.Instance.ShowReward(reward, () =>
         {
+            // Eğer inspector'dan bir text atandıysa onu da yok et
+            if (textToDestroy != null)
+            {
+                Destroy(textToDestroy);
+            }
+            
             Destroy(gameObject);
         });
     }
@@ -106,6 +127,12 @@ public class ChestInteractable : MonoBehaviour
         holdTimer = 0f;
         if (holdSlider != null) holdSlider.value = 0f;
         if (holdRoot != null) holdRoot.SetActive(false);
+
+        // Eğer oyuncu E'yi bırakırsa veya alandan çıkarsa text'i tekrar görünür yap
+        if (textToDestroy != null && !opened && !textToDestroy.activeSelf)
+        {
+            textToDestroy.SetActive(true);
+        }
     }
 
     private void OnTriggerEnter(Collider other)

@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 7520552412915776732}
   - component: {fileID: 1380545525512019162}
   - component: {fileID: 6257313023551786192}
-  - component: {fileID: 554679660954178262}
+  - component: {fileID: 8241358063259762}
+  - component: {fileID: -1136739116836812206}
   m_Layer: 0
   m_Name: Dog_ev
   m_TagString: Untagged
@@ -134,7 +135,7 @@ MonoBehaviour:
   scriptsToDisableWhileChoosing:
   - {fileID: 0}
   destroyTarget: {fileID: 8198730209941659326}
---- !u!65 &554679660954178262
+--- !u!65 &8241358063259762
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,5 +154,18 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.7691803, y: 1.5518228, z: 1.8307953}
-  m_Center: {x: -0.0079574585, y: 0.7759114, z: -0.047172546}
+  m_Size: {x: 1.4067392, y: 1.5518228, z: 1.4940367}
+  m_Center: {x: -0.00000008940697, y: 0.7759114, z: -0.000000029802322}
+--- !u!114 &-1136739116836812206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8198730209941659326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 677619ebfe9c4424db562a815555af7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YakinText
+  textUI: {fileID: 0}

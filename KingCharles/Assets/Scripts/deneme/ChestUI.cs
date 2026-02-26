@@ -17,14 +17,22 @@ public class ChestUI : MonoBehaviour
 
     [Header("Rarity Colors (Button)")]
     public Color commonColor = new Color(0.75f, 0.75f, 0.75f, 1f);     // gri
-    public Color uncommonColor = new Color(0.30f, 0.85f, 0.35f, 1f);   // ye�il
+    public Color uncommonColor = new Color(0.30f, 0.85f, 0.35f, 1f);   // yeşil
     public Color rareColor = new Color(0.30f, 0.55f, 0.95f, 1f);       // mavi
     public Color epicColor = new Color(0.65f, 0.30f, 0.95f, 1f);       // mor
-    public Color legendaryColor = new Color(0.95f, 0.80f, 0.15f, 1f);  // sar�
+    public Color legendaryColor = new Color(0.95f, 0.80f, 0.15f, 1f);  // sarı
+
+    [Header("Seçim Açılınca Durdurulacak Scriptler (Opsiyonel)")]
+    public MonoBehaviour[] scriptsToDisableWhileChoosing;
+    private bool[] prevScriptStates;
+
+    [Header("SADECE BUNLAR GİZLENECEK (Senin Seçtiklerin)")]
+    public GameObject[] uiElementsToHide;
+    private bool[] prevUIStates;
 
     private Action onClaim;
 
-    // UI a��ld���nda eski state'i geri y�klemek i�in cache
+    // UI açıldığında eski state'i geri yüklemek için cache
     private float prevTimeScale = 1f;
     private CursorLockMode prevLockMode;
     private bool prevCursorVisible;
@@ -41,7 +49,7 @@ public class ChestUI : MonoBehaviour
     {
         onClaim = onClaimCallback;
 
-        // --- OYUNU DURDUR + CURSOR A� ---
+        // --- OYUNU DURDUR + CURSOR AÇ + SEÇTİĞİN UI'LARI GİZLE ---
         PauseGameAndShowCursor();
         // ------------------------------
 
@@ -49,7 +57,7 @@ public class ChestUI : MonoBehaviour
 
         if (rewardNameText != null)
         {
-            // Legendary-only ise value yazmak istemezsen sadece isim b�rak
+            // Legendary-only ise value yazmak istemezsen sadece isim bırak
             string suffix = (reward.value > 0) ? $" +{reward.value}" : "";
             rewardNameText.text = $"{reward.displayName}{suffix}";
         }
@@ -71,7 +79,7 @@ public class ChestUI : MonoBehaviour
     {
         if (rootPanel != null) rootPanel.SetActive(false);
 
-        // --- OYUNU DEVAM ETT�R + CURSOR ESK� HAL�NE ---
+        // --- OYUNU DEVAM ETTİR + CURSOR ESKİ HALİNE + GİZLENEN UI'LARI GERİ AÇ ---
         ResumeGameAndRestoreCursor();
         // ---------------------------------------------
 
@@ -92,6 +100,37 @@ public class ChestUI : MonoBehaviour
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
+        // --- SCRİPTLERİ DEVRE DIŞI BIRAK ---
+        if (scriptsToDisableWhileChoosing != null && scriptsToDisableWhileChoosing.Length > 0)
+        {
+            prevScriptStates = new bool[scriptsToDisableWhileChoosing.Length];
+            for (int i = 0; i < scriptsToDisableWhileChoosing.Length; i++)
+            {
+                if (scriptsToDisableWhileChoosing[i] != null)
+                {
+                    prevScriptStates[i] = scriptsToDisableWhileChoosing[i].enabled;
+                    scriptsToDisableWhileChoosing[i].enabled = false;
+                }
+            }
+        }
+
+        // --- SADECE SENİN SEÇTİĞİN UI'LARI GİZLE ---
+        if (uiElementsToHide != null && uiElementsToHide.Length > 0)
+        {
+            prevUIStates = new bool[uiElementsToHide.Length];
+            for (int i = 0; i < uiElementsToHide.Length; i++)
+            {
+                if (uiElementsToHide[i] != null)
+                {
+                    // Şu anki durumunu kaydet (zaten kapalı olanı açmamak için)
+                    prevUIStates[i] = uiElementsToHide[i].activeSelf; 
+                    
+                    // UI'ı gizle
+                    uiElementsToHide[i].SetActive(false); 
+                }
+            }
+        }
     }
 
     private void ResumeGameAndRestoreCursor()
@@ -103,6 +142,30 @@ public class ChestUI : MonoBehaviour
 
         Cursor.visible = prevCursorVisible;
         Cursor.lockState = prevLockMode;
+
+        // --- SCRİPTLERİ ESKİ HALİNE GETİR ---
+        if (scriptsToDisableWhileChoosing != null && prevScriptStates != null)
+        {
+            for (int i = 0; i < scriptsToDisableWhileChoosing.Length; i++)
+            {
+                if (scriptsToDisableWhileChoosing[i] != null && i < prevScriptStates.Length)
+                {
+                    scriptsToDisableWhileChoosing[i].enabled = prevScriptStates[i];
+                }
+            }
+        }
+
+        // --- GİZLENEN UI'LARI ESKİ DURUMUNA GETİR ---
+        if (uiElementsToHide != null && prevUIStates != null)
+        {
+            for (int i = 0; i < uiElementsToHide.Length; i++)
+            {
+                if (uiElementsToHide[i] != null && i < prevUIStates.Length)
+                {
+                    uiElementsToHide[i].SetActive(prevUIStates[i]); 
+                }
+            }
+        }
     }
 
     private void ApplyRarityColor(ChestReward reward)
@@ -114,7 +177,6 @@ public class ChestUI : MonoBehaviour
 
         Color c = commonColor;
 
-        // D�KKAT: Burada ChestRarity kullan�yoruz (UpgradeRarity de�il)
         switch (reward.rarity)
         {
             case ChestRarity.Common:
@@ -132,7 +194,6 @@ public class ChestUI : MonoBehaviour
         btnImg.color = c;
     }
 
-    // G�venlik: UI sahneden silinirse oyun kilitli kalmas�n
     private void OnDisable()
     {
         if (pausedByChestUI)

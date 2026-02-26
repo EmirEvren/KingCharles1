@@ -9,8 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 288557028577116084}
-  - component: {fileID: 251752572525059998}
   - component: {fileID: 964156272525261634}
+  - component: {fileID: 4174312058026822511}
+  - component: {fileID: 7554910684316569967}
   m_Layer: 0
   m_Name: KemikPrefab 1
   m_TagString: Untagged
@@ -35,7 +36,21 @@ Transform:
   - {fileID: 1300715593501979273}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &251752572525059998
+--- !u!114 &964156272525261634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2351517997205237856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f75ee5352ed2e47880eef2f24cee6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatueInteractable
+  playerTag: Animal
+  interactKey: 101
+--- !u!65 &4174312058026822511
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -54,9 +69,9 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2.6257763, z: 1}
-  m_Center: {x: 0, y: 0.024710357, z: 0}
---- !u!114 &964156272525261634
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7554910684316569967
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -65,11 +80,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2351517997205237856}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67f75ee5352ed2e47880eef2f24cee6e, type: 3}
+  m_Script: {fileID: 11500000, guid: 677619ebfe9c4424db562a815555af7c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatueInteractable
-  playerTag: Animal
-  interactKey: 101
+  m_EditorClassIdentifier: Assembly-CSharp::YakinText
+  textUI: {fileID: 0}
 --- !u!1001 &1798667906707607558
 PrefabInstance:
   m_ObjectHideFlags: 0

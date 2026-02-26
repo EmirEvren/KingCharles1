@@ -8,6 +8,10 @@ public class StatueInteractable : MonoBehaviour
     public string playerTag = "Animal";
     public KeyCode interactKey = KeyCode.E;
 
+    [Header("SeÃ§im AÃ§Ä±lÄ±nca Durdurulacak Scriptler (Opsiyonel)")]
+    public MonoBehaviour[] scriptsToDisableWhileChoosing;
+    private bool[] prevScriptStates;
+
     private bool inRange = false;
     private bool used = false;
 
@@ -34,12 +38,38 @@ public class StatueInteractable : MonoBehaviour
 
         used = true;
 
-        // 3 farklý item type olacak þekilde roll
+        // 3 farkl item type olacak ekilde roll
         List<ChestReward> options = Roll3DistinctRewards();
 
-        // UI aç: seçileni uygula + heykeli yok et
+        // --- SCRÄ°PTLERÄ° DEVRE DIÅžI BIRAK ---
+        if (scriptsToDisableWhileChoosing != null && scriptsToDisableWhileChoosing.Length > 0)
+        {
+            prevScriptStates = new bool[scriptsToDisableWhileChoosing.Length];
+            for (int i = 0; i < scriptsToDisableWhileChoosing.Length; i++)
+            {
+                if (scriptsToDisableWhileChoosing[i] != null)
+                {
+                    prevScriptStates[i] = scriptsToDisableWhileChoosing[i].enabled;
+                    scriptsToDisableWhileChoosing[i].enabled = false;
+                }
+            }
+        }
+
+        // UI a: seileni uygula + heykeli yok et
         StatueUI.Instance.ShowChoices(options, (chosenReward) =>
         {
+            // --- SCRÄ°PTLERÄ° ESKÄ° HALÄ°NE GETÄ°R ---
+            if (scriptsToDisableWhileChoosing != null && prevScriptStates != null)
+            {
+                for (int i = 0; i < scriptsToDisableWhileChoosing.Length; i++)
+                {
+                    if (scriptsToDisableWhileChoosing[i] != null && i < prevScriptStates.Length)
+                    {
+                        scriptsToDisableWhileChoosing[i].enabled = prevScriptStates[i];
+                    }
+                }
+            }
+
             if (ChestRewardManager.Instance != null)
             {
                 ChestRewardManager.Instance.ApplyReward(chosenReward);
@@ -66,7 +96,7 @@ public class StatueInteractable : MonoBehaviour
             list.Add(r);
         }
 
-        // Normalde havuz yeterli olduðu için buraya düþmez; yine de garanti
+        // Normalde havuz yeterli olduu iin buraya dmez; yine de garanti
         while (list.Count < 3)
         {
             list.Add(ChestRewardManager.Instance.RollReward());
