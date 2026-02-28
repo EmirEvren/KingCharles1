@@ -240,7 +240,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25651536735846400
-    m_Localized: Empuja E
+    m_Localized: "Mant\xE9n E presionado"
     m_Metadata:
       m_Items: []
   references:
