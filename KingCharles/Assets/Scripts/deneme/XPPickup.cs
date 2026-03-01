@@ -26,6 +26,9 @@ public class XPPickup : MonoBehaviour
     private AudioSource audioSource;  // Mixer grubunu almak için referans
     private bool magnetSoundPlayed = false;
 
+    // ✅ EKLENDİ: Global magnet aktifken magnetSfx spam olmasın diye
+    private bool suppressedMagnetSfxThisLife = false;
+
     private void Awake()
     {
         // 1. AudioSource referansını ayarla (Mixer için gerekli)
@@ -59,6 +62,22 @@ public class XPPickup : MonoBehaviour
 
     private void Update()
     {
+        // ✅ EKLENDİ: Player respawn / destroyed durumlarında tekrar bulmayı dene
+        if (player == null)
+        {
+            GameObject pObj = GameObject.FindGameObjectWithTag(playerTag);
+            if (pObj != null)
+            {
+                player = pObj.transform;
+                if (playerXP == null)
+                {
+                    playerXP = player.GetComponent<PlayerXP>();
+                    if (playerXP == null)
+                        Debug.LogWarning("[XPPickup] PlayerXP component bulunamadı, XP verilemeyecek!");
+                }
+            }
+        }
+
         if (player == null) return;
 
         Vector3 toPlayer = player.position - transform.position;
@@ -68,20 +87,30 @@ public class XPPickup : MonoBehaviour
         float sqrMagnet = magnetRadius * magnetRadius;
         float sqrCollect = collectDistance * collectDistance;
 
-        // Mıknatıs alanına girdiyse → oyuncuya doğru uç
-        if (sqrDist <= sqrMagnet)
+        // ✅ EKLENDİ: Global XP magnet aktif mi?
+        bool globalMagnetActive = (GlobalXPMagnet.Instance != null && GlobalXPMagnet.Instance.IsActive);
+
+        // Mıknatıs alanına girdiyse VEYA global magnet aktifse → oyuncuya doğru uç
+        if (globalMagnetActive || sqrDist <= sqrMagnet)
         {
-            // Mıknatıs sesini sadece ilk kez girdiğinde çal
-            if (!magnetSoundPlayed)
+            // ✅ EKLENDİ: Global magnet aktifken magnetSfx spam olmasın (binlerce orb aynı anda çalmasın)
+            if (globalMagnetActive)
+            {
+                suppressedMagnetSfxThisLife = true;
+            }
+
+            // Mıknatıs sesini sadece ilk kez girdiğinde çal (ama global magnet değilken)
+            if (!magnetSoundPlayed && !suppressedMagnetSfxThisLife)
             {
                 PlayMixerSound(magnetSfx, "TempMagnetSFX");
                 magnetSoundPlayed = true;
             }
 
-            Vector3 dir = toPlayer.normalized;
+            Vector3 dir = toPlayer.sqrMagnitude > 0.0001f ? toPlayer.normalized : Vector3.zero;
             transform.position += dir * flySpeed * Time.deltaTime;
 
             // Toplama mesafesine girdiyse → XP ver ve yok ol
+            // (Not: sqrDist burada bir önceki konumdan ölçülmüş. Mevcut sistemin aynısı, çıkartma yapmadım.)
             if (sqrDist <= sqrCollect)
             {
                 if (playerXP != null)

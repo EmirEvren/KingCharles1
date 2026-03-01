@@ -36,6 +36,22 @@ public class EnemyHealth : MonoBehaviour
     public float heartSpawnRadius = 0.5f;  // Kalbin etrafa saçılma yarıçapı
     public float heartSpawnY = 0.1f;       // Yerden biraz yukarı
 
+    // ✅ EKLENDİ: MAGNET DROP (ELITE ONLY)
+    [Header("Magnet Drop (Sadece Elite)")]
+    public GameObject magnetPrefab;          // Mıknatıs pickup prefabı
+    public int magnetDropOneInN = 15;         // 1 = her elite kesin düşer, 5 = 1/5 ihtimal
+    public float magnetSpawnRadius = 0.5f;   // Saçılma yarıçapı
+    public float magnetSpawnY = 0.1f;        // Yerden biraz yukarı
+    // ----------------------------------------
+
+    // ✅ EKLENDİ: SHIELD DROP (ELITE ONLY)
+    [Header("Shield Drop (Sadece Elite)")]
+    public GameObject shieldPrefab;          // Shield pickup prefabı
+    public int shieldDropOneInN = 1;        // ✅ 25'te 1
+    public float shieldSpawnRadius = 0.5f;   // Saçılma yarıçapı
+    public float shieldSpawnY = 0.1f;        // Yerden biraz yukarı
+    // ----------------------------------------
+
     [Header("MiniBoss Override Drop")]
     public bool isMiniBoss = false;      // Spawner true yapacak
     public int miniBossTotalXP = 100;    // Toplam XP
@@ -165,6 +181,12 @@ public class EnemyHealth : MonoBehaviour
             if (isEliteKill)
             {
                 SpawnGoldPieces();
+
+                // ✅ EKLENDİ: Elite ise Magnet drop
+                TrySpawnMagnet();
+
+                // ✅ EKLENDİ: Elite ise Shield drop (25'te 1)
+                TrySpawnShield();
             }
         }
 
@@ -182,6 +204,48 @@ public class EnemyHealth : MonoBehaviour
 
         // Artık düşmanı yok et
         Destroy(gameObject);
+    }
+
+    // ✅ EKLENDİ: Magnet spawn helper
+    private void TrySpawnMagnet()
+    {
+        if (magnetPrefab == null) return;
+
+        // 1/N chance
+        int n = Mathf.Max(1, magnetDropOneInN);
+        if (n > 1)
+        {
+            if (Random.Range(0, n) != 0) return;
+        }
+
+        Vector3 offset = new Vector3(
+            Random.Range(-magnetSpawnRadius, magnetSpawnRadius),
+            magnetSpawnY,
+            Random.Range(-magnetSpawnRadius, magnetSpawnRadius)
+        );
+
+        Instantiate(magnetPrefab, transform.position + offset, Quaternion.identity);
+    }
+
+    // ✅ EKLENDİ: Shield spawn helper
+    private void TrySpawnShield()
+    {
+        if (shieldPrefab == null) return;
+
+        // 1/N chance
+        int n = Mathf.Max(1, shieldDropOneInN);
+        if (n > 1)
+        {
+            if (Random.Range(0, n) != 0) return;
+        }
+
+        Vector3 offset = new Vector3(
+            Random.Range(-shieldSpawnRadius, shieldSpawnRadius),
+            shieldSpawnY,
+            Random.Range(-shieldSpawnRadius, shieldSpawnRadius)
+        );
+
+        Instantiate(shieldPrefab, transform.position + offset, Quaternion.identity);
     }
 
     // İstersen başka scriptlerden okunabilsin
