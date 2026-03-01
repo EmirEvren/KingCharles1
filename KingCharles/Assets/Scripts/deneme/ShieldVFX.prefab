@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3436862890926972760}
   - component: {fileID: 2787900225288267434}
   - component: {fileID: 6557597317287413347}
-  - component: {fileID: 1587967208407928606}
   m_Layer: 0
   m_Name: ShieldVFX
   m_TagString: Untagged
@@ -90,29 +89,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1587967208407928606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5560850139383241859}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 845c415f3181b4840ab566c40e714752, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isRotating: 1
-  rotateX: 0
-  rotateY: 1
-  rotateZ: 0
-  rotationSpeed: 85.67
-  isFloating: 1
-  useEasingForFloating: 1
-  floatHeight: 1.93
-  floatSpeed: 0.4
-  startScale: {x: 0.3, y: 0.3, z: 0.3}
-  endScale: {x: 0.5, y: 0.5, z: 0.5}
-  isScaling: 1
-  useEasingForScaling: 1
-  scaleLerpSpeed: 1.11

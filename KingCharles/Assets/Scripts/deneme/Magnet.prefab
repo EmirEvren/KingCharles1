@@ -135,7 +135,7 @@ MonoBehaviour:
   bobFrequency: 2
   rotateSpeed: 60
   playerTag: Animal
-  magnetRadius: 6
+  magnetRadius: 12
   magnetSpeed: 12
   collectDistance: 1.2
   flyToPlayerHeightOffset: 1

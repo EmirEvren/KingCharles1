@@ -4313,6 +4313,10 @@ MonoBehaviour:
   shieldDropOneInN: 25
   shieldSpawnRadius: 0.5
   shieldSpawnY: 0.1
+  iceGemPrefab: {fileID: 6924053015773380125, guid: b9dd3ca00f3eb954fa1b4b3b659afc6b, type: 3}
+  iceGemDropOneInN: 30
+  iceGemSpawnRadius: 0.5
+  iceGemSpawnY: 0.1
   isMiniBoss: 0
   miniBossTotalXP: 100
   miniBossTotalGold: 100

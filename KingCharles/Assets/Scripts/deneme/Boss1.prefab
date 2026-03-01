@@ -443,7 +443,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1562452596511551088}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 213.93129, y: 1.0992842, z: 80.87714}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
@@ -452,7 +452,7 @@ Transform:
   - {fileID: 7392637008294576565}
   - {fileID: 5870620632629131827}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &7958795354053666596
 Animator:
   serializedVersion: 7
@@ -505,6 +505,18 @@ MonoBehaviour:
   heartPrefab: {fileID: 0}
   heartSpawnRadius: 0.5
   heartSpawnY: 0.1
+  magnetPrefab: {fileID: 0}
+  magnetDropOneInN: 25
+  magnetSpawnRadius: 0.5
+  magnetSpawnY: 0.1
+  shieldPrefab: {fileID: 0}
+  shieldDropOneInN: 25
+  shieldSpawnRadius: 0.5
+  shieldSpawnY: 0.1
+  iceGemPrefab: {fileID: 0}
+  iceGemDropOneInN: 25
+  iceGemSpawnRadius: 0.5
+  iceGemSpawnY: 0.1
   isMiniBoss: 1
   miniBossTotalXP: 2000
   miniBossTotalGold: 2000
@@ -741,7 +753,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthUI
   enemyHealth: {fileID: 7940571288292514007}
   healthSlider: {fileID: 3937047052042965987}
-  lookAtCamera: 1
+  lookAtCamera: 0
 --- !u!1 &1656345126183787977
 GameObject:
   m_ObjectHideFlags: 0

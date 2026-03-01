@@ -39,7 +39,7 @@ public class EnemyHealth : MonoBehaviour
     // ✅ EKLENDİ: MAGNET DROP (ELITE ONLY)
     [Header("Magnet Drop (Sadece Elite)")]
     public GameObject magnetPrefab;          // Mıknatıs pickup prefabı
-    public int magnetDropOneInN = 15;         // 1 = her elite kesin düşer, 5 = 1/5 ihtimal
+    public int magnetDropOneInN = 25;        // ✅ 25'te 1
     public float magnetSpawnRadius = 0.5f;   // Saçılma yarıçapı
     public float magnetSpawnY = 0.1f;        // Yerden biraz yukarı
     // ----------------------------------------
@@ -47,9 +47,17 @@ public class EnemyHealth : MonoBehaviour
     // ✅ EKLENDİ: SHIELD DROP (ELITE ONLY)
     [Header("Shield Drop (Sadece Elite)")]
     public GameObject shieldPrefab;          // Shield pickup prefabı
-    public int shieldDropOneInN = 1;        // ✅ 25'te 1
+    public int shieldDropOneInN = 25;        // ✅ 25'te 1
     public float shieldSpawnRadius = 0.5f;   // Saçılma yarıçapı
     public float shieldSpawnY = 0.1f;        // Yerden biraz yukarı
+    // ----------------------------------------
+
+    // ✅ EKLENDİ: ICE GEM DROP (ELITE ONLY)
+    [Header("Ice Gem Drop (Sadece Elite)")]
+    public GameObject iceGemPrefab;          // IceGem pickup prefabı
+    public int iceGemDropOneInN = 25;        // ✅ 25'te 1
+    public float iceGemSpawnRadius = 0.5f;   // Saçılma yarıçapı
+    public float iceGemSpawnY = 0.1f;        // Yerden biraz yukarı
     // ----------------------------------------
 
     [Header("MiniBoss Override Drop")]
@@ -187,6 +195,9 @@ public class EnemyHealth : MonoBehaviour
 
                 // ✅ EKLENDİ: Elite ise Shield drop (25'te 1)
                 TrySpawnShield();
+
+                // ✅ EKLENDİ: Elite ise Ice Gem drop (25'te 1)
+                TrySpawnIceGem();
             }
         }
 
@@ -246,6 +257,27 @@ public class EnemyHealth : MonoBehaviour
         );
 
         Instantiate(shieldPrefab, transform.position + offset, Quaternion.identity);
+    }
+
+    // ✅ EKLENDİ: Ice Gem spawn helper
+    private void TrySpawnIceGem()
+    {
+        if (iceGemPrefab == null) return;
+
+        // 1/N chance
+        int n = Mathf.Max(1, iceGemDropOneInN);
+        if (n > 1)
+        {
+            if (Random.Range(0, n) != 0) return;
+        }
+
+        Vector3 offset = new Vector3(
+            Random.Range(-iceGemSpawnRadius, iceGemSpawnRadius),
+            iceGemSpawnY,
+            Random.Range(-iceGemSpawnRadius, iceGemSpawnRadius)
+        );
+
+        Instantiate(iceGemPrefab, transform.position + offset, Quaternion.identity);
     }
 
     // İstersen başka scriptlerden okunabilsin

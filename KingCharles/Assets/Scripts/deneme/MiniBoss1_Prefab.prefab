@@ -1427,6 +1427,18 @@ MonoBehaviour:
   heartPrefab: {fileID: 4288102118047953709, guid: 04d1211e0be9ad44cb1bcb91523e5d9c, type: 3}
   heartSpawnRadius: 0.5
   heartSpawnY: 0.1
+  magnetPrefab: {fileID: 6745027219458522194, guid: ea2e492c4b067b14c93bf32441284f95, type: 3}
+  magnetDropOneInN: 25
+  magnetSpawnRadius: 0.5
+  magnetSpawnY: 0.1
+  shieldPrefab: {fileID: 1113669077395581609, guid: 2e124974c23a7ce4d85dcd3c6623b286, type: 3}
+  shieldDropOneInN: 25
+  shieldSpawnRadius: 0.5
+  shieldSpawnY: 0.1
+  iceGemPrefab: {fileID: 6924053015773380125, guid: b9dd3ca00f3eb954fa1b4b3b659afc6b, type: 3}
+  iceGemDropOneInN: 1
+  iceGemSpawnRadius: 0.5
+  iceGemSpawnY: 0.1
   isMiniBoss: 1
   miniBossTotalXP: 100
   miniBossTotalGold: 100
@@ -1565,7 +1577,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthUI
   enemyHealth: {fileID: 8279211881805127234}
   healthSlider: {fileID: 4774678565437720589}
-  lookAtCamera: 1
+  lookAtCamera: 0
 --- !u!1 &3593623622673539372
 GameObject:
   m_ObjectHideFlags: 0
