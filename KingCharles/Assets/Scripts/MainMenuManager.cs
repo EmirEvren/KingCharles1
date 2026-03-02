@@ -263,7 +263,21 @@ public class MainMenuManager : MonoBehaviour
             SteamLeaderboardManager.Instance.DownloadTop10();
         }
     }
+    // ===============================
+    // ITEMS PANEL
+    // ===============================
+    [Header("--- ITEMS PANEL ---")]
+    public GameObject itemsPanel;
 
+    public void OnItemsClicked()
+    {
+        if (itemsPanel != null) itemsPanel.SetActive(true);
+    }
+
+    public void OnCloseItemsClicked()
+    {
+        if (itemsPanel != null) itemsPanel.SetActive(false);
+    }
     private void Update()
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
