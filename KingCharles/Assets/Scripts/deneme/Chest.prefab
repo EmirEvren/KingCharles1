@@ -132,6 +132,7 @@ MonoBehaviour:
   holdTime: 0
   holdRoot: {fileID: 0}
   holdSlider: {fileID: 0}
+  textToDestroy: {fileID: 0}
 --- !u!1 &4758908388540867831
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,8 +299,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.351059, y: 1.0671592, z: 1.2996826}
+  m_Center: {x: -0.071891785, y: 0.42743456, z: 0.14984131}
 --- !u!114 &-1829269889138364516
 MonoBehaviour:
   m_ObjectHideFlags: 0

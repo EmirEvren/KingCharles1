@@ -50,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatueInteractable
   playerTag: Animal
   interactKey: 101
+  scriptsToDisableWhileChoosing: []
 --- !u!65 &4174312058026822511
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -69,8 +70,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1579437, y: 3.0824375, z: 1.4130859}
+  m_Center: {x: 0.07897186, y: 0.053236723, z: -0.029029846}
 --- !u!114 &7554910684316569967
 MonoBehaviour:
   m_ObjectHideFlags: 0
