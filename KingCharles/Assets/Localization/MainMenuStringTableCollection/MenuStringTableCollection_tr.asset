@@ -243,6 +243,10 @@ MonoBehaviour:
     m_Localized: "E'ye bas\u0131l\u0131 tut"
     m_Metadata:
       m_Items: []
+  - m_Id: 26582690984968192
+    m_Localized: "\xD6\u011Feler"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

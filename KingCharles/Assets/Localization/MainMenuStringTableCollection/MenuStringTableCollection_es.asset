@@ -243,6 +243,10 @@ MonoBehaviour:
     m_Localized: "Mant\xE9n E presionado"
     m_Metadata:
       m_Items: []
+  - m_Id: 26582690984968192
+    m_Localized: "Art\xEDculos"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

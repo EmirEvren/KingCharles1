@@ -243,6 +243,10 @@ MonoBehaviour:
     m_Localized: Segure E
     m_Metadata:
       m_Items: []
+  - m_Id: 26582690984968192
+    m_Localized: Itens
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

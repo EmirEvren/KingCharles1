@@ -264,6 +264,10 @@ MonoBehaviour:
       E"
     m_Metadata:
       m_Items: []
+  - m_Id: 26582690984968192
+    m_Localized: "\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u044B"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
