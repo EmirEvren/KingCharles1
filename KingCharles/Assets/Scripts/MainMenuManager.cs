@@ -10,10 +10,6 @@ using UnityEngine.AI; // ✅ NavMeshAgent için (varsa)
 
 public class MainMenuManager : MonoBehaviour
 {
-    // =========================================================
-    // YENİ EKLENEN: RESTART KONTROLÜ
-    // =========================================================
-    // Bu değişken 'static' olduğu için sahne yenilense bile hafızada kalır.
     public static bool RestartIstendi = false;
 
     [Header("--- UI PANELLERİ ---")]
@@ -40,13 +36,10 @@ public class MainMenuManager : MonoBehaviour
     public Image languageFlagImage;
     public TextMeshProUGUI languageNameText;
 
-    // ÖNEMLİ: Element 0'ı İngilizce yaparsan, oyun ilk açılışta (kayıt yoksa) İngilizce başlar.
     public List<LanguageData> languages;
 
     private int currentLanguageIndex = 0;
     private const string PREF_LANGUAGE_INDEX = "SelectedLanguageIndex";
-
-    // Bayrak değişiminin çok hızlı olmasını engellemek için
     private bool isChangingLanguage = false;
 
     [System.Serializable]
@@ -57,9 +50,6 @@ public class MainMenuManager : MonoBehaviour
         public string languageCode;
     }
 
-    // =========================================================
-    // ✅ EKLENDİ: PLAYER TELEPORT START POINTS
-    // =========================================================
     [Header("--- PLAYER START POINTS ---")]
     [Tooltip("Player Play'e basınca bu noktalardan birine IŞINLANACAK. (Instantiate yok)")]
     public Transform[] playerStartPoints;
@@ -70,30 +60,20 @@ public class MainMenuManager : MonoBehaviour
     [Tooltip("Eğer player NavMeshAgent kullanıyorsa Warp denensin.")]
     public bool warpNavMeshAgentIfExists = true;
 
-    // Start fonksiyonu hem Localization'ı bekler hem de Restart kontrolü yapar
     private IEnumerator Start()
     {
-        // 1. Localization sisteminin hazır olmasını bekle
         yield return LocalizationSettings.InitializationOperation;
 
-        // 2. Kayıtlı dili yükle
         LoadLanguageSettings();
 
-        // =========================================================
-        // RESTART MANTIĞI BURADA DEVREYE GİRİYOR
-        // =========================================================
         if (RestartIstendi)
         {
             RestartIstendi = false;
-
-            KillCounterUI.Instance?.ResetKills(); // 🔥 EKLE
-
+            KillCounterUI.Instance?.ResetKills();
             OnPlayClicked();
         }
-
         else
         {
-            // Normal açılış (Oyun ilk açıldığında veya menüye dönüldüğünde)
             gameWorldContainer.SetActive(false);
             if (cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
             if (menuCameraObj != null) menuCameraObj.SetActive(true);
@@ -102,19 +82,13 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    // =================================================
-    //              DİL SİSTEMİ
-    // =================================================
-
     private void LoadLanguageSettings()
     {
-        // Kayıt yoksa 0 (Varsayılan) döner.
         currentLanguageIndex = PlayerPrefs.GetInt(PREF_LANGUAGE_INDEX, 0);
 
         if (languages.Count > 0 && currentLanguageIndex >= languages.Count)
             currentLanguageIndex = 0;
 
-        // Hem UI'ı güncelle hem de Unity'nin dilini değiştir
         UpdateLanguageUI();
         StartCoroutine(SetLocale(currentLanguageIndex));
     }
@@ -124,18 +98,13 @@ public class MainMenuManager : MonoBehaviour
         if (languages.Count == 0 || isChangingLanguage) return;
 
         currentLanguageIndex++;
-
         if (currentLanguageIndex >= languages.Count)
             currentLanguageIndex = 0;
 
-        // Kaydet
         PlayerPrefs.SetInt(PREF_LANGUAGE_INDEX, currentLanguageIndex);
         PlayerPrefs.Save();
 
-        // Görünümü güncelle
         UpdateLanguageUI();
-
-        // Asıl Dili Değiştir (Localization)
         StartCoroutine(SetLocale(currentLanguageIndex));
     }
 
@@ -152,22 +121,16 @@ public class MainMenuManager : MonoBehaviour
             languageNameText.text = currentLang.languageName;
     }
 
-    // Unity Localization Paketine "Dili Değiştir" emrini veren fonksiyon
     IEnumerator SetLocale(int _index)
     {
         isChangingLanguage = true;
 
-        // Listemizdeki dil kodunu alıyoruz
         string targetCode = languages[_index].languageCode;
-
-        // Localization sistemindeki uygun dili buluyoruz
         var locale = LocalizationSettings.AvailableLocales.GetLocale(targetCode);
 
-        // Eğer bulamazsa index sırasına göre deniyoruz
         if (locale == null)
             locale = LocalizationSettings.AvailableLocales.Locales[_index];
 
-        // Dili değiştiriyoruz
         LocalizationSettings.SelectedLocale = locale;
 
         yield return null;
@@ -176,15 +139,16 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log("Dil değiştirildi: " + locale.Identifier.Code);
     }
 
-    // =================================================
-    //              DİĞER FONKSİYONLAR
-    // =================================================
     public void OnDiscordClicked() { Application.OpenURL(discordLink); }
     public void OnYoutubeClicked() { Application.OpenURL(youtubeLink); }
 
     public void OnPlayClicked()
     {
-        // 🔥 Kill sıfırla
+        // ✅ KRİTİK: Silah seçimi gelene kadar oyunu durdur
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         KillCounterUI.Instance?.ResetKills();
 
         mainMenuPanel.SetActive(false);
@@ -196,14 +160,12 @@ public class MainMenuManager : MonoBehaviour
         if (menuCameraObj != null) menuCameraObj.SetActive(false);
         if (cmBrainCameraObj != null) cmBrainCameraObj.SetActive(true);
 
-        // ✅ EKLENDİ: PLAY'e basınca player'ı belirlediğin noktalardan birine teleport et
         TeleportPlayerToRandomStartPoint();
 
         if (generateMapOnPlay && mapGeneratorScript != null)
             mapGeneratorScript.SendMessage("GenerateMap", SendMessageOptions.DontRequireReceiver);
     }
 
-    // ✅ EKLENDİ
     private void TeleportPlayerToRandomStartPoint()
     {
         if (playerStartPoints == null || playerStartPoints.Length == 0)
@@ -219,7 +181,6 @@ public class MainMenuManager : MonoBehaviour
             return;
         }
 
-        // Null olmayan start noktalarını filtrele
         List<Transform> valid = new List<Transform>(playerStartPoints.Length);
         for (int i = 0; i < playerStartPoints.Length; i++)
         {
@@ -234,7 +195,6 @@ public class MainMenuManager : MonoBehaviour
 
         Transform chosen = valid[Random.Range(0, valid.Count)];
 
-        // Eğer NavMeshAgent varsa Warp daha temiz (havada yürüme/geri çekilme buglarını azaltır)
         if (warpNavMeshAgentIfExists)
         {
             NavMeshAgent agent = playerObj.GetComponent<NavMeshAgent>();
@@ -249,11 +209,9 @@ public class MainMenuManager : MonoBehaviour
             }
         }
 
-        // Normal teleport
         playerObj.transform.position = chosen.position;
         playerObj.transform.rotation = chosen.rotation;
 
-        // Rigidbody varsa hızları sıfırla (teleport sonrası kayma olmasın)
         Rigidbody rb = playerObj.GetComponent<Rigidbody>();
         if (rb == null) rb = playerObj.GetComponentInChildren<Rigidbody>();
         if (rb != null)
@@ -287,12 +245,11 @@ public class MainMenuManager : MonoBehaviour
         if (cmBrainCameraObj != null) cmBrainCameraObj.SetActive(false);
         if (menuCameraObj != null) menuCameraObj.SetActive(true);
         mainMenuPanel.SetActive(true);
-        // 🔥 Leaderboard tekrar çek
+
         if (SteamManager.Initialized && SteamLeaderboardManager.Instance != null)
         {
             SteamLeaderboardManager.Instance.DownloadTop10();
         }
-
     }
 
     private void ShowMainMenu()
@@ -301,7 +258,6 @@ public class MainMenuManager : MonoBehaviour
         settingsPanel.SetActive(false);
         multiplayerPanel.SetActive(false);
 
-        // 🎯 Steam Leaderboard çek
         if (SteamManager.Initialized && SteamLeaderboardManager.Instance != null)
         {
             SteamLeaderboardManager.Instance.DownloadTop10();
